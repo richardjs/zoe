@@ -11,8 +11,8 @@ enum Player {P1=0, P2};
 
 #define PLAYER_PIECES 11
 #define MAX_PIECES (PLAYER_PIECES * NUM_PLAYERS)
-// The +2 is to give a buffer for wrapping if every piece is placed in a line
-#define GRID_SIZE (MAX_PIECES + 2)
+// Larger than what we need (24), but lets uint8_t wrap around automatically
+#define GRID_SIZE 256
 
 
 #define NUM_PIECETYPES 5
@@ -42,8 +42,8 @@ enum PieceType {ANT=0, BEETLE, GRASSHOPPER, SPIDER, QUEEN_BEE};
 
 
 struct Coords {
-    int8_t q;
-    int8_t r;
+    uint8_t q;
+    uint8_t r;
 };
 
 

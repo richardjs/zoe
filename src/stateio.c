@@ -11,18 +11,6 @@ void State_translate_grid(struct State *state, int8_t q, int8_t r) {
             struct Piece *piece = &state->pieces[p][i];
             piece->coords.q += q;
             piece->coords.r += r;
-            while (piece->coords.q < 0) {
-                piece->coords.q += GRID_SIZE;
-            }
-            while (piece->coords.q >= GRID_SIZE) {
-                piece->coords.q -= GRID_SIZE;
-            }
-            while (piece->coords.r < 0) {
-                piece->coords.r += GRID_SIZE;
-            }
-            while (piece->coords.r >= GRID_SIZE) {
-                piece->coords.r -= GRID_SIZE;
-            }
         }
     }
     State_derive(state);
