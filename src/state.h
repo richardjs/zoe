@@ -17,8 +17,11 @@ enum Player {P1=0, P2};
 
 #define NUM_PIECETYPES 5
 enum PieceType {ANT=0, BEETLE, GRASSHOPPER, SPIDER, QUEEN_BEE};
-const int PIECE_COUNT[] = {3, 2, 3, 2, 1};
-
+#define NUM_ANTS 3
+#define NUM_BEETLES 2
+#define NUM_GRASSHOPPERS 3
+#define NUM_SPIDERS 2
+#define NUM_QUEEN_BEES 1
 
 // Way-high estimate for max actions
 // An ant on the end of a line of all pieces (greatest surface area)
@@ -45,17 +48,19 @@ struct Coords {
 
 
 struct Action {
-    struct Coord from;
-    struct Coord to;
+    struct Coords from;
+    struct Coords to;
 };
+
+// If PLACE_BIT set in Action.from, it means the action is a place,
+// with the type being (Action.from ^ PLACE_BIT)
+#define PLACE_BIT (2 << 7)
 
 
 struct Piece {
     enum PieceType type;
     enum Player player;
-
     struct Coords coords;
-    
     // Points to a beetle on top of the piece
     struct Piece *on_top;
 };
@@ -69,11 +74,14 @@ struct State {
 
     // Derived information
     struct Piece *grid[GRID_SIZE][GRID_SIZE];
-    uint_fast8_t hand[NUM_PLAYERS][NUM_PIECETYPES];
 
     struct Action *actions[MAX_ACTIONS];
     uint_fast8_t action_count;
 };
+
+
+void State_new(struct State *state);
+void State_derive(struct State *state);
 
 
 #endif
