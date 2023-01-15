@@ -7,6 +7,7 @@
 #include "state.h"
 
 
+void State_normalize(struct State *state);
 void State_print(const struct State *state, FILE *stream);
 
 

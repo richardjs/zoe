@@ -4,6 +4,9 @@
 
 
 void State_derive_grid(struct State *state) {
+    // TODO Is there a better way to handle cleaning stale data here?
+    memset(state->grid, 0, sizeof(struct Piece*) * GRID_SIZE * GRID_SIZE);
+
     for (int p = 0; p < NUM_PLAYERS; p++) {
         for (int i = 0; i < state->piece_count[p]; i++) {
             struct Piece *piece = &state->pieces[p][i];

@@ -42,8 +42,8 @@ enum PieceType {ANT=0, BEETLE, GRASSHOPPER, SPIDER, QUEEN_BEE};
 
 
 struct Coords {
-    uint8_t q;
-    uint8_t r;
+    int8_t q;
+    int8_t r;
 };
 
 
