@@ -11,11 +11,9 @@ int main(int argc, char *argv[]) {
     {
         State_new(&state);
         state.pieces[P1][state.piece_count[P1]].type = SPIDER;
-        state.pieces[P1][state.piece_count[P1]].player = P1;
         state.pieces[P1][state.piece_count[P1]].coords.q = 0;
         state.pieces[P1][state.piece_count[P1]++].coords.r = 1;
         state.pieces[P2][state.piece_count[P2]].type = GRASSHOPPER;
-        state.pieces[P2][state.piece_count[P2]].player = P2;
         state.pieces[P2][state.piece_count[P2]].coords.q = 1;
         state.pieces[P2][state.piece_count[P2]++].coords.r = 0;
         State_derive(&state);
@@ -33,12 +31,10 @@ int main(int argc, char *argv[]) {
         State_new(&state);
         struct Piece *p1_piece = &state.pieces[P1][state.piece_count[P1]++];
         p1_piece->type = SPIDER;
-        p1_piece->player = P1;
         p1_piece->coords.q = 0;
         p1_piece->coords.r = 10;
         struct Piece *p2_piece = &state.pieces[P2][state.piece_count[P2]++];
         p2_piece->type = SPIDER;
-        p2_piece->player = P2;
         p2_piece->coords.q = GRID_SIZE - 1;
         p2_piece->coords.r = 10;
         State_derive(&state);

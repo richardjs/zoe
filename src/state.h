@@ -58,11 +58,14 @@ struct Action {
 
 
 struct Piece {
+    // Core information
     enum PieceType type;
-    enum Player player;
     struct Coords coords;
     // Points to a beetle on top of the piece
     struct Piece *on_top;
+
+    // Derived information
+    enum Player player;
 };
 
 
