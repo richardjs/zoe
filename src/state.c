@@ -45,4 +45,5 @@ void State_derive(struct State *state) {
 
 void State_new(struct State *state) {
     memset(state, 0, sizeof(struct State));
+    State_derive(state);
 }
