@@ -6,6 +6,12 @@
 #include "stateio.h"
 
 
+const char PIECE_CHAR[NUM_PLAYERS][NUM_PIECETYPES] = {
+    {'A', 'B', 'G', 'S', 'Q'},
+    {'a', 'b', 'g', 's', 'q'}
+};
+
+
 void State_translate_grid(struct State *state, int8_t q, int8_t r) {
     for (int p = 0; p < NUM_PLAYERS; p++) {
         for (int i = 0; i < state->piece_count[p]; i++) {
@@ -107,40 +113,41 @@ void State_print(const struct State *s, FILE *stream) {
     }
 
     for (int x = min_x; x <= max_x + 1; x+=2){
-        bool hex_here = grid[x][0];
+        bool here = grid[x][0];
         fputc(' ', stream);
-        fputc(hex_here ? '_' : ' ', stream);
-        fputc(hex_here ? '_' : ' ', stream);
+        fputc(here ? '_' : ' ', stream);
+        fputc(here ? '_' : ' ', stream);
         fputc(' ', stream);
     }
     fputc('\n', stream);
     for (int y = min_y; y <= max_y + 1; y+=2) {
         for (int x = min_x; x <= max_x + 1; x+=2) {
-            bool hex_here = grid[x][y];
-            bool hex_nw = x > 0 && y > 0 && grid[x-1][y-1];
-            bool hex_ne = x < max_x && y > 0 && grid[x+1][y-1];
-            bool hex_se = x < max_x && y < max_y && grid[x+1][y+1];
+            struct Piece *here = grid[x][y];
+            bool nw = x > 0 && y > 0 && grid[x-1][y-1];
+            bool ne = x < max_x && y > 0 && grid[x+1][y-1];
+            bool se = x < max_x && y < max_y && grid[x+1][y+1];
 
-            fputc(hex_here || hex_nw ? '/' : ' ', stream);
-            fputc(' ', stream); // TODO
-            fputc(' ', stream); // TODO
-            fputc(hex_here || hex_ne ? '\\' : ' ', stream);
-            fputc(hex_ne || hex_se ? '_' : ' ', stream);
-            fputc(hex_ne || hex_se ? '_' : ' ', stream);
+            fputc(here || nw ? '/' : ' ', stream);
+            fputc(' ', stream); // TODO beetles on top
+            fputc(here ? PIECE_CHAR[here->player][here->type] : ' ', stream);
+            fputc(here || ne ? '\\' : ' ', stream);
+            fputc(ne || se ? '_' : ' ', stream); // TODO beetles on top
+            fputc(ne || se ? '_' : ' ', stream); // TODO beetles on top
         }
         fputc('\n', stream);
         for (int x = min_x; x <= max_x + 1; x+=2){
-            bool hex_here = grid[x][y];
-            bool hex_sw = x > 0 && y < max_y && grid[x-1][y+1];
-            bool hex_s = y+2 <= max_y && grid[x][y+2];
-            bool hex_se = x < max_x && y < max_y && grid[x+1][y+1];
+            bool here = grid[x][y];
+            bool sw = x > 0 && y < max_y && grid[x-1][y+1];
+            bool s = y+2 <= max_y && grid[x][y+2];
+            struct Piece *se = x < max_x && y < max_y && grid[x+1][y+1] ?
+                grid[x+1][y+1] : NULL;
 
-            fputc(hex_here || hex_sw ? '\\' : ' ', stream);
-            fputc(hex_here || hex_s ? '_' : ' ', stream);
-            fputc(hex_here || hex_s ? '_' : ' ', stream);
-            fputc(hex_here || hex_se ? '/' : ' ', stream);
-            fputc(' ', stream); // TODO
-            fputc(' ', stream); // TODO
+            fputc(here || sw ? '\\' : ' ', stream);
+            fputc(here || s ? '_' : ' ', stream); // TODO beetles on top
+            fputc(here || s ? '_' : ' ', stream); // TODO beetles on top
+            fputc(here || se ? '/' : ' ', stream);
+            fputc(' ', stream); // TODO beetles on top
+            fputc(se ? PIECE_CHAR[se->player][se->type] : ' ', stream);
         }
         fputc('\n', stream);
     }
