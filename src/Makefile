@@ -1,4 +1,4 @@
-CFLAGS=-std=c99 -Wall -O3
+CFLAGS=-std=c17 -Wall -O3
 
 objects=state.o stateio.o
 
