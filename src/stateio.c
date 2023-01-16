@@ -14,6 +14,10 @@ const char PIECE_CHAR[NUM_PLAYERS][NUM_PIECETYPES] = {
     {'a', 'b', 'g', 's', 'q'}
 };
 
+char Piece_char(const struct Piece *piece) {
+    return PIECE_CHAR[piece->player][piece->type];
+}
+
 
 void State_translate_grid(struct State *state, int8_t q, int8_t r) {
     for (int p = 0; p < NUM_PLAYERS; p++) {
@@ -99,15 +103,14 @@ void State_print(const struct State *s, FILE *stream) {
     int max_x = 0;
     int min_y = GRID_SIZE - 2;
     int max_y = 0;
-    for (int p = 0; p < NUM_PLAYERS; p++) {
-        for (int i = 0; i < state.piece_count[p]; i++) {
-            struct Piece *piece = &state.pieces[p][i];
-
+    for (int q = 0; q < GRID_SIZE; q++) {
+        for (int r = 0; r < GRID_SIZE; r++) {
             // https://www.redblobgames.com/grids/hexagons/#conversions-doubled
-            int x = piece->coords.q;
-            int y = 2*piece->coords.r + piece->coords.q;
-            grid[x][y] = piece;
+            int x = q;
+            int y = 2*r + q;
+            grid[x][y] = state.grid[q][r];
 
+            if (!grid[x][y]) continue;
             if (x < min_x) min_x = x;
             if (x > max_x) max_x = x;
             if (y < min_y) min_y = y;
@@ -132,7 +135,7 @@ void State_print(const struct State *s, FILE *stream) {
 
             fputc(here || nw ? '/' : ' ', stream);
             fputc(' ', stream); // TODO beetles on top
-            fputc(here ? PIECE_CHAR[here->player][here->type] : ' ', stream);
+            fputc(here ? Piece_char(here) : ' ', stream);
             fputc(here || ne ? '\\' : ' ', stream);
             fputc(ne || se ? '_' : ' ', stream); // TODO beetles on top
             fputc(ne || se ? '_' : ' ', stream); // TODO beetles on top
@@ -149,7 +152,7 @@ void State_print(const struct State *s, FILE *stream) {
             fputc(here || s ? '_' : ' ', stream); // TODO beetles on top
             fputc(here || se ? '/' : ' ', stream);
             fputc(' ', stream); // TODO beetles on top
-            fputc(se ? PIECE_CHAR[se->player][se->type] : ' ', stream);
+            fputc(se ? Piece_char(se) : ' ', stream);
         }
         fputc('\n', stream);
     }

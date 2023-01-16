@@ -13,13 +13,22 @@ void State_derive_piece_players(struct State *state) {
 
 
 void State_derive_grid(struct State *state) {
-    // TODO Is there a better way to handle cleaning stale data here?
     memset(state->grid, 0, sizeof(struct Piece*) * GRID_SIZE * GRID_SIZE);
 
     for (int p = 0; p < NUM_PLAYERS; p++) {
         for (int i = 0; i < state->piece_count[p]; i++) {
             struct Piece *piece = &state->pieces[p][i];
+
+            struct Piece *p = state->grid[piece->coords.q][piece->coords.r];
+            while (p && p->on_top) {
+                if (p->on_top == piece) {
+                    goto skip;
+                }
+                p = p->on_top;
+            }
+
             state->grid[piece->coords.q][piece->coords.r] = piece;
+            skip:
         }
     }
 }
