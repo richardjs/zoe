@@ -7,6 +7,7 @@
 #include "errorcodes.h"
 #include "state.h"
 #include "stateio.h"
+#include "stateutil.h"
 
 
 const char PIECE_CHAR[NUM_PLAYERS][NUM_PIECETYPES] = {
@@ -127,31 +128,46 @@ void State_print(const struct State *s, FILE *stream) {
     }
     fputc('\n', stream);
     for (int y = min_y; y <= max_y + 1; y += 2) {
+        // Hexes take up two terminal lines
+        // Line 1
         for (int x = min_x; x <= max_x + 1; x += 2) {
             struct Piece *here = grid[x][y];
-            bool nw = x > 0 && y > 0 && grid[x-1][y-1];
-            bool ne = x < max_x && y > 0 && grid[x+1][y-1];
+            struct Piece *nw = (x > 0 && y > 0) ? grid[x-1][y-1] : NULL;
+            struct Piece *ne = (x < max_x && y > 0) ? grid[x+1][y-1] : NULL;
             bool se = x < max_x && y < max_y && grid[x+1][y+1];
 
-            fputc(here || nw ? '/' : ' ', stream);
-            fputc(' ', stream); // TODO beetles on top
+            struct Piece *above_here[MAX_ABOVE];
+            Piece_pieces_above(here, above_here);
+            struct Piece *above_ne[MAX_ABOVE];
+            Piece_pieces_above(ne, above_ne);
+            struct Piece *above_nw[MAX_ABOVE];
+            Piece_pieces_above(nw, above_nw);
+
+            fputc(above_nw[3] ? Piece_char(above_nw[3]) : here || nw ? '/' : ' ', stream);
+            fputc(above_here[0] ? Piece_char(above_here[0]) : ' ', stream);
             fputc(here ? Piece_char(here) : ' ', stream);
             fputc(here || ne ? '\\' : ' ', stream);
-            fputc(ne || se ? '_' : ' ', stream); // TODO beetles on top
-            fputc(ne || se ? '_' : ' ', stream); // TODO beetles on top
+            fputc(above_ne[1] ? Piece_char(above_ne[1]) : ne || se ? '_' : ' ', stream);
+            fputc(above_ne[2] ? Piece_char(above_ne[2]) : ne || se ? '_' : ' ', stream);
         }
         fputc('\n', stream);
+        // Line 2
         for (int x = min_x; x <= max_x + 1; x += 2){
-            bool here = grid[x][y];
+            struct Piece *here = grid[x][y];
             bool sw = x > 0 && y < max_y && grid[x-1][y+1];
             bool s = y+2 <= max_y && grid[x][y+2];
-            struct Piece *se = x < max_x && y < max_y && grid[x+1][y+1] ? grid[x+1][y+1] : NULL;
+            struct Piece *se = (x < max_x && y < max_y) ? grid[x+1][y+1] : NULL;
+
+            struct Piece *above_here[MAX_ABOVE];
+            Piece_pieces_above(here, above_here);
+            struct Piece *above_se[MAX_ABOVE];
+            Piece_pieces_above(se, above_se);
 
             fputc(here || sw ? '\\' : ' ', stream);
-            fputc(here || s ? '_' : ' ', stream); // TODO beetles on top
-            fputc(here || s ? '_' : ' ', stream); // TODO beetles on top
-            fputc(here || se ? '/' : ' ', stream);
-            fputc(' ', stream); // TODO beetles on top
+            fputc(above_here[1] ? Piece_char(above_here[1]) : here || s ? '_' : ' ', stream);
+            fputc(above_here[2] ? Piece_char(above_here[2]) : here || s ? '_' : ' ', stream);
+            fputc(above_here[3] ? Piece_char(above_here[3]) : here || se ? '/' : ' ', stream);
+            fputc(above_se[0] ? Piece_char(above_se[0]) : ' ', stream);
             fputc(se ? Piece_char(se) : ' ', stream);
         }
         fputc('\n', stream);

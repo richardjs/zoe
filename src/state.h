@@ -6,23 +6,18 @@
 
 
 #define NUM_PLAYERS 2
-enum Player {P1=0, P2};
-
 
 #define PLAYER_PIECES 11
 #define MAX_PIECES (PLAYER_PIECES * NUM_PLAYERS)
 // Larger than what we need (24), but lets uint8_t wrap around automatically
 #define GRID_SIZE 256
 
-
 #define NUM_PIECETYPES 5
-enum PieceType {ANT=0, BEETLE, GRASSHOPPER, SPIDER, QUEEN_BEE};
 #define NUM_ANTS 3
 #define NUM_BEETLES 2
 #define NUM_GRASSHOPPERS 3
 #define NUM_SPIDERS 2
 #define NUM_QUEEN_BEES 1
-
 
 /* Way-high estimate for max actions:
  * An ant on the end of a line of all pieces (greatest surface area)
@@ -42,6 +37,17 @@ enum PieceType {ANT=0, BEETLE, GRASSHOPPER, SPIDER, QUEEN_BEE};
  */
 #define MAX_ACTIONS 313
 
+#define MAX_ABOVE (NUM_PLAYERS*NUM_BEETLES)
+#define MAX_STACK_SIZE (1 MAX_STACK_SIZE)
+
+// If PLACE_BIT is set in Action.from, it means the action is a place,
+// with PieceType = (Action.from ^ PLACE_BIT)
+#define PLACE_BIT (2 << 7)
+
+
+enum Player {P1=0, P2};
+enum PieceType {ANT=0, BEETLE, GRASSHOPPER, SPIDER, QUEEN_BEE};
+
 
 struct Coords {
     uint8_t q;
@@ -53,10 +59,6 @@ struct Action {
     struct Coords from;
     struct Coords to;
 };
-
-// If PLACE_BIT is set in Action.from, it means the action is a place,
-// with PieceType = (Action.from ^ PLACE_BIT)
-#define PLACE_BIT (2 << 7)
 
 
 struct Piece {

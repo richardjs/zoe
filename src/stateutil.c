@@ -1,23 +1,23 @@
-#include <stdint.h>
+#include <string.h>
 
 #include "state.h"
+#include <stdio.h>
 
 
-unsigned int Piece_num_above(const struct Piece *piece) {
-    unsigned int n = 0;
+void Piece_pieces_above(const struct Piece *piece, struct Piece *above[]) {
     const struct Piece *p = piece;
-    while (p->on_top) {
-        n += 1;
+    memset(above, 0, sizeof(struct Piece *) * MAX_ABOVE);
+
+    if (!piece) {
+        return;
+    }
+
+    for (int i = 0; i < MAX_ABOVE; i++) {
+        if (!p->on_top) {
+            return;
+        }
+
+        above[i] = p->on_top;
         p = p->on_top;
     }
-    return n;
-}
-
-
-struct Piece *Piece_above(const struct Piece *piece, unsigned int n) {
-    struct Piece *p = (struct Piece *)piece;
-    for (int i = 0; i < n; i++) {
-        p = p->on_top;
-    }
-    return p;
 }

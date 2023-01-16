@@ -7,13 +7,10 @@
 #define STATEUTL_H
 
 
-#include <stdint.h>
-
 #include "state.h"
 
 
-unsigned int Piece_num_above(const struct Piece *piece);
-struct Piece *Piece_above(const struct Piece *piece, unsigned int n);
+void Piece_pieces_above(const struct Piece *piece, struct Piece *above[]);
 
 
 #endif
