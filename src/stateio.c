@@ -90,8 +90,8 @@ void State_print(const struct State *s, FILE *stream) {
 
     // Convert to double-height coordinate space; see
     // https://www.redblobgames.com/grids/hexagons/#coordinates-doubled
-    struct Piece *grid[GRID_SIZE][GRID_SIZE];
-    memset(grid, 0, sizeof(struct Piece*) * GRID_SIZE * GRID_SIZE);
+    struct Piece *grid[GRID_SIZE][GRID_SIZE*3];
+    memset(grid, 0, sizeof(struct Piece*) * GRID_SIZE*GRID_SIZE*3);
     int min_x = GRID_SIZE - 2;
     int max_x = 0;
     int min_y = GRID_SIZE - 2;
@@ -139,8 +139,7 @@ void State_print(const struct State *s, FILE *stream) {
             bool here = grid[x][y];
             bool sw = x > 0 && y < max_y && grid[x-1][y+1];
             bool s = y+2 <= max_y && grid[x][y+2];
-            struct Piece *se = x < max_x && y < max_y && grid[x+1][y+1] ?
-                grid[x+1][y+1] : NULL;
+            struct Piece *se = x < max_x && y < max_y && grid[x+1][y+1] ? grid[x+1][y+1] : NULL;
 
             fputc(here || sw ? '\\' : ' ', stream);
             fputc(here || s ? '_' : ' ', stream); // TODO beetles on top
