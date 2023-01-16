@@ -54,6 +54,8 @@ int main(int argc, char *argv[]) {
                 p2_piece->coords.r
             );
         }
+
+        State_print(&state, stderr);
     }
 
     printf("Done\n");
