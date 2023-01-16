@@ -194,14 +194,31 @@ void State_from_string(struct State *state, const char string[]) {
         }
 
         struct Piece piece;
-
         if (!Piece_from_string(&piece, &string[i])) {
-            fprintf(stderr, "Error parsing piece at position %d in %s!", i, string);
+            fprintf(stderr, "Error parsing piece at position %d: %s\n", i, string);
             exit(ERROR_PIECE_PARSE);
         }
 
-        state->pieces[piece.player][state->piece_count[piece.player]++] = piece;
-        // TODO handle beetles on top of hive
+        state->pieces[piece.player][state->piece_count[piece.player]] = piece;
+        struct Piece *state_piece = &state->pieces[piece.player][state->piece_count[piece.player]++];
+
+        if (state->grid[piece.coords.q][piece.coords.r]) {
+            if (piece.type != BEETLE) {
+                fprintf(stderr,
+                    "Piece '%c' at coords (%c, %c) can't be on top of the hive: %s\n",
+                    string[i], string[i+1], string[i+2], string
+                );
+                exit(ERROR_ILLEGAL_PIECE_ON_HIVE);
+            }
+
+            struct Piece *p = state->grid[piece.coords.q][piece.coords.r];
+            while (p->on_top) {
+                p = p->on_top;
+            }
+            p->on_top = state_piece;
+        } else {
+            state->grid[piece.coords.q][piece.coords.r] = state_piece;
+        }
     }
 
     state->turn = string[i] - '1';
