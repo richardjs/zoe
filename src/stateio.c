@@ -1,7 +1,10 @@
+#include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "errorcodes.h"
 #include "state.h"
 #include "stateio.h"
 
@@ -112,7 +115,7 @@ void State_print(const struct State *s, FILE *stream) {
         }
     }
 
-    for (int x = min_x; x <= max_x + 1; x+=2){
+    for (int x = min_x; x <= max_x + 1; x += 2){
         bool here = grid[x][0];
         fputc(' ', stream);
         fputc(here ? '_' : ' ', stream);
@@ -120,8 +123,8 @@ void State_print(const struct State *s, FILE *stream) {
         fputc(' ', stream);
     }
     fputc('\n', stream);
-    for (int y = min_y; y <= max_y + 1; y+=2) {
-        for (int x = min_x; x <= max_x + 1; x+=2) {
+    for (int y = min_y; y <= max_y + 1; y += 2) {
+        for (int x = min_x; x <= max_x + 1; x += 2) {
             struct Piece *here = grid[x][y];
             bool nw = x > 0 && y > 0 && grid[x-1][y-1];
             bool ne = x < max_x && y > 0 && grid[x+1][y-1];
@@ -135,7 +138,7 @@ void State_print(const struct State *s, FILE *stream) {
             fputc(ne || se ? '_' : ' ', stream); // TODO beetles on top
         }
         fputc('\n', stream);
-        for (int x = min_x; x <= max_x + 1; x+=2){
+        for (int x = min_x; x <= max_x + 1; x += 2){
             bool here = grid[x][y];
             bool sw = x > 0 && y < max_y && grid[x-1][y+1];
             bool s = y+2 <= max_y && grid[x][y+2];
@@ -150,4 +153,58 @@ void State_print(const struct State *s, FILE *stream) {
         }
         fputc('\n', stream);
     }
+}
+
+
+bool Piece_from_string(struct Piece *piece, const char string[]) {
+    memset(piece, 0, sizeof(struct Piece));
+
+    for (int p = 0; p < NUM_PLAYERS; p++) {
+        for (int t = 0; t < NUM_PIECETYPES; t++) {
+            if (string[0] == PIECE_CHAR[p][t]) {
+                piece->player = p;
+                piece->type = t;
+                goto type_parse_success;
+            }
+        }
+    }
+
+    return false;
+
+    type_parse_success:
+
+    piece->coords.q = tolower(string[1]) - 'a';
+    piece->coords.r = tolower(string[2]) - 'a';
+
+    return piece->coords.q < MAX_PIECES && piece->coords.r < MAX_PIECES;
+}
+
+
+void State_from_string(struct State *state, const char string[]) {
+    State_new(state);
+
+    if (!string[0]) {
+        return;
+    }
+
+    int i;
+    for (i = 0; i < STATE_STRING_SIZE; i += 3) {
+        if (string[i] - '1' < NUM_PLAYERS) {
+            break;
+        }
+
+        struct Piece piece;
+
+        if (!Piece_from_string(&piece, &string[i])) {
+            fprintf(stderr, "Error parsing piece at position %d in %s!", i, string);
+            exit(ERROR_PIECE_PARSE);
+        }
+
+        state->pieces[piece.player][state->piece_count[piece.player]++] = piece;
+        // TODO handle beetles on top of hive
+    }
+
+    state->turn = string[i] - '1';
+
+    State_derive(state);
 }

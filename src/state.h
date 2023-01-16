@@ -75,6 +75,7 @@ struct State {
     // Core information
     struct Piece pieces[NUM_PLAYERS][PLAYER_PIECES];
     uint_fast8_t piece_count[NUM_PLAYERS];
+
     enum Player turn;
 
     // Derived information

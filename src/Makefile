@@ -10,7 +10,7 @@ run-test: test
 
 
 state.o: state.h
-stateio.o: state.h stateio.h
+stateio.o: errorcodes.h state.h stateio.h
 
 
 clean:

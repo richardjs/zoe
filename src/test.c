@@ -54,7 +54,12 @@ int main(int argc, char *argv[]) {
                 p2_piece->coords.r
             );
         }
+    }
 
+    // State deserialization
+    {
+        char state_string[] = "qaaQababbAca1";
+        State_from_string(&state, state_string);
         State_print(&state, stderr);
     }
 
