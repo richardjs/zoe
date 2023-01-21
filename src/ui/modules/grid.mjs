@@ -3,26 +3,81 @@ import { HEX_SIZE } from './hex.mjs';
 import { Piece } from './piece.mjs';
 
 
+const MAX_PIECES = 22;
+
+
 export class Grid {
-    render(ctx) {
-        for (let x = 0; x < 10; x+=2) {
-            for (let y = 0; y < 10; y += 2) {
+    constructor(state) {
+        this.grid = [];
+
+        this.minX = MAX_PIECES;
+        this.maxX = 0;
+        this.minY = MAX_PIECES;
+        this.maxY = 0;
+
+        for (let i = 0; i + 2 < state.length; i += 3) {
+            let piece = Piece.fromChar(state[i]);
+            let q = state[i+1].charCodeAt(0) - 'a'.charCodeAt(0);
+            let r = state[i+2].charCodeAt(0) - 'a'.charCodeAt(0);
+            // HERE convert to x,y and store for render to use
+
+            let x = q;
+            let y = 2*r + q;
+
+            if (this.grid[x] === undefined) {
+                this.grid[x] = [];
+            }
+            this.grid[x][y] = piece;
+
+            this.minX = Math.min(this.minX, x);
+            this.maxX = Math.max(this.maxX, x);
+            this.minY = Math.min(this.minY, y);
+            this.maxY = Math.max(this.maxY, y);
+        }
+    }
+
+    render() {
+        let gridWidth = this.maxX - this.minX + 1;
+        let gridHeight = this.maxY - this.minY + 1;
+
+        let canvas = document.createElement('canvas');
+
+        canvas.width = 2*HEX_SIZE + 1.5*HEX_SIZE*(gridWidth - 1);
+        canvas.height = HEX_SIZE*Math.sqrt(3) + .5*HEX_SIZE*Math.sqrt(3)*(gridHeight - 1);
+
+        let ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = 'black';
+        ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+        for (let x = 0; x < MAX_PIECES; x+=2) {
+            for (let y = 0; y < MAX_PIECES; y += 2) {
                 ctx.save();
 
                 ctx.translate(
-                   HEX_SIZE + x*1.5*HEX_SIZE,
-                   .5*HEX_SIZE*Math.sqrt(3) + y*.5*HEX_SIZE*Math.sqrt(3)
+                    HEX_SIZE + (x - this.minX)*1.5*HEX_SIZE,
+                    .5*HEX_SIZE*Math.sqrt(3) + (y - this.minY)*.5*HEX_SIZE*Math.sqrt(3)
                 );
-                new Piece(Math.random() > .5 ? Player.P1 : Player.P2, Type.Ant).render(ctx);
+
+                if (this.grid[x] && this.grid[x][y] ) {
+                    let piece = this.grid[x][y];
+                    new Piece(piece.player, piece.type).render(ctx);
+                }
 
                 ctx.translate(
                     1.5*HEX_SIZE,
                     .5*HEX_SIZE*Math.sqrt(3)
                 );
-                new Piece(Player.P1, Type.Ant).render(ctx);
+
+                if (this.grid[x+1] && this.grid[x+1][y+1]) {
+                    let piece = this.grid[x+1][y+1];
+                    new Piece(piece.player, piece.type).render(ctx);
+                }
 
                 ctx.restore();
             }
         }
+
+        return canvas;
     }
 }

@@ -1,4 +1,5 @@
 import { Colors } from './colors.mjs';
+import { Player, Type } from './enum.mjs';
 import { HEX } from './hex.mjs';
 
 
@@ -10,6 +11,20 @@ export class Piece {
     constructor(player, type) {
         this.player = player;
         this.type = type;
+    }
+
+    static fromChar(c) {
+        let player = (c === c.toUpperCase()) ? Player.P1 : Player.P2;
+
+        let type = {
+            'a': Type.Ant,
+            'b': Type.Beetle,
+            'g': Type.Grasshopper,
+            'q': Type.QueenBee,
+            's': Type.Spider
+        }[c.toLowerCase()];
+
+        return new Piece(player, type);
     }
 
     render(ctx) {
