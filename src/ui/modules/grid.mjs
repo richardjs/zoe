@@ -19,7 +19,6 @@ export class Grid {
             let piece = Piece.fromChar(state[i]);
             let q = state[i+1].charCodeAt(0) - 'a'.charCodeAt(0);
             let r = state[i+2].charCodeAt(0) - 'a'.charCodeAt(0);
-            // HERE convert to x,y and store for render to use
 
             let x = q;
             let y = 2*r + q;
