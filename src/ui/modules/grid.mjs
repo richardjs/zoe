@@ -27,7 +27,16 @@ export class Grid {
             if (this.grid[x] === undefined) {
                 this.grid[x] = [];
             }
-            this.grid[x][y] = piece;
+
+            if (!this.grid[x][y]) {
+                this.grid[x][y] = piece;
+            } else {
+                var p = this.grid[x][y];
+                while (p.on_top) {
+                    p = p.on_top
+                }
+                p.on_top = piece;
+            }
 
             this.minX = Math.min(this.minX, x);
             this.maxX = Math.max(this.maxX, x);
@@ -47,9 +56,6 @@ export class Grid {
 
         let ctx = canvas.getContext('2d');
 
-        ctx.fillStyle = 'black';
-        ctx.strokeRect(0, 0, canvas.width, canvas.height);
-
         for (let x = 0; x < MAX_PIECES; x+=2) {
             for (let y = 0; y < MAX_PIECES; y += 2) {
                 ctx.save();
@@ -61,7 +67,7 @@ export class Grid {
 
                 if (this.grid[x] && this.grid[x][y] ) {
                     let piece = this.grid[x][y];
-                    new Piece(piece.player, piece.type).render(ctx);
+                    piece.render(ctx);
                 }
 
                 ctx.translate(
@@ -71,7 +77,7 @@ export class Grid {
 
                 if (this.grid[x+1] && this.grid[x+1][y+1]) {
                     let piece = this.grid[x+1][y+1];
-                    new Piece(piece.player, piece.type).render(ctx);
+                    piece.render(ctx);
                 }
 
                 ctx.restore();

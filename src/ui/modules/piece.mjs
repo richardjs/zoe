@@ -4,13 +4,19 @@ import { HEX } from './hex.mjs';
 
 
 const GAP_SCALE = .95;
-const TYPE_SCALE = .85;
+const TYPE_SCALE = .75;
+
+// Applied with GAP_SCALE but not TYPE_SCALE
+const ON_TOP_SCALE = TYPE_SCALE;
+const ON_TOP_ROTATION = Math.PI/12;
 
 
 export class Piece {
     constructor(player, type) {
         this.player = player;
         this.type = type;
+
+        this.on_top = null;
     }
 
     static fromChar(c) {
@@ -29,7 +35,6 @@ export class Piece {
 
     render(ctx) {
         ctx.save()
-
         ctx.scale(GAP_SCALE, GAP_SCALE);
 
         ctx.fillStyle = Colors[this.player];
@@ -40,6 +45,17 @@ export class Piece {
         ctx.fillStyle = Colors[this.type];
         ctx.fill(HEX);
 
-        ctx.restore()
+        ctx.restore();
+
+        if (this.on_top) {
+            ctx.save();
+
+            ctx.scale(ON_TOP_SCALE, ON_TOP_SCALE);
+            ctx.rotate(ON_TOP_ROTATION);
+            this.on_top.render(ctx, true);
+
+            ctx.restore()
+        }
+
     }
 }
