@@ -15,6 +15,7 @@ const char PIECE_CHAR[NUM_PLAYERS][NUM_PIECETYPES] = {
     {'a', 'b', 'g', 's', 'q'}
 };
 
+
 char Piece_char(const struct Piece *piece) {
     return PIECE_CHAR[piece->player][piece->type];
 }
