@@ -85,6 +85,8 @@ struct State {
 
     struct Action *actions[MAX_ACTIONS];
     uint_fast8_t action_count;
+
+    uint_fast8_t hands[NUM_PLAYERS][NUM_PIECETYPES];
 };
 
 

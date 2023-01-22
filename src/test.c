@@ -138,6 +138,20 @@ int main(int argc, char *argv[]) {
     }
 
 
+    // Hands derivation
+    {
+        char state_string[STATE_STRING_SIZE] = "aacQbbScbsdaBdaqea1";
+        State_from_string(&state, state_string);
+
+        if (state.hands[P1][QUEEN_BEE] != 0
+                || state.hands[P2][SPIDER] != 1
+                || state.hands[P1][ANT] != 3
+                || state.hands[P2][ANT] != 2) {
+            printf("Hands not deriving correctly\n");
+        }
+    }
+
+
     printf("Done\n");
 
     return 0;

@@ -34,8 +34,25 @@ void State_derive_grid(struct State *state) {
 }
 
 
+void State_derive_hands(struct State *state) {
+    for (int p = 0; p < NUM_PLAYERS; p++) {
+        state->hands[p][ANT] = NUM_ANTS;
+        state->hands[p][BEETLE] = NUM_BEETLES;
+        state->hands[p][GRASSHOPPER] = NUM_GRASSHOPPERS;
+        state->hands[p][SPIDER] = NUM_SPIDERS;
+        state->hands[p][QUEEN_BEE] = NUM_QUEEN_BEES;
+
+        for (int i = 0; i < state->piece_count[p]; i++) {
+            state->hands[p][state->pieces[p][i].type]--;
+        }
+    }
+}
+
+
 void State_derive_actions(struct State *state) {
-    // TODO (heh)
+    // TODO places
+
+    // TODO moves
 }
 
 
@@ -48,6 +65,7 @@ void State_derive_actions(struct State *state) {
 void State_derive(struct State *state) {
     State_derive_piece_players(state);
     State_derive_grid(state);
+    State_derive_hands(state);
     State_derive_actions(state);
 }
 
