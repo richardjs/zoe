@@ -120,8 +120,16 @@ void State_print(const struct State *s, FILE *stream) {
         }
     }
 
+    // If an odd column is the highest, add an undraw row above it (that
+    // would have an even row as the highest). This is because the
+    // following code assumes hexes in odd columns will always have a
+    // hex to the northwest.
+    if (min_y % 2 == 1) {
+        min_y -= 1;
+    }
+
     for (int x = min_x; x <= max_x + 1; x += 2){
-        bool here = grid[x][0];
+        bool here = grid[x][min_y];
         fputc(' ', stream);
         fputc(here ? '_' : ' ', stream);
         fputc(here ? '_' : ' ', stream);

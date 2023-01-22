@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 
     // State deserialization
     {
-        char state_string[] = "qaaQabGbbbbbBbbbbbBbbAcabcaBcabcaBca1";
+        char state_string[] = "addQecSfcsgbBgbqhb1";
         State_from_string(&state, state_string);
         State_print(&state, stderr);
     }
