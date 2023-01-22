@@ -253,3 +253,33 @@ void State_from_string(struct State *state, const char string[]) {
 
     State_derive(state);
 }
+
+
+void State_to_string(const struct State *s, char string[]) {
+    struct State state = *s;
+    State_normalize(&state);
+
+    memset(string, 0, sizeof(char)*STATE_STRING_SIZE);
+    int c = 0;
+
+    for (int q = 0; q < GRID_SIZE; q += 1) {
+        for (int r = 0; r < GRID_SIZE; r += 1) {
+            if (!state.grid[q][r]) continue;
+
+            string[c++] = Piece_char(state.grid[q][r]);
+            string[c++] = 'a' + q;
+            string[c++] = 'a' + r;
+
+            struct Piece *p = state.grid[q][r]->on_top;
+            while (p) {
+                string[c++] = Piece_char(p);
+                string[c++] = 'a' + q;
+                string[c++] = 'a' + r;
+
+                p = p->on_top;
+            }
+        }
+    }
+
+    string[c++] = '1' + state.turn;
+}

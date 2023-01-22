@@ -1,11 +1,14 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "state.h"
 #include "stateio.h"
+#include "stateutil.h"
 
 
 int main(int argc, char *argv[]) {
     struct State state;
+
 
     // Grid derive
     {
@@ -25,6 +28,7 @@ int main(int argc, char *argv[]) {
             printf("grid[1][0] does not match state.pieces[P2][0]\n");
         }
     }
+
 
     // State normalizaiton
     {
@@ -56,12 +60,83 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // State deserialization
+
+    // Piece comparison
     {
-        char state_string[] = "addQecSfcsgbBgbqhb1";
-        State_from_string(&state, state_string);
-        State_print(&state, stderr);
+        struct Piece p1;
+        p1.type = GRASSHOPPER;
+        p1.coords.q = 3;
+        p1.coords.r = 5;
+        p1.player = P1;
+
+        struct Piece p2 = p1;
+
+        if (Piece_compare(&p1, &p2)) {
+            printf("Identical pieces compare as different\n");
+        }
+
+        p2.coords.r = 4;
+        if (!Piece_compare(&p1, &p2)) {
+            printf("Different pieces compare as identical\n");
+        }
+        p2.coords.r = 5;
+
+        struct Piece b1 = p1;
+        b1.type = BEETLE;
+        p1.on_top = &b1;
+        if (!Piece_compare(&p1, &b1)) {
+            printf("Piece and beetle on top of it compare as same\n");
+        }
+
+        if (!Piece_compare(&p1, &p2)) {
+            printf("Pieces compare as same with different pieces above them\n");
+        }
+
+        p2.on_top = &b1;
+        if (Piece_compare(&p1, &p2)) {
+            printf("Pieces compare as different when identical (with pieces above them\n");
+        }
     }
+
+
+    // State comparison
+    {
+        char state_string[STATE_STRING_SIZE] = "aacQbbScbsdaBdaqea1";
+        State_from_string(&state, state_string);
+
+        struct State other = state;
+
+        if (State_compare(&state, &other)) {
+            printf("Identical states compare differently\n");
+        }
+
+        other.pieces[P1][2].type = GRASSHOPPER;
+        if (!State_compare(&state, &other)) {
+            printf("Different states compare as same\n");
+        }
+    }
+
+
+    // State deserialization and serialization
+    {
+        char state_string[STATE_STRING_SIZE] = "aacQbbScbsdaBdaqea1";
+        State_from_string(&state, state_string);
+
+        char to_string[STATE_STRING_SIZE];
+        State_to_string(&state, to_string);
+
+        if (strncmp(state_string, to_string, STATE_STRING_SIZE)) {
+            printf("State deserializes and serializes to different string: %s %s\n", state_string, to_string);
+        }
+
+        struct State other;
+        State_from_string(&other, state_string);
+
+        if (State_compare(&state, &other)) {
+            printf("States deserialized from the same string compare as different\n");
+        }
+    }
+
 
     printf("Done\n");
 

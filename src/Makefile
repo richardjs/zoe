@@ -11,6 +11,7 @@ run-test: test
 
 state.o: state.h
 stateio.o: errorcodes.h state.h stateio.h stateutil.h
+test.o: state.h stateio.h stateutil.h
 
 
 clean:

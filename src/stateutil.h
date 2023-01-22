@@ -7,10 +7,18 @@
 #define STATEUTL_H
 
 
+#include <stdbool.h>
+
+
 #include "state.h"
 
 
 void Piece_pieces_above(const struct Piece *piece, struct Piece *above[]);
 
+// Following the basic interface of strcmp, these return true if a
+// difference is found, and false if the structs are (functionally)
+// identical. We can't just memcmp because of all the pointers.
+bool Piece_compare(const struct Piece *piece, const struct Piece *other);
+bool State_compare(const struct State *state, const struct State *other);
 
 #endif
