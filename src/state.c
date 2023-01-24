@@ -2,6 +2,12 @@
 
 #include "state.h"
 
+#ifdef CHECK_ACTIONS
+#include <stdbool.h>
+#include <stdio.h>
+#include "errorcodes.h"
+#endif
+
 
 void State_derive_piece_players(struct State *state) {
     for (int p = 0; p < NUM_PLAYERS; p++) {
@@ -66,13 +72,16 @@ void State_derive_actions(struct State *state) {
     }
     // P2 start actions
     if (state->piece_count[P2] == 0) {
-        for (int t =0; t < NUM_PIECETYPES; t++ ) {
+        for (int t = 0; t < NUM_PIECETYPES; t++ ) {
             if (t == QUEEN_BEE) continue;
 
-            state->actions[state->action_count].from.q = PLACE_ACTION;
-            state->actions[state->action_count].from.r = t;
-            state->actions[state->action_count].to.q = 0;
-            state->actions[state->action_count++].to.r = 0;
+            for (int d = 0; d < NUM_DIRECTIONS; d++) {
+                state->actions[state->action_count].from.q = PLACE_ACTION;
+                state->actions[state->action_count].from.r = t;
+                state->actions[state->action_count].to.q = 0;
+                state->actions[state->action_count].to.r = 0;
+                Coords_move(&state->actions[state->action_count].to, d);
+            }
         }
 
         return;
@@ -101,4 +110,41 @@ void State_derive(struct State *state) {
 void State_new(struct State *state) {
     memset(state, 0, sizeof(struct State));
     State_derive(state);
+}
+
+
+void State_act(struct State *state, const struct Action *action) {
+    #ifdef CHECK_ACTIONS
+    bool valid_action = false;
+    for (int i = 0; i < state->action_count; i++) {
+        if (!memcmp(&state->actions[i], action, sizeof(struct Action))) {
+            valid_action = true;
+            break;
+        }
+    }
+    if (!valid_action) {
+        fprintf(stderr, "Illegal action!\n");
+        exit(ERROR_ILLEGAL_ACTION);
+    }
+    #endif
+
+    if (action->from.q == PLACE_ACTION) {
+        struct Piece *piece =
+            &state->pieces[state->turn][state->piece_count[state->turn]];
+        piece->type = action->from.r;
+        piece->coords.q = action->to.q;
+        piece->coords.r = action->to.r;
+        piece->player = state->turn;;
+
+        state->grid[action->to.q][action->to.r] = piece;
+
+        state->piece_count[state->turn]++;
+        state->hands[state->turn][piece->type]--;
+
+        state->turn = !state->turn;
+
+        State_derive_actions(state);
+
+        return;
+    }
 }

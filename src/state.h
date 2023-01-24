@@ -88,5 +88,7 @@ struct State {
 void State_new(struct State *state);
 void State_derive(struct State *state);
 
+void State_act(struct State *state, const struct Action *action);
+
 
 #endif
