@@ -52,7 +52,7 @@ void State_derive_hands(struct State *state) {
 void State_derive_actions(struct State *state) {
     state->action_count = 0;
 
-    // P1 place actions
+    // P1 start actions
     if (state->piece_count[P1] == 0) {
         for (int t = 0; t < NUM_PIECETYPES; t++) {
             if (t == QUEEN_BEE) continue;
@@ -65,6 +65,20 @@ void State_derive_actions(struct State *state) {
 
         return;
     }
+    // P2 start actions
+    if (state->piece_count[P2] == 0) {
+        for (int t =0; t < NUM_PIECETYPES; t++ ) {
+            if (t == QUEEN_BEE) continue;
+
+            state->actions[state->action_count].from.q = PLACE_ACTION;
+            state->actions[state->action_count].from.r = t;
+            state->actions[state->action_count].to.q = 0;
+            state->actions[state->action_count++].to.r = 0;
+        }
+
+        return;
+    }
+
     // TODO places
 
     // TODO moves

@@ -5,7 +5,8 @@
 #include <stdint.h>
 
 
-enum Direction {NORTH, NORTHEAST, SOUTHEAST, SOUTH, SOUTHWEST, NORTHWEST};
+#define NUM_DIRECTIONS 6
+enum Direction {NORTH=0, NORTHEAST, SOUTHEAST, SOUTH, SOUTHWEST, NORTHWEST};
 
 
 struct Coords {
@@ -14,7 +15,7 @@ struct Coords {
 };
 
 
-void Coords_go(struct Coords *coords, enum Direction);
+void Coords_go(struct Coords *coords, enum Direction direction);
 
 
 #endif
