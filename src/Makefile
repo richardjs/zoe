@@ -11,7 +11,7 @@ run-test: test
 
 coords.o: coords.h state.h
 state.o: coords.h state.h
-stateio.o: errorcodes.h state.h stateio.h stateutil.h
+stateio.o: coords.h errorcodes.h state.h stateio.h stateutil.h
 test.o: state.h stateio.h stateutil.h
 
 

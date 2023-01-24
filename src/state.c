@@ -18,7 +18,6 @@ void State_derive_grid(struct State *state) {
     for (int p = 0; p < NUM_PLAYERS; p++) {
         for (int i = 0; i < state->piece_count[p]; i++) {
             struct Piece *piece = &state->pieces[p][i];
-
             struct Piece *p = state->grid[piece->coords.q][piece->coords.r];
             while (p && p->on_top) {
                 if (p->on_top == piece) {

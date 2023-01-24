@@ -11,8 +11,7 @@
 
 #define PLAYER_PIECES 11
 #define MAX_PIECES (PLAYER_PIECES * NUM_PLAYERS)
-// Larger than what we need (24), but lets uint8_t wrap around automatically
-#define GRID_SIZE 256
+#define GRID_SIZE 24
 
 #define NUM_PIECETYPES 5
 #define NUM_ANTS 3

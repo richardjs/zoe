@@ -34,7 +34,8 @@ void Coords_move(struct Coords *coords, enum Direction direction) {
             break;
 
         case NORTHWEST:
-            coords->q--;
+            if (coords->q == 0) coords->q = GRID_SIZE - 1;
+            else coords->q--;
             break;
     }
 }

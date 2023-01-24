@@ -15,7 +15,7 @@ struct Coords {
 };
 
 
-void Coords_go(struct Coords *coords, enum Direction direction);
+void Coords_move(struct Coords *coords, enum Direction direction);
 
 
 #endif

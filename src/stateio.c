@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "coords.h"
 #include "errorcodes.h"
 #include "state.h"
 #include "stateio.h"
@@ -21,12 +22,11 @@ char Piece_char(const struct Piece *piece) {
 }
 
 
-void State_translate_grid(struct State *state, int8_t q, int8_t r) {
+void State_translate_grid(struct State *state, enum Direction direction) {
     for (int p = 0; p < NUM_PLAYERS; p++) {
         for (int i = 0; i < state->piece_count[p]; i++) {
             struct Piece *piece = &state->pieces[p][i];
-            piece->coords.q += q;
-            piece->coords.r += r;
+            Coords_move(&piece->coords, direction);
         }
     }
     State_derive(state);
@@ -49,7 +49,7 @@ void State_normalize(struct State *state) {
             }
         }
         if (piece_on_edge) {
-            State_translate_grid(state, 0, -1);
+            State_translate_grid(state, NORTH);
         }
     } while (piece_on_edge);
     do {
@@ -61,7 +61,7 @@ void State_normalize(struct State *state) {
             }
         }
         if (piece_on_edge) {
-            State_translate_grid(state, -1, 0);
+            State_translate_grid(state, NORTHWEST);
         }
     } while (piece_on_edge);
 
@@ -75,7 +75,7 @@ void State_normalize(struct State *state) {
             }
         }
         if (!piece_on_edge) {
-            State_translate_grid(state, 0, -1);
+            State_translate_grid(state, NORTH);
         }
     }
     piece_on_edge = false;
@@ -87,7 +87,7 @@ void State_normalize(struct State *state) {
             }
         }
         if (!piece_on_edge) {
-            State_translate_grid(state, -1, 0);
+            State_translate_grid(state, NORTHWEST);
         }
     }
 }
