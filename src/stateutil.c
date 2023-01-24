@@ -1,8 +1,8 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "state.h"
-#include <stdio.h>
 
 
 void Piece_pieces_above(const struct Piece *piece, struct Piece *above[]) {
