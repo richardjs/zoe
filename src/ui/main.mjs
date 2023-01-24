@@ -6,16 +6,22 @@ let canvas = document.getElementById('grid');
 let ctx = canvas.getContext('2d');
 
 function render() {
-    canvas.height = canvas.parentElement.clientHeight;
     canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
 
     let grid = new Grid(location.hash.slice(1));
     let gridCanvas = grid.render(ctx);
 
+    let aspectRatio = gridCanvas.width / gridCanvas.height;
+    let drawWidth = Math.min(canvas.width, gridCanvas.width);
+    let drawHeight = Math.min(canvas.height, gridCanvas.height);
+
     ctx.drawImage(
         gridCanvas,
-        canvas.width/2 - gridCanvas.width/2,
-        canvas.height/2 - gridCanvas.height/2
+        canvas.width/2 - drawWidth/2,
+        canvas.height/2 - drawHeight/2,
+        drawWidth,
+        drawHeight
     );
 }
 

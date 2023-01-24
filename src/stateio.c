@@ -283,3 +283,38 @@ void State_to_string(const struct State *s, char string[]) {
 
     string[c++] = '1' + state.turn;
 }
+
+
+void Action_from_string(struct Action *action, const char string[]) {
+    if (string[0] == '+') {
+        action->from.q = PLACE_ACTION;
+        for (int t = 0; t < NUM_PIECETYPES; t++) {
+            if (tolower(PIECE_CHAR[P1][t]) == string[1] ){
+                action->from.r = t;
+                break;
+            }
+        }
+    } else {
+        action->from.q = string[0] - 'a';
+        action->from.r = string[1] - 'a';
+    }
+
+    action->to.q = string[2] - 'a';
+    action->to.r = string[3] - 'a';
+}
+
+
+void Action_to_string(const struct Action *action, char string[]) {
+    if (action->from.q == PLACE_ACTION) {
+        string[0] = '+';
+        string[1] = tolower(PIECE_CHAR[P1][action->from.r]);
+    } else {
+        string[0] = action->from.q + 'a';
+        string[1] = action->from.r + 'a';
+    }
+
+    string[2] = action->to.q + 'a';
+    string[3] = action->to.r + 'a';
+
+    string[4] = '\0';
+}

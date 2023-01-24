@@ -10,6 +10,9 @@ int main(int argc, char *argv[]) {
     struct State state;
 
 
+    printf("Running tests...\n");
+
+
     // Grid derive
     {
         State_new(&state);
@@ -148,6 +151,39 @@ int main(int argc, char *argv[]) {
                 || state.hands[P1][ANT] != 3
                 || state.hands[P2][ANT] != 2) {
             printf("Hands not deriving correctly\n");
+        }
+    }
+
+
+    // Initial place moves
+    {
+        State_new(&state);
+        if (state.action_count != NUM_PIECETYPES -1) {
+            printf("Incorrect number of starting places\n");
+        }
+    }
+
+
+    // Action serialization
+    {
+        State_new(&state);
+
+        char action_string[ACTION_STRING_SIZE];
+        Action_to_string(&state.actions[3], action_string);
+
+        if (strcmp(action_string, "+saa")) {
+            printf("Action not serializing properly\n");
+        }
+
+        struct Action from_string;
+        Action_from_string(&from_string, action_string);
+
+        if (memcmp(&state.actions[3], &from_string, sizeof(struct Action))) {
+            printf("Action serialization and deserialization results changes:\n");
+            Action_to_string(&state.actions[3], action_string);
+            printf("before: %s\n", action_string);
+            Action_to_string(&from_string, action_string);
+            printf("after: %s\n", action_string);
         }
     }
 

@@ -4,6 +4,8 @@
 
 #include <stdint.h>
 
+#include "coords.h"
+
 
 #define NUM_PLAYERS 2
 
@@ -40,19 +42,13 @@
 #define MAX_ABOVE (NUM_PLAYERS*NUM_BEETLES)
 #define MAX_STACK_SIZE (1 MAX_STACK_SIZE)
 
-// If PLACE_BIT is set in Action.from, it means the action is a place,
-// with PieceType = (Action.from ^ PLACE_BIT)
-#define PLACE_BIT (2 << 7)
+// If Action.from.q == PLACE_ACTION, it means the action is a place, with
+// Action.r = PieceType
+#define PLACE_ACTION (2 << 6)
 
 
 enum Player {P1=0, P2};
 enum PieceType {ANT=0, BEETLE, GRASSHOPPER, SPIDER, QUEEN_BEE};
-
-
-struct Coords {
-    uint8_t q;
-    uint8_t r;
-};
 
 
 struct Action {
@@ -83,7 +79,7 @@ struct State {
     // Derived information
     struct Piece *grid[GRID_SIZE][GRID_SIZE];
 
-    struct Action *actions[MAX_ACTIONS];
+    struct Action actions[MAX_ACTIONS];
     uint_fast8_t action_count;
 
     uint_fast8_t hands[NUM_PLAYERS][NUM_PIECETYPES];

@@ -30,7 +30,7 @@ export class Grid {
             if (!this.grid[x][y]) {
                 this.grid[x][y] = piece;
             } else {
-                var p = this.grid[x][y];
+                let p = this.grid[x][y];
                 while (p.on_top) {
                     p = p.on_top
                 }
