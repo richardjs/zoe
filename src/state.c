@@ -55,6 +55,24 @@ void State_derive_hands(struct State *state) {
 }
 
 
+void State_derive_neighbor_count(struct State *state) {
+    memset(state->neighbor_count, 0,
+        sizeof(uint_fast8_t) * NUM_PLAYERS * GRID_SIZE * GRID_SIZE);
+
+    for (int p = 0; p < NUM_PLAYERS; p++) {
+        for (int i = 0; i < state->piece_count[p]; i++) {
+            struct Piece *piece = &state->pieces[p][i];
+
+            for (int d = 0; d < NUM_DIRECTIONS; d++) {
+                struct Coords coords = piece->coords;
+                Coords_move(&coords, d);
+                state->neighbor_count[piece->player][coords.q][coords.r] += 1;
+            }
+        }
+    }
+}
+
+
 void State_derive_actions(struct State *state) {
     state->action_count = 0;
 
@@ -88,7 +106,11 @@ void State_derive_actions(struct State *state) {
         return;
     }
 
-    // TODO places
+    // Places
+    // TODO
+    for (int t = 0; t < NUM_PIECETYPES; t++) {
+        if (state->hands[state->turn][t] == 0) continue;
+    }
 
     // TODO moves
 }
@@ -104,6 +126,7 @@ void State_derive(struct State *state) {
     State_derive_piece_players(state);
     State_derive_grid(state);
     State_derive_hands(state);
+    State_derive_neighbor_count(state);
     State_derive_actions(state);
 }
 
@@ -141,6 +164,12 @@ void State_act(struct State *state, const struct Action *action) {
 
         state->piece_count[state->turn]++;
         state->hands[state->turn][piece->type]--;
+
+        for (int d = 0; d < NUM_DIRECTIONS; d++) {
+            struct Coords coords = piece->coords;
+            Coords_move(&coords, d);
+            state->neighbor_count[piece->player][coords.q][coords.r] += 1;
+        }
 
         state->turn = !state->turn;
 

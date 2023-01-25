@@ -6,6 +6,10 @@
 #include "stateutil.h"
 
 
+
+void State_derive_neighbor_count(struct State *state);
+
+
 int main(int argc, char *argv[]) {
     struct State state;
 
@@ -188,13 +192,26 @@ int main(int argc, char *argv[]) {
     }
 
 
-    // State_act
+    // Neighbor count
     {
         State_new(&state);
-        State_print(&state, stderr);
+        for (int p = 0; p < NUM_PLAYERS; p++) {
+            for (int q = 0; q < GRID_SIZE; q++) {
+                for (int r = 0; r < GRID_SIZE; r++) {
+                    if (state.neighbor_count[p][q][r] > 0) {
+                        printf("New state has neighbor count!\n");
+                    }
+                }
+            }
+        }
+
         State_act(&state, &state.actions[0]);
-        State_act(&state, &state.actions[1]);
-        State_print(&state, stderr);
+        if (state.neighbor_count[P1][0][1] != 1) {
+            printf("Neighbor count not incremented\n");
+        }
+        if (state.neighbor_count[P2][0][1] > 0) {
+            printf("Neighbor incremented when it shouldn't have been\n");
+        }
     }
 
 

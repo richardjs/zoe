@@ -82,6 +82,8 @@ struct State {
     uint_fast8_t action_count;
 
     uint_fast8_t hands[NUM_PLAYERS][NUM_PIECETYPES];
+
+    uint_fast8_t neighbor_count[NUM_PLAYERS][GRID_SIZE][GRID_SIZE];
 };
 
 
