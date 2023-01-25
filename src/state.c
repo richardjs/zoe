@@ -5,6 +5,7 @@
 #ifdef CHECK_ACTIONS
 #include <stdbool.h>
 #include <stdio.h>
+
 #include "errorcodes.h"
 #endif
 
@@ -80,7 +81,7 @@ void State_derive_actions(struct State *state) {
                 state->actions[state->action_count].from.r = t;
                 state->actions[state->action_count].to.q = 0;
                 state->actions[state->action_count].to.r = 0;
-                Coords_move(&state->actions[state->action_count].to, d);
+                Coords_move(&state->actions[state->action_count++].to, d);
             }
         }
 

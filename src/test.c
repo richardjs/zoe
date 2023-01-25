@@ -193,10 +193,8 @@ int main(int argc, char *argv[]) {
         State_new(&state);
         State_print(&state, stderr);
         State_act(&state, &state.actions[0]);
-        State_print(&state, stderr);
         State_act(&state, &state.actions[1]);
         State_print(&state, stderr);
-        // TODO this isn't right
     }
 
 
