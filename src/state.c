@@ -1,9 +1,9 @@
+#include <stdbool.h>
 #include <string.h>
 
 #include "state.h"
 
 #ifdef CHECK_ACTIONS
-#include <stdbool.h>
 #include <stdio.h>
 
 #include "errorcodes.h"
@@ -107,9 +107,40 @@ void State_derive_actions(struct State *state) {
     }
 
     // Places
-    // TODO
+    bool pieces_to_place = false;
     for (int t = 0; t < NUM_PIECETYPES; t++) {
-        if (state->hands[state->turn][t] == 0) continue;
+        if (state->hands[state->turn][t] > 0) {
+            pieces_to_place = true;
+            break;
+        }
+    }
+    if (pieces_to_place) {
+        struct Coords place_coords[MAX_PLACE_SPOTS];
+        int place_coords_count = 0;
+        bool place_crumbs[GRID_SIZE][GRID_SIZE];
+        memset(place_crumbs, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
+        for (int i = 0; i < state->piece_count[state->turn]; i++) {
+            for (int d = 0; d < NUM_DIRECTIONS; d++) {
+                struct Coords coords = state->pieces[state->turn][i].coords;
+                Coords_move(&coords, d);
+
+                if (!state->grid[coords.q][coords.r]
+                        && state->neighbor_count[!state->turn][coords.q][coords.r] == 0
+                        && !place_crumbs[coords.q][coords.r]) {
+                    place_coords[place_coords_count++] = coords;
+                    place_crumbs[coords.q][coords.r] = true;
+                }
+            }
+        }
+        for (int t = 0; t < NUM_PIECETYPES; t++) {
+            if (state->hands[state->turn][t] == 0) continue;
+
+            for (int i = 0; i < place_coords_count; i++) {
+                state->actions[state->action_count].from.q = PLACE_ACTION;
+                state->actions[state->action_count].from.r = t;
+                state->actions[state->action_count++].to = place_coords[i];
+            }
+        }
     }
 
     // TODO moves

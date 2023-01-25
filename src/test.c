@@ -215,6 +215,21 @@ int main(int argc, char *argv[]) {
     }
 
 
+    // Plaace action count
+    {
+        State_new(&state);
+        State_act(&state, &state.actions[0]);
+        State_act(&state, &state.actions[0]);
+        if (state.action_count != 15) {
+            printf("Incorrect action count after 2 moves: %d (should be 15)\n", state.action_count);
+        }
+        State_act(&state, &state.actions[0]);
+        if (state.action_count != 15) {
+            printf("Incorrect action count after 3 moves: %d (should be 15)\n", state.action_count);
+        }
+    }
+
+
     printf("Done\n");
     return 0;
 }

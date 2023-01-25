@@ -38,6 +38,10 @@
  */
 #define MAX_ACTIONS 313
 
+// It's actually lower than this; 26 is if you have all your pieces in
+// a line with no opposite color pieces anywhere
+#define MAX_PLACE_SPOTS 26
+
 #define MAX_ABOVE (NUM_PLAYERS*NUM_BEETLES)
 #define MAX_STACK_SIZE (1 MAX_STACK_SIZE)
 
