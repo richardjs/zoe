@@ -10,6 +10,101 @@
 #endif
 
 
+/* Finds aritulation points (i.e. pieces that can't be moved due to the
+ * one hive rule) using an adaptation of Hopcroft & Tarjan's algorithm.
+ * See:
+ * https://dl.acm.org/doi/10.1145/362248.362272
+ * https://en.wikipedia.org/wiki/Biconnected_component
+ *
+ * Outputs an array of coordinates that can't be moved. Returns the
+ * length of the output array.
+ */
+uint_fast8_t State_articulation_points(
+    const struct State *state, struct Coords points[]
+) {
+    uint_fast8_t points_count = 0;
+
+    struct Coords stack[MAX_PIECES];
+    int_fast8_t sp = 0;
+    stack[sp] = state->pieces[P1][0].coords;
+
+    uint_fast8_t depth[MAX_PIECES];
+    depth[sp] = 0;
+
+    uint_fast8_t lowpoint[MAX_PIECES];
+
+    // crumbs[q][r] is the same as depth[sp] for a particular Coords
+    int_fast8_t crumbs[GRID_SIZE][GRID_SIZE];
+    memset(&crumbs, -1, sizeof(int_fast8_t)*GRID_SIZE*GRID_SIZE);
+    crumbs[stack[sp].q][stack[sp].r] = 0;
+
+    uint_fast8_t next_direction[MAX_PIECES];
+    next_direction[MAX_PIECES] = 0;
+
+    uint_fast8_t parent_direction[MAX_PIECES];
+    parent_direction[0] = -1;
+
+    // If the root (i.e. sp=0) has more than one child, it is an
+    // articulation point, because otherwise the DFS would have worked
+    // its away around to root's other children
+    uint_fast8_t root_children = 0;
+
+    while (sp >= 0) {
+        struct Coords head;
+        bool found_head = false;
+        // Try each direction looking for an edge
+        while (!found_head && next_direction[sp] != NUM_DIRECTIONS) {
+            // Don't search back to the parent
+            if (next_direction[sp] == parent_direction[sp]) {
+                next_direction[sp]++;
+                continue;
+            }
+            head = stack[sp];
+            Coords_move(&head, next_direction[sp]);
+            if (state->grid[head.q][head.r]) {
+                found_head = true;
+            }
+            next_direction[sp]++;
+        }
+
+        if (found_head) {
+            if (crumbs[head.q][head.r] >= 0) {
+                if (crumbs[head.q][head.r] < lowpoint[sp]) {
+                    lowpoint[sp] = crumbs[head.q][head.r];
+                }
+            } else {
+                if (sp == 0) {
+                    root_children++;
+                }
+
+                depth[sp+1] = depth[sp] + 1;
+                crumbs[head.q][head.r] = depth[sp] + 1;
+                lowpoint[sp+1] = depth[sp];
+                next_direction[sp+1] = 0;
+                parent_direction[sp+1] = OPPOSITE[next_direction[sp] - 1];
+                stack[sp+1] = head;
+                sp++;
+            }
+        } else {
+            if (lowpoint[sp] == depth[sp-1] && (sp-1 != 0)) {
+                points[points_count++] = stack[sp-1];
+            } else {
+                if (lowpoint[sp] < lowpoint[sp-1]) {
+                    lowpoint[sp-1] = lowpoint[sp];
+                }
+            }
+            sp--;
+        }
+    }
+
+    if (root_children > 1) {
+        points[points_count++] = stack[0];
+    }
+
+    return points_count;
+}
+
+
 void State_derive_piece_players(struct State *state) {
     for (int p = 0; p < NUM_PLAYERS; p++) {
         for (int i = 0; i < state->piece_count[p]; i++) {
