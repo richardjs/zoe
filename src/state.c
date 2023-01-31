@@ -10,19 +10,44 @@
 #endif
 
 
-/* Finds aritulation points (i.e. pieces that can't be moved due to the
- * one hive rule) using an adaptation of Hopcroft & Tarjan's algorithm.
+void State_derive_piece_players(struct State *state) {
+    for (int p = 0; p < NUM_PLAYERS; p++) {
+        for (int i = 0; i < state->piece_count[p]; i++) {
+            state->pieces[p][i].player = p;
+        }
+    }
+}
+
+
+void State_derive_grid(struct State *state) {
+    memset(state->grid, 0, sizeof(struct Piece*) * GRID_SIZE * GRID_SIZE);
+
+    for (int p = 0; p < NUM_PLAYERS; p++) {
+        for (int i = 0; i < state->piece_count[p]; i++) {
+            struct Piece *piece = &state->pieces[p][i];
+            struct Piece *p = state->grid[piece->coords.q][piece->coords.r];
+            while (p && p->on_top) {
+                if (p->on_top == piece) {
+                    goto skip;
+                }
+                p = p->on_top;
+            }
+
+            state->grid[piece->coords.q][piece->coords.r] = piece;
+            skip:
+        }
+    }
+}
+
+
+/* Finds cut points (i.e. pieces that can't be moved due to the one hive
+ * rule) using an adaptation of Hopcroft & Tarjan's algorithm.
  * See:
  * https://dl.acm.org/doi/10.1145/362248.362272
  * https://en.wikipedia.org/wiki/Biconnected_component
- *
- * Outputs an array of coordinates that can't be moved. Returns the
- * length of the output array.
  */
-uint_fast8_t State_articulation_points(
-    const struct State *state, struct Coords points[]
-) {
-    uint_fast8_t points_count = 0;
+void State_derive_cut_points(struct State *state) {
+    memset(state->cut_points, 0, sizeof(bool)*GRID_SIZE*GRID_SIZE);
 
     struct Coords stack[MAX_PIECES];
     int_fast8_t sp = 0;
@@ -87,7 +112,7 @@ uint_fast8_t State_articulation_points(
             }
         } else {
             if (lowpoint[sp] == depth[sp-1] && (sp-1 != 0)) {
-                points[points_count++] = stack[sp-1];
+                state->cut_points[stack[sp-1].q][stack[sp-1].r] = true;
             } else {
                 if (lowpoint[sp] < lowpoint[sp-1]) {
                     lowpoint[sp-1] = lowpoint[sp];
@@ -98,39 +123,7 @@ uint_fast8_t State_articulation_points(
     }
 
     if (root_children > 1) {
-        points[points_count++] = stack[0];
-    }
-
-    return points_count;
-}
-
-
-void State_derive_piece_players(struct State *state) {
-    for (int p = 0; p < NUM_PLAYERS; p++) {
-        for (int i = 0; i < state->piece_count[p]; i++) {
-            state->pieces[p][i].player = p;
-        }
-    }
-}
-
-
-void State_derive_grid(struct State *state) {
-    memset(state->grid, 0, sizeof(struct Piece*) * GRID_SIZE * GRID_SIZE);
-
-    for (int p = 0; p < NUM_PLAYERS; p++) {
-        for (int i = 0; i < state->piece_count[p]; i++) {
-            struct Piece *piece = &state->pieces[p][i];
-            struct Piece *p = state->grid[piece->coords.q][piece->coords.r];
-            while (p && p->on_top) {
-                if (p->on_top == piece) {
-                    goto skip;
-                }
-                p = p->on_top;
-            }
-
-            state->grid[piece->coords.q][piece->coords.r] = piece;
-            skip:
-        }
+        state->cut_points[stack[0].q][stack[0].r] = true;
     }
 }
 
@@ -251,6 +244,7 @@ void State_derive_actions(struct State *state) {
 void State_derive(struct State *state) {
     State_derive_piece_players(state);
     State_derive_grid(state);
+    State_derive_cut_points(state);
     State_derive_hands(state);
     State_derive_neighbor_count(state);
     State_derive_actions(state);

@@ -2,6 +2,7 @@
 #define STATE_H
 
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "coords.h"
@@ -88,6 +89,8 @@ struct State {
     uint_fast8_t hands[NUM_PLAYERS][NUM_PIECETYPES];
 
     uint_fast8_t neighbor_count[NUM_PLAYERS][GRID_SIZE][GRID_SIZE];
+
+    bool cut_points[GRID_SIZE][GRID_SIZE];
 };
 
 

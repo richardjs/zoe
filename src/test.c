@@ -233,115 +233,138 @@ int main(int argc, char *argv[]) {
 
     // Ariculation points
     {
-        struct Coords points[MAX_PIECES];
-        int points_count;
-
         // Square: no APs
         char state_string[STATE_STRING_SIZE] = "aaaAababaAbb1";
         State_from_string(&state, state_string);
-        points_count = State_articulation_points(&state, points);
-        if (points_count != 0) {
-            printf("Incorrect detection of articulation points: %d\n", points_count);
-            State_print(&state, stdout);
-            for (int i = 0; i < points_count; i++) {
-                Coords_print(&points[i], stdout);
+        for (int q = 0; q < GRID_SIZE; q++) {
+            for (int r = 0; r < GRID_SIZE; r++) {
+                if (state.cut_points[q][r]) {
+                    printf("Incorrect cut points:\n");
+                    State_print(&state, stdout);
+                }
             }
         }
 
         // Single piece: no APs
         strcpy(state_string, "Aaa1");
         State_from_string(&state, state_string);
-        points_count = State_articulation_points(&state, points);
-        if (points_count != 0) {
-            printf("Incorrect detection of articulation points: %d\n", points_count);
-            State_print(&state, stdout);
-            for (int i = 0; i < points_count; i++) {
-                Coords_print(&points[i], stdout);
+        for (int q = 0; q < GRID_SIZE; q++) {
+            for (int r = 0; r < GRID_SIZE; r++) {
+                if (state.cut_points[q][r]) {
+                    printf("Incorrect cut points:\n");
+                    State_print(&state, stdout);
+                }
             }
         }
 
         // 3-piece line: 1 AP
         strcpy(state_string, "AaaAabAbb1");
         State_from_string(&state, state_string);
-        points_count = State_articulation_points(&state, points);
-        if (points_count != 1 || (points[0].q != 0 && points[0].r != 1)) {
-            printf("Incorrect detection of articulation points: %d\n", points_count);
-            State_print(&state, stdout);
-            for (int i = 0; i < points_count; i++) {
-                Coords_print(&points[i], stdout);
+        for (int q = 0; q < GRID_SIZE; q++) {
+            for (int r = 0; r < GRID_SIZE; r++) {
+                if (
+                    (state.cut_points[q][r] && (q != 0 && r != 1))
+                    || (!state.cut_points[q][r] && (q == 0 && r == 1))
+                ) {
+                    printf("Incorrect cut points:\n");
+                    State_print(&state, stdout);
+                }
             }
         }
 
         // Same as previous, but start from AP (search starts at pieces[P1][0]
         strcpy(state_string, "aaaAababb1");
         State_from_string(&state, state_string);
-        points_count = State_articulation_points(&state, points);
-        if (points_count != 1 || (points[0].q != 0 && points[0].r != 1)) {
-            printf("Incorrect detection of articulation points: %d\n", points_count);
-            State_print(&state, stdout);
-            for (int i = 0; i < points_count; i++) {
-                Coords_print(&points[i], stdout);
+        for (int q = 0; q < GRID_SIZE; q++) {
+            for (int r = 0; r < GRID_SIZE; r++) {
+                if (
+                    (state.cut_points[q][r] && (q != 0 && r != 1))
+                    || (!state.cut_points[q][r] && (q == 0 && r == 1))
+                ) {
+                    printf("Incorrect cut points:\n");
+                    State_print(&state, stdout);
+                }
             }
         }
 
         // 4-piece line: 2 APs
         strcpy(state_string, "aaaAababbabc1");
         State_from_string(&state, state_string);
-        points_count = State_articulation_points(&state, points);
-        if (points_count != 2) {
-            printf("Incorrect detection of articulation points: %d\n", points_count);
-            State_print(&state, stdout);
-            for (int i = 0; i < points_count; i++) {
-                Coords_print(&points[i], stdout);
+        int point_count = 0;
+        for (int q = 0; q < GRID_SIZE; q++) {
+            for (int r = 0; r < GRID_SIZE; r++) {
+                if (state.cut_points[q][r]) {
+                    point_count++;
+                }
             }
+        }
+        if (point_count != 2) {
+            printf("Incorrect cut points:\n");
+            State_print(&state, stdout);
         }
 
         // Ring: 0 APs
         strcpy(state_string, "aabAacabcAcbacaAba1");
         State_from_string(&state, state_string);
-        points_count = State_articulation_points(&state, points);
-        if (points_count != 0) {
-            printf("Incorrect detection of articulation points: %d\n", points_count);
-            State_print(&state, stdout);
-            for (int i = 0; i < points_count; i++) {
-                Coords_print(&points[i], stdout);
+        point_count = 0;
+        for (int q = 0; q < GRID_SIZE; q++) {
+            for (int r = 0; r < GRID_SIZE; r++) {
+                if (state.cut_points[q][r]) {
+                    point_count++;
+                }
             }
+        }
+        if (point_count > 0) {
+            printf("Incorrect cut points:\n");
+            State_print(&state, stdout);
         }
 
         // Ring with piece on edge: 0 APs
         strcpy(state_string, "aabAacabcAcbacaAbaqcc1");
         State_from_string(&state, state_string);
-        points_count = State_articulation_points(&state, points);
-        if (points_count != 0) {
-            printf("Incorrect detection of articulation points: %d\n", points_count);
-            State_print(&state, stdout);
-            for (int i = 0; i < points_count; i++) {
-                Coords_print(&points[i], stdout);
+        point_count = 0;
+        for (int q = 0; q < GRID_SIZE; q++) {
+            for (int r = 0; r < GRID_SIZE; r++) {
+                if (state.cut_points[q][r]) {
+                    point_count++;
+                }
             }
+        }
+        if (point_count > 0) {
+            printf("Incorrect cut points:\n");
+            State_print(&state, stdout);
         }
 
         // Ring with line ("Q"): 1 APs
         strcpy(state_string, "aabAacabcAcbacaAbaqccQdc1");
         State_from_string(&state, state_string);
-        points_count = State_articulation_points(&state, points);
-        if (points_count != 1 || (points[0].q != 3 && points[0].r != 2)) {
-            printf("Incorrect detection of articulation points: %d\n", points_count);
-            State_print(&state, stdout);
-            for (int i = 0; i < points_count; i++) {
-                Coords_print(&points[i], stdout);
+        point_count = 0;
+        for (int q = 0; q < GRID_SIZE; q++) {
+            for (int r = 0; r < GRID_SIZE; r++) {
+                if (state.cut_points[q][r]) {
+                    point_count++;
+                }
             }
+        }
+        if (point_count != 1) {
+            printf("Incorrect cut points:\n");
+            State_print(&state, stdout);
         }
 
         // Example game state: 4 APs
         strcpy(state_string, "AadabdaccbcdSceSdbqdcQdeaee1");
         State_from_string(&state, state_string);
-        points_count = State_articulation_points(&state, points);
-        if (points_count != 4) {
-            printf("Incorrect detection of articulation points: %d\n", points_count);
-            State_print(&state, stdout);
-            for (int i = 0; i < points_count; i++) {
-                Coords_print(&points[i], stdout);
+        point_count = 0;
+        for (int q = 0; q < GRID_SIZE; q++) {
+            for (int r = 0; r < GRID_SIZE; r++) {
+                if (state.cut_points[q][r]) {
+                    point_count++;
+                }
             }
+        }
+        if (point_count != 4) {
+            printf("Incorrect cut points:\n");
+            State_print(&state, stdout);
         }
     }
 
