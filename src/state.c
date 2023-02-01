@@ -248,12 +248,30 @@ void State_derive_actions(struct State *state) {
         }
 
         switch (piece->type) {
+            case GRASSHOPPER:
+                for (int d = 0; d < NUM_DIRECTIONS; d++) {
+                    // Look for adjacent pieces
+                    struct Coords c = *coords;
+                    Coords_move(&c, d);
+                    if (!state->grid[c.q][c.r]) {
+                        continue;
+                    }
+
+                    // Find an empty spot in the direction of the piece
+                    do {
+                        Coords_move(&c, d);
+                    } while (state->grid[c.q][c.r]);
+
+                    state->actions[state->action_count].from = piece->coords;
+                    state->actions[state->action_count++].to = c;
+                }
+                break;
+
             case QUEEN_BEE:
                 for (int d = 0; d < NUM_DIRECTIONS; d++) {
                     // Look for adjacent pieces
                     struct Coords c = *coords;
                     Coords_move(&c, d);
-
                     if (!state->grid[c.q][c.r]) {
                         continue;
                     }

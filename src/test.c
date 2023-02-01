@@ -414,6 +414,37 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    // Grasshopper moves
+    {
+        char state_string[STATE_STRING_SIZE];
+        strcpy(state_string, "QabaacabcacbGcagba1");
+        State_from_string(&state, state_string);
+
+        int grasshopper_moves = 0;
+
+        for (int i = 0; i < state.action_count; i++) {
+            struct Action *action = &state.actions[i];
+            if (action->from.q == PLACE_ACTION) continue;
+
+            struct Piece *piece = state.grid[action->from.q][action->from.r];
+            if (piece->type != GRASSHOPPER) continue;
+
+            if (!(
+                (action->to.q == 2 &&  action->to.r == 2)
+                || (action->to.q == 0 && action->to.r == 0)
+            )) {
+                printf("Invalid grasshopper move: ");
+                Action_print(action, stdout);
+                State_print(&state, stdout);
+            }
+
+            grasshopper_moves++;
+        }
+
+        if (grasshopper_moves != 2) {
+            printf("Wrong number of grasshopper moves: %d\n", grasshopper_moves);
+        }
+    }
 
     printf("Done\n");
     return 0;
