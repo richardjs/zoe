@@ -24,6 +24,7 @@ void State_to_string(const struct State *state, char string[]);
 
 void Action_from_string(struct Action *action, const char string[]);
 void Action_to_string(const struct Action *action, char string[]);
+void Action_print(const struct Action *action, FILE *stream);
 
 
 #endif

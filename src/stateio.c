@@ -318,3 +318,10 @@ void Action_to_string(const struct Action *action, char string[]) {
 
     string[4] = '\0';
 }
+
+
+void Action_print(const struct Action *action, FILE *stream) {
+    char action_string[ACTION_STRING_SIZE];
+    Action_to_string(action, action_string);
+    fprintf(stream, "%s\n", action_string);
+}
