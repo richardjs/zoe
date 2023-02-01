@@ -48,6 +48,20 @@ void Coords_move(struct Coords *coords, enum Direction direction) {
 }
 
 
+enum Direction Direction_rotate(enum Direction direction, int n) {
+    direction += n;
+    // The (unsigned) enum needs to be cast to int in these comparisons,
+    // else a negative number will be greater than than NUM_DIRECTIONS
+    // and not less than 0
+    if ((int)direction >= NUM_DIRECTIONS) {
+        direction -= NUM_DIRECTIONS;
+    } else if ((int)direction < 0) {
+        direction += NUM_DIRECTIONS;
+    }
+    return direction;
+}
+
+
 void Coords_print(const struct Coords *coords, FILE *stream) {
     fprintf(stream, "%c%c\n", coords->q + 'a', coords->r + 'a');
 }

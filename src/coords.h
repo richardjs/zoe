@@ -21,6 +21,9 @@ struct Coords {
 void Coords_move(struct Coords *coords, enum Direction direction);
 
 
+enum Direction Direction_rotate(enum Direction direction, int n);
+
+
 void Coords_print(const struct Coords *coords, FILE *stream);
 void Direction_print(enum Direction direction, FILE *stream);
 

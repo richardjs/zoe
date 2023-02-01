@@ -368,6 +368,53 @@ int main(int argc, char *argv[]) {
         }
     }
 
+
+    // Queen moves
+    {
+        char state_string[STATE_STRING_SIZE];
+        int move_count;
+
+        // No moves if queen isn't present
+        strcpy(state_string, "AaaqabAbaabb1");
+        State_from_string(&state, state_string);
+        for (int i = 0; i < state.action_count; i++) {
+            if (state.actions[i].from.q != PLACE_ACTION) {
+                printf("Move action without queen placed\n");
+                State_print(&state, stdout);
+                Action_print(&state.actions[i], stdout);
+            }
+        }
+
+        // Basic queen move
+        strcpy(state_string, "Qaaaababb1");
+        State_from_string(&state, state_string);
+        move_count = 0;
+        for (int i = 0; i < state.action_count; i++) {
+            if (state.actions[i].from.q != PLACE_ACTION) {
+                move_count++;
+            }
+        }
+        if (move_count != 2) {
+            printf("Improper move count: %d\n", move_count);
+            State_print(&state, stdout);
+        }
+
+        // Third move blocked by freedom to move
+        strcpy(state_string, "Qabaacabcacbgcagba1");
+        State_from_string(&state, state_string);
+        move_count = 0;
+        for (int i = 0; i < state.action_count; i++) {
+            if (state.actions[i].from.q != PLACE_ACTION) {
+                move_count++;
+            }
+        }
+        if (move_count != 2) {
+            printf("Improper move count: %d\n", move_count);
+            State_print(&state, stdout);
+        }
+    }
+
+
     printf("Done\n");
     return 0;
 }

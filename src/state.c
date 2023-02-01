@@ -231,7 +231,62 @@ void State_derive_actions(struct State *state) {
         }
     }
 
-    // TODO moves
+    // Moves
+
+    // A player can't move until their queen is placed
+    if (state->hands[state->turn][QUEEN_BEE]) {
+        return;
+    }
+
+    for (int i = 0; i < state->piece_count[state->turn]; i++) {
+        struct Piece *piece = &state->pieces[state->turn][i];
+        struct Coords *coords = &piece->coords;
+
+        // One hive rule
+        if (state->cut_points[piece->coords.q][piece->coords.r]) {
+            continue;
+        }
+
+        switch (piece->type) {
+            case QUEEN_BEE:
+                for (int d = 0; d < NUM_DIRECTIONS; d++) {
+                    // Look for adjacent pieces
+                    struct Coords c = *coords;
+                    Coords_move(&c, d);
+
+                    if (!state->grid[c.q][c.r]) {
+                        continue;
+                    }
+
+                    // For every adjacent piece, try to move to the
+                    // right and left of it, first checking for
+                    // freedom to move
+                    c = *coords;
+                    Coords_move(&c, Direction_rotate(d, 2));
+                    if (!state->grid[c.q][c.r]) {
+                        c = *coords;
+                        Coords_move(&c, Direction_rotate(d, 1));
+                        if (!state->grid[c.q][c.r]) {
+                            state->actions[state->action_count].from = piece->coords;
+                            state->actions[state->action_count++].to = c;
+                        }
+                    }
+                    c = *coords;
+                    Coords_move(&c, Direction_rotate(d, -2));
+                    if (!state->grid[c.q][c.r]) {
+                        c = *coords;
+                        Coords_move(&c, Direction_rotate(d, -1));
+                        if (!state->grid[c.q][c.r]) {
+                            state->actions[state->action_count].from = piece->coords;
+                            state->actions[state->action_count++].to = c;
+                        }
+                    }
+                }
+                break;
+            // TODO
+            default:
+        }
+    }
 }
 
 
