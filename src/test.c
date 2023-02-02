@@ -414,6 +414,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
+
     // Grasshopper moves
     {
         char state_string[STATE_STRING_SIZE];
@@ -445,6 +446,100 @@ int main(int argc, char *argv[]) {
             printf("Wrong number of grasshopper moves: %d\n", grasshopper_moves);
         }
     }
+
+
+    // Spider moves
+    {
+        char state_string[STATE_STRING_SIZE];
+        strcpy(state_string, "QabaacabcacbScagba1");
+        State_from_string(&state, state_string);
+
+        int spider_moves = 0;
+
+        for (int i = 0; i < state.action_count; i++) {
+            struct Action *action = &state.actions[i];
+            if (action->from.q == PLACE_ACTION) continue;
+
+            struct Piece *piece = state.grid[action->from.q][action->from.r];
+            if (piece->type != SPIDER) continue;
+
+            if (!(
+                (action->to.q == 2 &&  action->to.r == 2)
+                || (action->to.q == 0 && action->to.r == 0)
+            )) {
+                printf("Invalid spider move: ");
+                Action_print(action, stdout);
+                State_print(&state, stdout);
+            }
+
+            spider_moves++;
+        }
+
+        if (spider_moves != 2) {
+            printf("Wrong number of spider moves: %d\n", spider_moves);
+        }
+
+        // More complicated state, with crossing paths and multiple paths to the same place
+        strcpy(state_string, "QabaacsadgbaSbbsbdacaadagdb1");
+        State_from_string(&state, state_string);
+
+        spider_moves = 0;
+
+        for (int i = 0; i < state.action_count; i++) {
+            struct Action *action = &state.actions[i];
+            if (action->from.q == PLACE_ACTION) continue;
+
+            struct Piece *piece = state.grid[action->from.q][action->from.r];
+            if (piece->type != SPIDER) continue;
+
+            if (!(
+                (action->to.q == 2 &&  action->to.r == 3)
+                || (action->to.q == 3 && action->to.r == 2)
+                || (action->to.q == 1 && action->to.r == 2)
+                || (action->to.q == 2 && action->to.r == 1)
+            )) {
+                printf("Invalid spider move: ");
+                Action_print(action, stdout);
+                State_print(&state, stdout);
+            }
+
+            spider_moves++;
+        }
+
+        if (spider_moves != 4) {
+            printf("Wrong number of spider moves: %d\n", spider_moves);
+            State_print(&state, stdout);
+            for (int i = 0; i < state.action_count; i++) {
+                Action_print(&state.actions[i], stdout);
+            }
+        }
+    }
+
+
+    // Spider can't move in a circle to its original spot
+    {
+        char state_string[STATE_STRING_SIZE];
+        strcpy(state_string, "QabaacsadgbaSbbsbdacaaccadagdb1");
+        State_from_string(&state, state_string);
+
+        int spider_moves = 0;
+
+        for (int i = 0; i < state.action_count; i++) {
+            struct Action *action = &state.actions[i];
+            if (action->from.q == PLACE_ACTION) continue;
+
+            struct Piece *piece = state.grid[action->from.q][action->from.r];
+            if (piece->type != SPIDER) continue;
+
+            spider_moves++;
+        }
+
+        if (spider_moves != 0) {
+            printf("Wrong number of spider moves: %d\n", spider_moves);
+            State_print(&state, stdout);
+        }
+    }
+
 
     printf("Done\n");
     return 0;

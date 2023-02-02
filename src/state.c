@@ -40,6 +40,75 @@ void State_derive_grid(struct State *state) {
 }
 
 
+void State_spider_walk(
+    struct State *state,
+    const struct Piece *piece,
+    const struct Coords *coords,
+    bool crumbs[GRID_SIZE][GRID_SIZE],
+    bool tos[GRID_SIZE][GRID_SIZE],
+    int depth
+) {
+    if (crumbs[coords->q][coords->r]) {
+        return;
+    }
+
+    // If this is the root call, temporarily remove the piece from the
+    // grid so it can't walk along itself
+    if (depth == 0) {
+        state->grid[coords->q][coords->r] = NULL;
+    }
+
+
+    if (depth == SPIDER_MOVES) {
+        if (!tos[coords->q][coords->r]) {
+            state->actions[state->action_count].from = piece->coords;
+            state->actions[state->action_count++].to = *coords;
+            tos[coords->q][coords->r] = true;
+        }
+        return;
+    }
+
+    // TODO Do we need to worry about different parts of the search
+    // hitting the same hex at different depths?
+    crumbs[coords->q][coords->r] = true;
+
+    for (int d = 0; d < NUM_DIRECTIONS; d++) {
+        struct Coords c = *coords;
+        Coords_move(&c, d);
+        if (!state->grid[c.q][c.r]) {
+            continue;
+        }
+
+        c = *coords;
+        Coords_move(&c, Direction_rotate(d, 2));
+        if (!state->grid[c.q][c.r]) {
+            c = *coords;
+            Coords_move(&c, Direction_rotate(d, 1));
+            if (!state->grid[c.q][c.r]) {
+                State_spider_walk(state, piece, &c, crumbs, tos, depth+1);
+            }
+        }
+
+        c = *coords;
+        Coords_move(&c, Direction_rotate(d, -2));
+        if (!state->grid[c.q][c.r]) {
+            c = *coords;
+            Coords_move(&c, Direction_rotate(d, -1));
+            if (!state->grid[c.q][c.r]) {
+                State_spider_walk(state, piece, &c, crumbs, tos, depth+1);
+            }
+        }
+    }
+
+    // Put the piece back on the grid
+    if (depth == 0) {
+        state->grid[coords->q][coords->r] = (struct Piece *)piece;
+    }
+
+    crumbs[coords->q][coords->r] = false;
+}
+
+
 /* Finds cut points (i.e. pieces that can't be moved due to the one hive
  * rule) using an adaptation of Hopcroft & Tarjan's algorithm.
  * See:
@@ -301,6 +370,15 @@ void State_derive_actions(struct State *state) {
                     }
                 }
                 break;
+
+            case SPIDER:
+                bool crumbs[GRID_SIZE][GRID_SIZE];
+                memset(crumbs, 0, sizeof(bool)*GRID_SIZE*GRID_SIZE);
+                bool tos[GRID_SIZE][GRID_SIZE];
+                memset(tos, 0, sizeof(bool)*GRID_SIZE*GRID_SIZE);
+                State_spider_walk(state, piece, coords, crumbs, tos, 0);
+                break;
+
             // TODO
             default:
         }

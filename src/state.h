@@ -50,6 +50,8 @@
 // Action.r = PieceType
 #define PLACE_ACTION (2 << 6)
 
+#define SPIDER_MOVES 3
+
 
 enum Player {P1=0, P2};
 enum PieceType {ANT=0, BEETLE, GRASSHOPPER, SPIDER, QUEEN_BEE};
