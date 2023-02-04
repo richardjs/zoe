@@ -40,6 +40,63 @@ void State_derive_grid(struct State *state) {
 }
 
 
+void State_ant_walk(
+    struct State *state,
+    const struct Piece *piece,
+    const struct Coords *coords,
+    bool crumbs[GRID_SIZE][GRID_SIZE]
+) {
+    if (crumbs[coords->q][coords->r]) {
+        return;
+    }
+
+    // If this is the root call, temporarily remove the piece from the
+    // grid so it can't walk along itself; if it's not the root call,
+    // add it as a move
+    if (&piece->coords == coords) {
+        state->grid[coords->q][coords->r] = NULL;
+    } else {
+        state->actions[state->action_count].from = piece->coords;
+        state->actions[state->action_count++].to = *coords;
+    }
+
+    crumbs[coords->q][coords->r] = true;
+
+    for (int d = 0; d < NUM_DIRECTIONS; d++) {
+        struct Coords c = *coords;
+        Coords_move(&c, d);
+        if (!state->grid[c.q][c.r]) {
+            continue;
+        }
+
+        c = *coords;
+        Coords_move(&c, Direction_rotate(d, 2));
+        if (!state->grid[c.q][c.r]) {
+            c = *coords;
+            Coords_move(&c, Direction_rotate(d, 1));
+            if (!state->grid[c.q][c.r]) {
+                State_ant_walk(state, piece, &c, crumbs);
+            }
+        }
+
+        c = *coords;
+        Coords_move(&c, Direction_rotate(d, -2));
+        if (!state->grid[c.q][c.r]) {
+            c = *coords;
+            Coords_move(&c, Direction_rotate(d, -1));
+            if (!state->grid[c.q][c.r]) {
+                State_ant_walk(state, piece, &c, crumbs);
+            }
+        }
+    }
+
+    // Put the piece back on the grid
+    if (&piece->coords == coords) {
+        state->grid[coords->q][coords->r] = (struct Piece *)piece;
+    }
+}
+
+
 void State_spider_walk(
     struct State *state,
     const struct Piece *piece,
@@ -325,24 +382,11 @@ void State_derive_actions(struct State *state) {
             }
         }
 
+        bool crumbs[GRID_SIZE][GRID_SIZE];
         switch (piece->type) {
-            case GRASSHOPPER:
-                for (int d = 0; d < NUM_DIRECTIONS; d++) {
-                    // Look for adjacent pieces
-                    struct Coords c = *coords;
-                    Coords_move(&c, d);
-                    if (!state->grid[c.q][c.r]) {
-                        continue;
-                    }
-
-                    // Find an empty spot in the direction of the piece
-                    do {
-                        Coords_move(&c, d);
-                    } while (state->grid[c.q][c.r]);
-
-                    state->actions[state->action_count].from = piece->coords;
-                    state->actions[state->action_count++].to = c;
-                }
+            case ANT:
+                memset(crumbs, 0, sizeof(bool)*GRID_SIZE*GRID_SIZE);
+                State_ant_walk(state, piece, coords, crumbs);
                 break;
 
             case BEETLE:
@@ -400,6 +444,26 @@ void State_derive_actions(struct State *state) {
                 }
                 break;
 
+            case GRASSHOPPER:
+                for (int d = 0; d < NUM_DIRECTIONS; d++) {
+                    // Look for adjacent pieces
+                    struct Coords c = *coords;
+                    Coords_move(&c, d);
+                    if (!state->grid[c.q][c.r]) {
+                        continue;
+                    }
+
+                    // Find an empty spot in the direction of the piece
+                    do {
+                        Coords_move(&c, d);
+                    } while (state->grid[c.q][c.r]);
+
+                    state->actions[state->action_count].from = piece->coords;
+                    state->actions[state->action_count++].to = c;
+                }
+                break;
+
+
             case QUEEN_BEE:
                 for (int d = 0; d < NUM_DIRECTIONS; d++) {
                     // Look for adjacent pieces
@@ -436,15 +500,11 @@ void State_derive_actions(struct State *state) {
                 break;
 
             case SPIDER:
-                bool crumbs[GRID_SIZE][GRID_SIZE];
                 memset(crumbs, 0, sizeof(bool)*GRID_SIZE*GRID_SIZE);
                 bool tos[GRID_SIZE][GRID_SIZE];
                 memset(tos, 0, sizeof(bool)*GRID_SIZE*GRID_SIZE);
                 State_spider_walk(state, piece, coords, crumbs, tos, 0);
                 break;
-
-            // TODO
-            default:
         }
     }
 }

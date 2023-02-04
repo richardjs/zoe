@@ -13,6 +13,7 @@ void State_derive_neighbor_count(struct State *state);
 
 int main(int argc, char *argv[]) {
     struct State state;
+    char state_string[STATE_STRING_SIZE];
 
 
     printf("Running tests...\n");
@@ -109,7 +110,7 @@ int main(int argc, char *argv[]) {
 
     // State comparison
     {
-        char state_string[STATE_STRING_SIZE] = "aacQbbScbsdaBdaqea1";
+        strcpy(state_string, "aacQbbScbsdaBdaqea1");
         State_from_string(&state, state_string);
 
         struct State other = state;
@@ -127,7 +128,7 @@ int main(int argc, char *argv[]) {
 
     // State deserialization and serialization
     {
-        char state_string[STATE_STRING_SIZE] = "aacQbbScbsdaBdaqea1";
+        strcpy(state_string, "aacQbbScbsdaBdaqea1");
         State_from_string(&state, state_string);
 
         char to_string[STATE_STRING_SIZE];
@@ -148,7 +149,7 @@ int main(int argc, char *argv[]) {
 
     // Hands derivation
     {
-        char state_string[STATE_STRING_SIZE] = "aacQbbScbsdaBdaqea1";
+        strcpy(state_string, "aacQbbScbsdaBdaqea1");
         State_from_string(&state, state_string);
 
         if (state.hands[P1][QUEEN_BEE] != 0
@@ -234,7 +235,7 @@ int main(int argc, char *argv[]) {
     // Ariculation points
     {
         // Square: no APs
-        char state_string[STATE_STRING_SIZE] = "aaaAababaAbb1";
+        strcpy(state_string, "aaaAababaAbb1");
         State_from_string(&state, state_string);
         for (int q = 0; q < GRID_SIZE; q++) {
             for (int r = 0; r < GRID_SIZE; r++) {
@@ -371,7 +372,6 @@ int main(int argc, char *argv[]) {
 
     // Queen moves
     {
-        char state_string[STATE_STRING_SIZE];
         int move_count;
 
         // No moves if queen isn't present
@@ -417,7 +417,6 @@ int main(int argc, char *argv[]) {
 
     // Grasshopper moves
     {
-        char state_string[STATE_STRING_SIZE];
         strcpy(state_string, "QabaacabcacbGcagba1");
         State_from_string(&state, state_string);
 
@@ -450,7 +449,6 @@ int main(int argc, char *argv[]) {
 
     // Spider moves
     {
-        char state_string[STATE_STRING_SIZE];
         strcpy(state_string, "QabaacabcacbScagba1");
         State_from_string(&state, state_string);
 
@@ -518,7 +516,6 @@ int main(int argc, char *argv[]) {
 
     // Spider can't move in a circle to its original spot
     {
-        char state_string[STATE_STRING_SIZE];
         strcpy(state_string, "QabaacsadgbaSbbsbdacaaccadagdb1");
         State_from_string(&state, state_string);
 
@@ -543,7 +540,6 @@ int main(int argc, char *argv[]) {
 
     // Beetle moves
     {
-        char state_string[STATE_STRING_SIZE];
         strcpy(state_string, "QabaacsadgbagbbsbdacaadagdbBcc1");
         State_from_string(&state, state_string);
 
@@ -582,6 +578,64 @@ int main(int argc, char *argv[]) {
         if (beetle_moves != 6) {
             printf("Wrong number of beetle moves: %d\n", beetle_moves);
             State_print(&state, stdout);
+        }
+    }
+
+
+    // Ant moves
+    {
+        strcpy(state_string, "QabaacsadgbaAbbsbdacaadagdb1");
+        State_from_string(&state, state_string);
+
+        int ant_moves = 0;
+
+        for (int i = 0; i < state.action_count; i++) {
+            struct Action *action = &state.actions[i];
+            if (action->from.q == PLACE_ACTION) continue;
+
+            struct Piece *piece = state.grid[action->from.q][action->from.r];
+            if (piece->type != ANT) continue;
+
+            ant_moves++;
+        }
+
+        if (ant_moves != 18) {
+            printf("Wrong number of ant moves: %d\n", ant_moves);
+            State_print(&state, stdout);
+            for (int i = 0; i < state.action_count; i++) {
+                struct Action *action = &state.actions[i];
+                if (action->from.q == PLACE_ACTION) continue;
+                struct Piece *piece = state.grid[action->from.q][action->from.r];
+                if (piece->type != ANT) continue;
+                Action_print(&state.actions[i], stdout);
+            }
+        }
+
+        strcpy(state_string, "QabaacsadgbaAbbsbdacaadagdbbcd1");
+        State_from_string(&state, state_string);
+
+        ant_moves = 0;
+
+        for (int i = 0; i < state.action_count; i++) {
+            struct Action *action = &state.actions[i];
+            if (action->from.q == PLACE_ACTION) continue;
+
+            struct Piece *piece = state.grid[action->from.q][action->from.r];
+            if (piece->type != ANT) continue;
+
+            ant_moves++;
+        }
+
+        if (ant_moves != 3) {
+            printf("Wrong number of ant moves: %d\n", ant_moves);
+            State_print(&state, stdout);
+            for (int i = 0; i < state.action_count; i++) {
+                struct Action *action = &state.actions[i];
+                if (action->from.q == PLACE_ACTION) continue;
+                struct Piece *piece = state.grid[action->from.q][action->from.r];
+                if (piece->type != ANT) continue;
+                Action_print(&state.actions[i], stdout);
+            }
         }
     }
 
