@@ -13,6 +13,8 @@
 #include "state.h"
 
 
+struct Piece *State_top_piece(const struct State *state, unsigned int q, unsigned r);
+
 void Piece_pieces_above(const struct Piece *piece, struct Piece *above[]);
 
 // Following the basic interface of strcmp, these return true if a

@@ -5,6 +5,19 @@
 #include "state.h"
 
 
+struct Piece *State_top_piece(const struct State *state, unsigned int q, unsigned r) {
+    struct Piece *piece = state->grid[q][r];
+    if (!piece) return piece;
+
+    while (piece->on_top) {
+        piece = piece->on_top;
+    }
+
+
+    return piece;
+}
+
+
 void Piece_pieces_above(const struct Piece *piece, struct Piece *above[]) {
     const struct Piece *p = piece;
     memset(above, 0, sizeof(struct Piece *) * MAX_ABOVE);

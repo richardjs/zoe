@@ -541,6 +541,51 @@ int main(int argc, char *argv[]) {
     }
 
 
+    // Beetle moves
+    {
+        char state_string[STATE_STRING_SIZE];
+        strcpy(state_string, "QabaacsadgbagbbsbdacaadagdbBcc1");
+        State_from_string(&state, state_string);
+
+        int beetle_moves = 0;
+
+        for (int i = 0; i < state.action_count; i++) {
+            struct Action *action = &state.actions[i];
+            if (action->from.q == PLACE_ACTION) continue;
+
+            struct Piece *piece = state.grid[action->from.q][action->from.r];
+            if (piece->type != BEETLE) continue;
+
+            beetle_moves++;
+        }
+
+        if (beetle_moves != 6) {
+            printf("Wrong number of beetle moves: %d\n", beetle_moves);
+            State_print(&state, stdout);
+        }
+
+        strcpy(state_string, "QabaacsadgbagbbsbdacaadagdbBbb1");
+        State_from_string(&state, state_string);
+
+        beetle_moves = 0;
+
+        for (int i = 0; i < state.action_count; i++) {
+            struct Action *action = &state.actions[i];
+            if (action->from.q == PLACE_ACTION) continue;
+
+            struct Piece *piece = State_top_piece(&state, action->from.q, action->from.r);
+            if (piece->type != BEETLE) continue;
+
+            beetle_moves++;
+        }
+
+        if (beetle_moves != 6) {
+            printf("Wrong number of beetle moves: %d\n", beetle_moves);
+            State_print(&state, stdout);
+        }
+    }
+
+
     printf("Done\n");
     return 0;
 }

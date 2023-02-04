@@ -311,9 +311,18 @@ void State_derive_actions(struct State *state) {
         struct Piece *piece = &state->pieces[state->turn][i];
         struct Coords *coords = &piece->coords;
 
+        // A piece can't move if it's under another piece
+        if (piece->on_top) {
+            continue;
+        }
+
         // One hive rule
         if (state->cut_points[piece->coords.q][piece->coords.r]) {
-            continue;
+            // Beetles on top of the hive ignore one hive rule
+            if (piece->type != BEETLE
+                    || state->grid[coords->q][coords->r] == piece) {
+                continue;
+            }
         }
 
         switch (piece->type) {
@@ -333,6 +342,61 @@ void State_derive_actions(struct State *state) {
 
                     state->actions[state->action_count].from = piece->coords;
                     state->actions[state->action_count++].to = c;
+                }
+                break;
+
+            case BEETLE:
+                bool on_top = state->grid[coords->q][coords->r] != piece;
+
+                if (on_top) {
+                    for (int d = 0; d < NUM_DIRECTIONS; d++) {
+                        //TODO check for on top freedom to move subcase
+                        struct Coords c = *coords;
+                        Coords_move(&c, d);
+                        state->actions[state->action_count].from = piece->coords;
+                        state->actions[state->action_count++].to = c;
+                    }
+
+                    break;
+                }
+
+                for (int d = 0; d < NUM_DIRECTIONS; d++) {
+                    // Look for adjacent pieces
+                    struct Coords c = *coords;
+                    Coords_move(&c, d);
+                    if (!state->grid[c.q][c.r]) {
+                        continue;
+                    }
+
+                    // Climb on top of adjacent piece
+                    // TODO Check for freedom to move, climbing subcase
+                    state->actions[state->action_count].from = piece->coords;
+                    state->actions[state->action_count++].to = c;
+
+
+                    // For every adjacent piece, try to move to the
+                    // right and left of it, first checking for
+                    // freedom to move
+                    c = *coords;
+                    Coords_move(&c, Direction_rotate(d, 2));
+                    if (!state->grid[c.q][c.r]) {
+                        c = *coords;
+                        Coords_move(&c, Direction_rotate(d, 1));
+                        if (!state->grid[c.q][c.r]) {
+                            state->actions[state->action_count].from = piece->coords;
+                            state->actions[state->action_count++].to = c;
+                        }
+                    }
+                    c = *coords;
+                    Coords_move(&c, Direction_rotate(d, -2));
+                    if (!state->grid[c.q][c.r]) {
+                        c = *coords;
+                        Coords_move(&c, Direction_rotate(d, -1));
+                        if (!state->grid[c.q][c.r]) {
+                            state->actions[state->action_count].from = piece->coords;
+                            state->actions[state->action_count++].to = c;
+                        }
+                    }
                 }
                 break;
 
