@@ -18,6 +18,9 @@ char Piece_char(const struct Piece *piece);
 
 void State_normalize(struct State *state);
 void State_print(const struct State *state, FILE *stream);
+
+void check_state_string(const char string[]);
+
 void State_from_string(struct State *state, const char string[]);
 void State_to_string(const struct State *state, char string[]);
 
