@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Path
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from os import environ
@@ -13,6 +14,7 @@ ACTION_REGEX = r"^([A-Xa-x]{4})|\+[ABGQSabgqs][A-Xa-x]{2}$"
 
 
 app = FastAPI()
+app.mount("/ui", StaticFiles(directory="ui", html=True))
 
 
 class EngineResponse(BaseModel):
