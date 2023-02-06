@@ -269,6 +269,20 @@ void State_derive_hands(struct State *state) {
 }
 
 
+void State_add_neighor_count(
+    struct State *state,
+    const struct Coords *coords,
+    enum Player player,
+    int x
+) {
+    for (int d = 0; d < NUM_DIRECTIONS; d++) {
+        struct Coords c = *coords;
+        Coords_move(&c, d);
+        state->neighbor_count[player][c.q][c.r] += x;
+    }
+}
+
+
 void State_derive_neighbor_count(struct State *state) {
     memset(state->neighbor_count, 0,
         sizeof(uint_fast8_t) * NUM_PLAYERS * GRID_SIZE * GRID_SIZE);
@@ -277,11 +291,11 @@ void State_derive_neighbor_count(struct State *state) {
         for (int i = 0; i < state->piece_count[p]; i++) {
             struct Piece *piece = &state->pieces[p][i];
 
-            for (int d = 0; d < NUM_DIRECTIONS; d++) {
-                struct Coords coords = piece->coords;
-                Coords_move(&coords, d);
-                state->neighbor_count[piece->player][coords.q][coords.r] += 1;
+            if (piece->on_top) {
+                continue;
             }
+
+            State_add_neighor_count(state, &piece->coords, piece->player, 1);
         }
     }
 }
@@ -321,6 +335,7 @@ void State_derive_actions(struct State *state) {
     }
 
     // Places
+    // TODO Force queen move at turn 4
     bool pieces_to_place = false;
     for (int t = 0; t < NUM_PIECETYPES; t++) {
         if (state->hands[state->turn][t] > 0) {
@@ -547,9 +562,9 @@ void State_act(struct State *state, const struct Action *action) {
     }
     #endif
 
+    struct Piece *piece;
     if (action->from.q == PLACE_ACTION) {
-        struct Piece *piece =
-            &state->pieces[state->turn][state->piece_count[state->turn]];
+        piece = &state->pieces[state->turn][state->piece_count[state->turn]];
         piece->type = action->from.r;
         piece->coords.q = action->to.q;
         piece->coords.r = action->to.r;
@@ -567,11 +582,44 @@ void State_act(struct State *state, const struct Action *action) {
         }
 
         state->turn = !state->turn;
-
+        State_derive_cut_points(state);
         State_derive_actions(state);
-
         return;
     }
 
-    // TODO implement other actions
+    piece = state->grid[action->from.q][action->from.r];
+    struct Piece *under = NULL;
+    while (piece->on_top) {
+        under = piece;
+        piece = piece->on_top;
+    }
+
+    piece->coords.q = action->to.q;
+    piece->coords.r = action->to.r;
+
+    State_add_neighor_count(state, &action->from, piece->player, -1);
+
+    if (under) {
+        under->on_top = NULL;
+        State_add_neighor_count(state, &action->from, under->player, 1);
+    } else {
+        state->grid[action->from.q][action->from.r] = NULL;
+    }
+
+    State_add_neighor_count(state, &action->to, piece->player, 1);
+
+    if (state->grid[action->to.q][action->to.r]) {
+        struct Piece *p = state->grid[action->to.q][action->to.r];
+        while (p->on_top) {
+            p = p->on_top;
+        }
+        p->on_top = piece;
+        State_add_neighor_count(state, &action->to, p->player, -1);
+    } else {
+        state->grid[action->to.q][action->to.r] = piece;
+    }
+
+    state->turn = !state->turn;
+    State_derive_cut_points(state);
+    State_derive_actions(state);
 }

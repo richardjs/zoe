@@ -21,6 +21,6 @@ void Piece_pieces_above(const struct Piece *piece, struct Piece *above[]);
 // difference is found, and false if the structs are (functionally)
 // identical. We can't just memcmp because of all the pointers.
 bool Piece_compare(const struct Piece *piece, const struct Piece *other);
-bool State_compare(const struct State *state, const struct State *other);
+bool State_compare(const struct State *state, const struct State *other, bool debug_print);
 
 #endif

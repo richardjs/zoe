@@ -115,12 +115,12 @@ int main(int argc, char *argv[]) {
 
         struct State other = state;
 
-        if (State_compare(&state, &other)) {
+        if (State_compare(&state, &other, true)) {
             printf("Identical states compare differently\n");
         }
 
         other.pieces[P1][2].type = GRASSHOPPER;
-        if (!State_compare(&state, &other)) {
+        if (!State_compare(&state, &other, false)) {
             printf("Different states compare as same\n");
         }
     }
@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
         struct State other;
         State_from_string(&other, state_string);
 
-        if (State_compare(&state, &other)) {
+        if (State_compare(&state, &other, true)) {
             printf("States deserialized from the same string compare as different\n");
         }
     }
@@ -232,7 +232,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    // Ariculation points
+    // Articulation points
     {
         // Square: no APs
         strcpy(state_string, "aaaAababaAbb1");
@@ -636,6 +636,47 @@ int main(int argc, char *argv[]) {
                 if (piece->type != ANT) continue;
                 Action_print(&state.actions[i], stdout);
             }
+        }
+    }
+
+
+    // Piece movement actions
+    {
+        strcpy(state_string, "QabaacsadqbaAbbsbdacaadagdb1");
+        State_from_string(&state, state_string);
+
+        char action_string[ACTION_STRING_SIZE];
+        strcpy(action_string, "bbcc");
+
+        struct Action action;
+        Action_from_string(&action, action_string);
+        State_act(&state, &action);
+
+        struct State other;
+        strcpy(state_string, "QabaacsadqbaAccsbdacaadagdb2");
+        State_from_string(&other, state_string);
+
+        if (State_compare(&state, &other, true)) {
+            printf("States different after move:\n");
+            State_print(&state, stdout);
+            State_print(&other, stdout);
+        }
+
+        // Beetle climbing off hive
+        strcpy(state_string, "QabaacsadqbaAbbsbdacaadagdbBad1");
+        State_from_string(&state, state_string);
+
+        strcpy(action_string, "adbc");
+        Action_from_string(&action, action_string);
+        State_act(&state, &action);
+
+        strcpy(state_string, "QabaacsadqbaAbbsbdacaadagdbBbc2");
+        State_from_string(&other, state_string);
+
+        if (State_compare(&state, &other, true)) {
+            printf("States different after beetle climbs off hive:\n");
+            State_print(&state, stdout);
+            State_print(&other, stdout);
         }
     }
 

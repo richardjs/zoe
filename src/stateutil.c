@@ -49,18 +49,21 @@ bool Piece_compare(const struct Piece *piece, const struct Piece *other) {
 }
 
 
-bool State_compare(const struct State *state, const struct State *other) {
+bool State_compare(const struct State *state, const struct State *other, bool debug_print) {
     if (state->turn != other->turn) {
+        if (debug_print) fprintf(stderr, "Different turn\n");
         return true;
     }
 
     for (int p = 0; p < NUM_PLAYERS; p++ ){
         if (state->piece_count[p] != other->piece_count[p]) {
+            if (debug_print) fprintf(stderr, "Different piece_count\n");
             return true;
         }
 
         for (int i = 0; i < state->piece_count[p]; i++) {
             if (Piece_compare(&state->pieces[p][i], &other->pieces[p][i])) {
+                if (debug_print) fprintf(stderr, "Different pieces\n");
                 return true;
             }
         }
@@ -72,16 +75,34 @@ bool State_compare(const struct State *state, const struct State *other) {
                 if (other->grid[q][r] == NULL) {
                     continue;
                 }
+                if (debug_print) fprintf(stderr, "Different grid NULLs\n");
                 return true;
             }
 
             if (Piece_compare(state->grid[q][r], other->grid[q][r])) {
+                if (debug_print) fprintf(stderr, "Different grid\n");
                 return true;
+            }
+
+            for (int p = 0; p < NUM_PLAYERS; p++) {
+                if (state->neighbor_count[p][q][r] != other->neighbor_count[p][q][r]) {
+                    if (debug_print) fprintf(stderr, "Different neighbor_count\n");
+                    return true;
+                }
             }
         }
     }
 
-    // TODO Compare actions, once we implement them
+    if (state->action_count != other->action_count) {
+        if (debug_print) fprintf(stderr, "Different action_count: %d != %d\n",
+            state->action_count, other->action_count);
+        return true;
+    }
+
+    // TODO Compare actions
+    // Actions may be generated in a different order for the same state
+    // (if pieces are in a different order), so a straight comparision
+    // will not work
 
     return false;
 }
