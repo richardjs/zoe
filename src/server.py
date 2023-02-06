@@ -1,9 +1,9 @@
+from os import environ
+from subprocess import run
+
 from fastapi import FastAPI, HTTPException, Path
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-
-from os import environ
-from subprocess import run
 
 
 ZOE = environ.get("ZOE", "./zoe")
@@ -14,7 +14,6 @@ ACTION_REGEX = r"^([A-Xa-x]{4})|\+[ABGQSabgqs][A-Xa-x]{2}$"
 
 
 app = FastAPI()
-app.mount("/ui", StaticFiles(directory="ui", html=True))
 
 
 class EngineResponse(BaseModel):
@@ -41,7 +40,7 @@ def zoe(*args) -> (str, str):
 
 def get_actions(state: str) -> (list[str], str):
     stdout, stderr = zoe("-l", state)
-    return ([line for line in stdout.strip().split("\n")], stderr)
+    return (stdout.strip().split("\n"), stderr)
 
 
 @app.get("/state/{state}/actions", response_model=ActionsResponse)
@@ -64,3 +63,6 @@ async def state_act(
     actions, _ = get_actions(state)
 
     return ActResponse(state=state, actions=actions, log=stderr)
+
+
+app.mount("/", StaticFiles(directory="ui", html=True))
