@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, HTTPException, Path
 from pydantic import BaseModel
 
 from os import environ
@@ -6,6 +6,10 @@ from subprocess import run
 
 
 ZOE = environ.get("ZOE", "./zoe")
+
+
+STATE_REGEX = r"^([AaBbGgQqSs][A-Xa-x][A-Xa-x]){0,22}[12]$"
+ACTION_REGEX = r"^([A-Xa-x]{4})|\+[ABGQSabgqs][A-Xa-x]{2}$"
 
 
 app = FastAPI()
@@ -19,12 +23,42 @@ class ActionsResponse(EngineResponse):
     actions: list[str]
 
 
-@app.get("/actions/{state}", response_model=ActionsResponse)
-async def actions(
-    state: str = Path(regex=r"^([AaBbGgQqSs][A-Xa-x][A-Xa-x]){1,22}[12]$"),
-) -> ActionsResponse:
-    p = run([ZOE, "-l", state], capture_output=True, encoding="utf-8")
+class ActResponse(EngineResponse):
+    state: str
+    actions: list[str]
 
-    return ActionsResponse(
-        actions=[line for line in p.stdout.strip().split("\n")], log=p.stderr
-    )
+
+def zoe(*args) -> (str, str):
+    p = run([ZOE] + list(args), capture_output=True, encoding="utf-8")
+
+    if p.returncode:
+        raise HTTPException(status_code=422, detail=p.stderr)
+
+    return p.stdout, p.stderr
+
+
+def get_actions(state: str) -> (list[str], str):
+    stdout, stderr = zoe("-l", state)
+    return ([line for line in stdout.strip().split("\n")], stderr)
+
+
+@app.get("/state/{state}/actions", response_model=ActionsResponse)
+async def state_actions(state: str = Path(regex=STATE_REGEX)) -> ActionsResponse:
+    actions, stderr = get_actions(state)
+    return ActionsResponse(actions=actions, log=stderr)
+
+
+@app.get("/state/{state}/act/{action}", response_model=ActResponse)
+async def state_act(
+    state: str = Path(regex=STATE_REGEX), action: str = Path(regex=ACTION_REGEX)
+) -> ActResponse:
+    actions, _ = get_actions(state)
+    if action not in actions:
+        raise HTTPException(status_code=422, detail="Illegal action")
+
+    stdout, stderr = zoe("-a", action, state)
+    state = stdout.strip()
+
+    actions, _ = get_actions(state)
+
+    return ActResponse(state=state, actions=actions, log=stderr)
