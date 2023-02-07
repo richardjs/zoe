@@ -5,7 +5,7 @@
 #include "stateio.h"
 
 
-enum Command {NONE, VERSION, LIST_ACTIONS, ACT};
+enum Command {NONE, VERSION, NORMALIZE, LIST_ACTIONS, ACT};
 
 
 int main(int argc, char *argv[]) {
@@ -15,10 +15,14 @@ int main(int argc, char *argv[]) {
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vla:")) != -1) {
+    while ((opt = getopt(argc, argv, "vnla:")) != -1) {
         switch(opt) {
             case 'v':
                 command = VERSION;
+                break;
+
+            case 'n':
+                command = NORMALIZE;
                 break;
 
             case 'l':
@@ -48,6 +52,12 @@ int main(int argc, char *argv[]) {
             return ERROR_NO_COMMAND_GIVEN;
 
         case VERSION:
+            break;
+
+        case NORMALIZE:
+            State_normalize(&state);
+            State_to_string(&state, state_string);
+            printf("%s\n", state_string);
             break;
 
         case LIST_ACTIONS:
