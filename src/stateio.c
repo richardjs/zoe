@@ -66,10 +66,11 @@ void State_normalize(struct State *state) {
     } while (piece_on_edge);
 
     // Now that there's no wrapping, shift everything to the near edges
+    /// (leaving a gap of 1 hex, for moves to that side)
     piece_on_edge = false;
     while (!piece_on_edge) {
         for (int q = 0; q < GRID_SIZE; q++) {
-            if (state->grid[q][0] != NULL) {
+            if (state->grid[q][1] != NULL) {
                 piece_on_edge = true;
                 break;
             }
@@ -81,7 +82,7 @@ void State_normalize(struct State *state) {
     piece_on_edge = false;
     while (!piece_on_edge) {
         for (int r = 0; r < GRID_SIZE; r++) {
-            if (state->grid[0][r] != NULL) {
+            if (state->grid[1][r] != NULL) {
                 piece_on_edge = true;
                 break;
             }
