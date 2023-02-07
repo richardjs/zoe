@@ -36,6 +36,6 @@ clean:
 	rm -f zoe
 
 
-.PHONY: clean test run-test server
+.PHONY: clean run-test server
 
 # vim: set noexpandtab sts=0:
