@@ -11,6 +11,10 @@
 #include "stateutil.h"
 
 
+// Space between the edge of grid and the first piece in a normalized state
+#define NORMALIZATION_GAP 1
+
+
 const char PIECE_CHAR[NUM_PLAYERS][NUM_PIECETYPES] = {
     {'A', 'B', 'G', 'S', 'Q'},
     {'a', 'b', 'g', 's', 'q'}
@@ -35,8 +39,40 @@ void State_translate_grid(struct State *state, enum Direction direction) {
 
 void State_normalize(struct State *state) {
     if (state->piece_count[P1] == 0 && state->piece_count[P2] == 0) {
+        // Nothing to normalize
         return;
     }
+
+    // Move pieces out of the NORMALIZATION_GAP
+    bool piece_in_gap;
+    do {
+        piece_in_gap = false;
+        for (int q = 0; q < GRID_SIZE; q++) {
+            for (int r = 0; r < NORMALIZATION_GAP; r++) {
+                if (state->grid[q][r] != NULL) {
+                    piece_in_gap = true;
+                    break;
+                }
+            }
+        }
+        if (piece_in_gap) {
+            State_translate_grid(state, NORTH);
+        }
+    } while (piece_in_gap);
+    do {
+        piece_in_gap = false;
+        for (int r = 0; r < GRID_SIZE; r++) {
+            for (int q = 0; q < NORMALIZATION_GAP; q++) {
+                if (state->grid[q][r] != NULL) {
+                    piece_in_gap = true;
+                    break;
+                }
+            }
+        }
+        if (piece_in_gap) {
+            State_translate_grid(state, NORTHWEST);
+        }
+    } while (piece_in_gap);
 
     // Elimanate any wrapping by shifting everything off the far edges
     bool piece_on_edge;
@@ -70,7 +106,7 @@ void State_normalize(struct State *state) {
     piece_on_edge = false;
     while (!piece_on_edge) {
         for (int q = 0; q < GRID_SIZE; q++) {
-            if (state->grid[q][1] != NULL) {
+            if (state->grid[q][NORMALIZATION_GAP] != NULL) {
                 piece_on_edge = true;
                 break;
             }
@@ -82,7 +118,7 @@ void State_normalize(struct State *state) {
     piece_on_edge = false;
     while (!piece_on_edge) {
         for (int r = 0; r < GRID_SIZE; r++) {
-            if (state->grid[1][r] != NULL) {
+            if (state->grid[NORMALIZATION_GAP][r] != NULL) {
                 piece_on_edge = true;
                 break;
             }
@@ -102,16 +138,17 @@ void State_print(const struct State *s, FILE *stream) {
     // https://www.redblobgames.com/grids/hexagons/#coordinates-doubled
     struct Piece *grid[GRID_SIZE][GRID_SIZE*3];
     memset(grid, 0, sizeof(struct Piece*) * GRID_SIZE*GRID_SIZE*3);
-    int min_x = GRID_SIZE - 2;
-    int max_x = 0;
-    int min_y = GRID_SIZE - 2;
-    int max_y = 0;
-    for (int q = 0; q < GRID_SIZE; q++) {
-        for (int r = 0; r < GRID_SIZE; r++) {
+    int min_x = GRID_SIZE;
+    int max_x = NORMALIZATION_GAP;
+    int min_y = GRID_SIZE;
+    int max_y = NORMALIZATION_GAP;
+    for (int q = 0; q < GRID_SIZE-1; q++) {
+        for (int r = 0; r < GRID_SIZE-1; r++) {
             // https://www.redblobgames.com/grids/hexagons/#conversions-doubled
             int x = q;
             int y = 2*r + q;
-            grid[x][y] = state.grid[q][r];
+            // Adjust for NORMALIZATION_GAP so that it's not included the output
+            grid[x][y] = state.grid[q + NORMALIZATION_GAP][r + NORMALIZATION_GAP];
 
             if (!grid[x][y]) continue;
             if (x < min_x) min_x = x;

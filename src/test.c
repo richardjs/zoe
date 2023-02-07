@@ -53,14 +53,14 @@ int main(int argc, char *argv[]) {
         State_derive(&state);
         State_normalize(&state);
 
-        if (p1_piece->coords.q != 1 || p2_piece->coords.r != 0) {
+        if (p1_piece->coords.q != 2 || p2_piece->coords.r != 1) {
             printf(
                 "q not normalized: %d %d\n",
                 p1_piece->coords.q,
                 p2_piece->coords.q
             );
         }
-        if (p1_piece->coords.r != 0 || p2_piece->coords.r != 0) {
+        if (p1_piece->coords.r != 1 || p2_piece->coords.r != 1) {
             printf(
                 "r not normalized: %d %d\n",
                 p1_piece->coords.r,
@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
 
     // State deserialization and serialization
     {
-        strcpy(state_string, "aacQbbScbsdaBdaqea1");
+        strcpy(state_string, "abdQccSdcsebBebqfb1");
         State_from_string(&state, state_string);
 
         char to_string[STATE_STRING_SIZE];
