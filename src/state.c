@@ -319,14 +319,14 @@ void State_derive_actions(struct State *state) {
     }
     // P2 start actions
     if (state->piece_count[P2] == 0) {
+        struct Coords *p1_piece_coords = &state->pieces[P1][0].coords;
         for (int t = 0; t < NUM_PIECETYPES; t++ ) {
             if (t == QUEEN_BEE) continue;
 
             for (int d = 0; d < NUM_DIRECTIONS; d++) {
                 state->actions[state->action_count].from.q = PLACE_ACTION;
                 state->actions[state->action_count].from.r = t;
-                state->actions[state->action_count].to.q = 0;
-                state->actions[state->action_count].to.r = 0;
+                state->actions[state->action_count].to = *p1_piece_coords;
                 Coords_move(&state->actions[state->action_count++].to, d);
             }
         }
