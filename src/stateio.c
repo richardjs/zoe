@@ -295,7 +295,6 @@ void State_from_string(struct State *state, const char string[]) {
 
 void State_to_string(const struct State *s, char string[]) {
     struct State state = *s;
-    State_normalize(&state);
 
     memset(string, 0, sizeof(char)*STATE_STRING_SIZE);
     int c = 0;

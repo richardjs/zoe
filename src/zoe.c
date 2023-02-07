@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
 
         case ACT:
             State_act(&state, &action);
+            State_normalize(&state);
             State_to_string(&state, state_string);
             printf("%s\n", state_string);
             break;
