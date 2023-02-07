@@ -9,7 +9,7 @@ enum Command {NONE, VERSION, NORMALIZE, LIST_ACTIONS, ACT};
 
 
 int main(int argc, char *argv[]) {
-    fprintf(stderr, "Zo\u00e9 v.1a\n");
+    fprintf(stderr, "Zo\u00e9 v.1a (built %s %s)\n", __DATE__, __TIME__);
 
     enum Command command = NONE;
 
