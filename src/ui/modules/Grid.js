@@ -7,7 +7,6 @@ import { Piece } from "./piece.js";
 const MAX_PIECES = 22;
 
 function draw(state, canvas) {
-  console.log("Drawing " + state);
   const grid = [];
 
   let minX = MAX_PIECES;
@@ -83,9 +82,23 @@ function draw(state, canvas) {
 export default function Grid({ state }) {
   const canvasRef = React.useRef(null);
 
+  function handleClick(e) {
+    const canvas = canvasRef.current;
+    const x = e.clientX - canvas.getBoundingClientRect().left;
+    const y = e.clientY - canvas.getBoundingClientRect().top;
+
+    // https://www.redblobgames.com/grids/hexagons/#pixel-to-hex
+    let q = Math.floor(((2 / 3) * x) / HEX_SIZE);
+    let r = Math.floor(((-1 / 3) * x + (Math.sqrt(3) / 3) * y) / HEX_SIZE);
+  }
+
   React.useEffect(() => {
     draw(state, canvasRef.current);
   }, [state]);
 
-  return e("canvas", { className: "grid", ref: canvasRef });
+  return e("canvas", {
+    className: "grid",
+    onClick: handleClick,
+    ref: canvasRef,
+  });
 }
