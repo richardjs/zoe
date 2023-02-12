@@ -1,20 +1,20 @@
-import { e } from "./shortcuts.js";
-
 import { Player, Type } from "./enum.js";
 import { HEX_SIZE } from "./hex.js";
 import { Piece } from "./piece.js";
-
-const MAX_PIECES = 22;
+import { e } from "./shortcuts.js";
 
 function draw(state, canvas) {
   const grid = [];
 
-  let minX = MAX_PIECES;
+  // Convert state (string) into Pieces in grid
+  // grid is indexed double-height coordinates:
+  // https://www.redblobgames.com/grids/hexagons/#coordinates-doubled
+
+  let minX = Infinity;
   let maxX = 0;
-  let minY = MAX_PIECES;
+  let minY = Infinity;
   let maxY = 0;
 
-  // Convert state (string) into Pieces in grid
   for (let i = 0; i + 2 < state.length; i += 3) {
     let piece = Piece.fromChar(state[i]);
     let q = state[i + 1].charCodeAt(0) - "a".charCodeAt(0);
@@ -43,6 +43,8 @@ function draw(state, canvas) {
     maxY = Math.max(maxY, y);
   }
 
+  // Resize canvas based on grid size
+
   let gridWidth = maxX - minX + 1;
   let gridHeight = maxY - minY + 1;
 
@@ -50,10 +52,15 @@ function draw(state, canvas) {
   canvas.height =
     HEX_SIZE * Math.sqrt(3) + 0.5 * HEX_SIZE * Math.sqrt(3) * (gridHeight - 1);
 
+  // Draw grid
+
   const ctx = canvas.getContext("2d");
 
-  for (let x = 0; x < MAX_PIECES; x += 2) {
-    for (let y = 0; y < MAX_PIECES; y += 2) {
+  // Hexes are drawn in pairs:
+  //   1. A hex at an even x and y
+  //   2. The hex to the southeast of it (x+1, y+1)
+  for (let x = minX - (minX % 2); x <= maxX + (maxX % 2); x += 2) {
+    for (let y = minY - (minY % 2); y <= maxY + (maxY % 2); y += 2) {
       ctx.save();
 
       ctx.translate(
