@@ -87,5 +87,5 @@ export default function Grid({ state }) {
     draw(state, canvasRef.current);
   }, [state]);
 
-  return e("canvas", { ref: canvasRef });
+  return e("canvas", { className: "grid", ref: canvasRef });
 }
