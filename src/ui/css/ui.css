@@ -12,4 +12,5 @@ body {
 
 .grid {
   display: block;
+  border: 1px solid #eee;
 }

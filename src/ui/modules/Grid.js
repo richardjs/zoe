@@ -1,9 +1,10 @@
 import { Player, Type } from "./enum.js";
-import { HEX_SIZE } from "./hex.js";
+import { HEX, HEX_SIZE } from "./hex.js";
+import { axialToDoubleHeight, pixelToAxial } from "./math.js";
 import { Piece } from "./piece.js";
 import { e } from "./shortcuts.js";
 
-function draw(state, canvas) {
+function draw(canvas, state, highlight) {
   const grid = [];
 
   // Convert state (string) into Pieces in grid
@@ -16,12 +17,11 @@ function draw(state, canvas) {
   let maxY = 0;
 
   for (let i = 0; i + 2 < state.length; i += 3) {
-    let piece = Piece.fromChar(state[i]);
-    let q = state[i + 1].charCodeAt(0) - "a".charCodeAt(0);
-    let r = state[i + 2].charCodeAt(0) - "a".charCodeAt(0);
+    const piece = Piece.fromChar(state[i]);
+    const q = state[i + 1].charCodeAt(0) - "a".charCodeAt(0);
+    const r = state[i + 2].charCodeAt(0) - "a".charCodeAt(0);
 
-    let x = q;
-    let y = 2 * r + q;
+    const { x, y } = axialToDoubleHeight({ q, r });
 
     if (grid[x] === undefined) {
       grid[x] = [];
@@ -73,12 +73,22 @@ function draw(state, canvas) {
         let piece = grid[x][y];
         piece.draw(ctx);
       }
+      if (highlight && x == highlight.x && y == highlight.y) {
+        ctx.strokeStyle = "#0d0";
+        ctx.lineWidth = 3;
+        ctx.stroke(HEX);
+      }
 
       ctx.translate(1.5 * HEX_SIZE, 0.5 * HEX_SIZE * Math.sqrt(3));
 
       if (grid[x + 1] && grid[x + 1][y + 1]) {
         let piece = grid[x + 1][y + 1];
         piece.draw(ctx);
+      }
+      if (highlight && x + 1 == highlight.x && y + 1 == highlight.y) {
+        ctx.strokeStyle = "#0d0";
+        ctx.lineWidth = 3;
+        ctx.stroke(HEX);
       }
 
       ctx.restore();
@@ -87,21 +97,22 @@ function draw(state, canvas) {
 }
 
 export default function Grid({ state }) {
+  const [highlight, setHighlight] = React.useState(null);
+
   const canvasRef = React.useRef(null);
 
   function handleClick(e) {
     const canvas = canvasRef.current;
+
     const x = e.clientX - canvas.getBoundingClientRect().left;
     const y = e.clientY - canvas.getBoundingClientRect().top;
-
-    // https://www.redblobgames.com/grids/hexagons/#pixel-to-hex
-    let q = Math.floor(((2 / 3) * x) / HEX_SIZE);
-    let r = Math.floor(((-1 / 3) * x + (Math.sqrt(3) / 3) * y) / HEX_SIZE);
+    const { q, r } = pixelToAxial({ x, y });
+    console.log({ q, r });
   }
 
   React.useEffect(() => {
-    draw(state, canvasRef.current);
-  }, [state]);
+    draw(canvasRef.current, state, highlight);
+  }, [state, highlight]);
 
   return e("canvas", {
     className: "grid",
