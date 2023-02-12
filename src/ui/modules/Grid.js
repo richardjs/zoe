@@ -4,6 +4,9 @@ import { axialToDoubleHeight, pixelToAxial } from "./math.js";
 import { Piece } from "./piece.js";
 import { e } from "./shortcuts.js";
 
+// Margin around the rendered hexes, to allow space for move input
+const EDGE_SPACE = HEX_SIZE;
+
 function draw(canvas, state, highlight) {
   const grid = [];
 
@@ -48,13 +51,18 @@ function draw(canvas, state, highlight) {
   let gridWidth = maxX - minX + 1;
   let gridHeight = maxY - minY + 1;
 
-  canvas.width = 2 * HEX_SIZE + 1.5 * HEX_SIZE * (gridWidth - 1);
+  canvas.width =
+    2 * HEX_SIZE + 1.5 * HEX_SIZE * (gridWidth - 1) + 2 * EDGE_SPACE;
   canvas.height =
-    HEX_SIZE * Math.sqrt(3) + 0.5 * HEX_SIZE * Math.sqrt(3) * (gridHeight - 1);
+    HEX_SIZE * Math.sqrt(3) +
+    0.5 * HEX_SIZE * Math.sqrt(3) * (gridHeight - 1) +
+    2 * EDGE_SPACE;
 
   // Draw grid
 
   const ctx = canvas.getContext("2d");
+
+  ctx.translate(EDGE_SPACE, EDGE_SPACE);
 
   // Hexes are drawn in pairs:
   //   1. A hex at an even x and y
@@ -94,6 +102,8 @@ function draw(canvas, state, highlight) {
       ctx.restore();
     }
   }
+
+  ctx.restore();
 }
 
 export default function Grid({ state }) {
@@ -113,8 +123,8 @@ export default function Grid({ state }) {
   function handleClick(e) {
     const canvas = canvasRef.current;
 
-    const x = e.clientX - canvas.getBoundingClientRect().left;
-    const y = e.clientY - canvas.getBoundingClientRect().top;
+    const x = e.clientX - canvas.getBoundingClientRect().left - EDGE_SPACE;
+    const y = e.clientY - canvas.getBoundingClientRect().top - EDGE_SPACE;
 
     let { q, r } = pixelToAxial({ x, y });
     q += offsetQ;
