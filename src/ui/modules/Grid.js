@@ -101,12 +101,25 @@ export default function Grid({ state }) {
 
   const canvasRef = React.useRef(null);
 
+  // The upper-left hex may not be aa ({0, 0}), so determine the offset
+  // the hex has from aa, to be added to events (i.e. clicks) later
+  let offsetQ = Infinity;
+  let offsetR = Infinity;
+  for (let i = 0; i + 2 < state.length; i += 3) {
+    offsetQ = Math.min(offsetQ, state[i + 1].charCodeAt(0) - "a".charCodeAt(0));
+    offsetR = Math.min(offsetR, state[i + 2].charCodeAt(0) - "a".charCodeAt(0));
+  }
+
   function handleClick(e) {
     const canvas = canvasRef.current;
 
     const x = e.clientX - canvas.getBoundingClientRect().left;
     const y = e.clientY - canvas.getBoundingClientRect().top;
-    const { q, r } = pixelToAxial({ x, y });
+
+    let { q, r } = pixelToAxial({ x, y });
+    q += offsetQ;
+    r += offsetR;
+
     console.log({ q, r });
   }
 
