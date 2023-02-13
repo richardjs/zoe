@@ -1,6 +1,6 @@
 import { Player, Type } from "./enum.js";
 import { HEX, HEX_SIZE } from "./hex.js";
-import { axialToDoubleHeight, pixelToAxial } from "./util.js";
+import { axialToDoubleHeight, axialToString, pixelToAxial } from "./util.js";
 import { Piece } from "./piece.js";
 import { e } from "./shortcuts.js";
 
@@ -130,7 +130,7 @@ export default function Grid({ state }) {
     q += offsetQ;
     r += offsetR;
 
-    console.log({ q, r });
+    console.log(axialToString({ q, r }));
   }
 
   React.useEffect(() => {

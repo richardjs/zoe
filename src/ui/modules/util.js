@@ -27,6 +27,13 @@ export function axialToDoubleHeight({ q, r }) {
   return { x, y };
 }
 
+export function axialToString({ q, r }) {
+  return (
+    String.fromCharCode("a".charCodeAt(0) + q) +
+    String.fromCharCode("a".charCodeAt(0) + r)
+  );
+}
+
 export function pixelToAxial({ x, y }) {
   // The origin for the following calculation should be the center of
   // the upper-leftmost hex, not the upper-left corner of the canvas
