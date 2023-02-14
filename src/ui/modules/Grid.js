@@ -1,6 +1,6 @@
 import { Player, Type } from "./enum.js";
 import { HEX, HEX_SIZE } from "./hex.js";
-import { axialToDoubleHeight, axialToString, pixelToAxial } from "./util.js";
+import { axialToDoubleHeight, pixelToAxial } from "./util.js";
 import { Piece } from "./piece.js";
 import { e } from "./shortcuts.js";
 
@@ -106,7 +106,7 @@ function draw(canvas, state, highlight) {
   ctx.restore();
 }
 
-export default function Grid({ state }) {
+export default function Grid({ state, handleHexClick }) {
   const [highlight, setHighlight] = React.useState(null);
 
   const canvasRef = React.useRef(null);
@@ -130,7 +130,7 @@ export default function Grid({ state }) {
     q += offsetQ;
     r += offsetR;
 
-    console.log(axialToString({ q, r }));
+    handleHexClick({q, r});
   }
 
   React.useEffect(() => {
