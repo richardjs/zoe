@@ -30,4 +30,6 @@ import { e } from "./modules/shortcuts.js";
 //window.addEventListener('hashchange', render);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(e(App, { state: location.hash.slice(1) }));
+root.render(
+  e(React.StrictMode, null, e(App, { state: location.hash.slice(1) }))
+);
