@@ -4,7 +4,7 @@ import { axialToString } from "./util.js";
 
 export default function App() {
   const [state, setState] = React.useState(location.hash.slice(1));
-  const [actions, setActions] = React.useState(null);
+  const [actions, setActions] = React.useState([]);
   const [actionInput, setActionInput] = React.useState("");
 
   React.useEffect(() => {
@@ -39,13 +39,13 @@ export default function App() {
   function handleHexClick({ q, r }) {
     const hexString = axialToString({ q, r });
     const newActionInput = actionInput + hexString;
-    for (let action of actions) {
+
+    for (const action in actions) {
       if (action == newActionInput) {
-        console.log("action entered:", action);
+        location.hash = actions[action];
         setActionInput("");
         break;
       } else if (action.startsWith(newActionInput)) {
-        console.log("building action:", newActionInput);
         setActionInput(newActionInput);
         break;
       }
