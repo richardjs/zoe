@@ -3,9 +3,13 @@ import { HEX, HEX_SIZE } from "./hex.js";
 import { axialToDoubleHeight, pixelToAxial } from "./util.js";
 import { Piece } from "./piece.js";
 import { e } from "./shortcuts.js";
+import { doubleHeightToString } from "./util.js";
 
 // Margin around the rendered hexes, to allow space for move input
 const EDGE_SPACE = HEX_SIZE;
+
+// TODO Make this user-controlable
+const DRAW_COORDS = true;
 
 function draw(canvas, state, highlight) {
   const grid = [];
@@ -86,9 +90,19 @@ function draw(canvas, state, highlight) {
         ctx.lineWidth = 3;
         ctx.stroke(HEX);
       }
+      if (DRAW_COORDS) {
+        ctx.fillStyle = "#000";
+        const text = doubleHeightToString({ x, y });
+        const rect = ctx.measureText(text);
+        const width = rect.actualBoundingBoxRight - rect.actualBoundingBoxLeft;
+        const height =
+          rect.actualBoundingBoxDescent - rect.actualBoundingBoxAscent;
+        ctx.fillText(text, -width / 2, -height / 2);
+      }
 
       ctx.translate(1.5 * HEX_SIZE, 0.5 * HEX_SIZE * Math.sqrt(3));
 
+      // Don't copy-paste this from above
       if (grid[x + 1] && grid[x + 1][y + 1]) {
         let piece = grid[x + 1][y + 1];
         piece.draw(ctx);
@@ -97,6 +111,15 @@ function draw(canvas, state, highlight) {
         ctx.strokeStyle = "#0d0";
         ctx.lineWidth = 3;
         ctx.stroke(HEX);
+      }
+      if (DRAW_COORDS) {
+        ctx.fillStyle = "#000";
+        const text = doubleHeightToString({ x: x + 1, y: y + 1 });
+        const rect = ctx.measureText(text);
+        const width = rect.actualBoundingBoxRight - rect.actualBoundingBoxLeft;
+        const height =
+          rect.actualBoundingBoxDescent - rect.actualBoundingBoxAscent;
+        ctx.fillText(text, -width / 2, -height / 2);
       }
 
       ctx.restore();
@@ -130,7 +153,7 @@ export default function Grid({ state, handleHexClick }) {
     q += offsetQ;
     r += offsetR;
 
-    handleHexClick({q, r});
+    handleHexClick({ q, r });
   }
 
   React.useEffect(() => {
