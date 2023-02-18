@@ -9,7 +9,7 @@ import { doubleHeightToString } from "./util.js";
 const EDGE_SPACE = HEX_SIZE;
 
 // TODO Make this user-controlable
-const DRAW_COORDS = true;
+const DRAW_COORDS = false;
 
 function draw(canvas, state, highlight) {
   const grid = [];
@@ -25,8 +25,8 @@ function draw(canvas, state, highlight) {
 
   for (let i = 0; i + 2 < state.length; i += 3) {
     const piece = Piece.fromChar(state[i]);
-    const q = state[i + 1].charCodeAt(0) - "a".charCodeAt(0);
-    const r = state[i + 2].charCodeAt(0) - "a".charCodeAt(0);
+    const q = state.charCodeAt(i + 1) - "a".charCodeAt(0);
+    const r = state.charCodeAt(i + 2) - "a".charCodeAt(0);
 
     const { x, y } = axialToDoubleHeight({ q, r });
 
@@ -138,16 +138,33 @@ export default function Grid({ state, handleHexClick }) {
   // the hex has from aa, to be added to events (i.e. clicks) later
   let offsetQ = Infinity;
   let offsetR = Infinity;
+  // It's also possible the leftmost column's topmost hex is flush with
+  // the top of the canvas (meaning a different column has a higher
+  // hex); in this case, we'll need to shift pixel calculations
+  let leftColLower;
   for (let i = 0; i + 2 < state.length; i += 3) {
-    offsetQ = Math.min(offsetQ, state[i + 1].charCodeAt(0) - "a".charCodeAt(0));
-    offsetR = Math.min(offsetR, state[i + 2].charCodeAt(0) - "a".charCodeAt(0));
+    let q = state.charCodeAt(i + 1) - "a".charCodeAt(0);
+    let r = state.charCodeAt(i + 2) - "a".charCodeAt(0);
+
+    if (q < offsetQ) {
+      leftColLower = r > offsetR;
+      offsetQ = q;
+    }
+    if (r < offsetR) {
+      leftColLower = q > offsetQ;
+      offsetR = r;
+    }
   }
 
   function handleClick(e) {
     const canvas = canvasRef.current;
 
     const x = e.clientX - canvas.getBoundingClientRect().left - EDGE_SPACE;
-    const y = e.clientY - canvas.getBoundingClientRect().top - EDGE_SPACE;
+    let y = e.clientY - canvas.getBoundingClientRect().top - EDGE_SPACE;
+
+    if (leftColLower) {
+      y += 0.5 * HEX_SIZE * Math.sqrt(3);
+    }
 
     let { q, r } = pixelToAxial({ x, y });
     q += offsetQ;
