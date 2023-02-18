@@ -4,6 +4,7 @@ import { Piece } from "./piece.js";
 import { e } from "./shortcuts.js";
 import {
   axialToDoubleHeight,
+  axialToString,
   doubleHeightToString,
   pixelToAxial,
 } from "./util.js";
@@ -132,7 +133,7 @@ function draw(canvas, state, highlight) {
   ctx.restore();
 }
 
-export default function Grid({ state, handleHexClick }) {
+export default function Grid({ state, handleActionInput }) {
   const [highlight, setHighlight] = React.useState(null);
 
   const canvasRef = React.useRef(null);
@@ -173,7 +174,8 @@ export default function Grid({ state, handleHexClick }) {
     q += offsetQ;
     r += offsetR;
 
-    handleHexClick({ q, r });
+    const hexString = axialToString({ q, r });
+    handleActionInput(hexString);
   }
 
   React.useEffect(() => {

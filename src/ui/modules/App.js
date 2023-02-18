@@ -1,7 +1,6 @@
 import Grid from "./Grid.js";
 import Hands from "./Hands.js";
 import { e } from "./shortcuts.js";
-import { axialToString } from "./util.js";
 
 export default function App() {
   const [state, setState] = React.useState(location.hash.slice(1));
@@ -37,17 +36,20 @@ export default function App() {
     };
   }, [state]);
 
-  function handleHexClick({ q, r }) {
-    const hexString = axialToString({ q, r });
-    const newActionInput = actionInput + hexString;
+  function handleActionInput(actionInputPart) {
+    console.log("input:", actionInputPart);
+    const newActionInput = actionInput + actionInputPart;
 
     for (const action in actions) {
       if (action == newActionInput) {
+        console.log("action:", newActionInput);
+        console.log("finsihed");
         location.hash = actions[action];
         setActionInput("");
         break;
       } else if (action.startsWith(newActionInput)) {
         setActionInput(newActionInput);
+        console.log("action:", newActionInput);
         break;
       }
     }
@@ -56,7 +58,7 @@ export default function App() {
   return e(
     React.Fragment,
     null,
-    e(Grid, { state, handleHexClick }),
-    e(Hands, { state })
+    e(Grid, { state, handleActionInput }),
+    e(Hands, { state, handleActionInput })
   );
 }

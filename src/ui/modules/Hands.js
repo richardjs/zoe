@@ -45,7 +45,7 @@ function draw(canvas, hands) {
   }
 }
 
-export default function Hands({ state }) {
+export default function Hands({ state, handleActionInput }) {
   const canvasRef = React.useRef(null);
 
   let hands = {
@@ -57,13 +57,45 @@ export default function Hands({ state }) {
     hands[piece.player][piece.type]--;
   }
 
+  function handleClick(e) {
+    const canvas = canvasRef.current;
+
+    const x = e.clientX - canvas.getBoundingClientRect().left;
+    const y = e.clientY - canvas.getBoundingClientRect().top;
+
+    const row = Math.floor(y / (HEX_SIZE * Math.sqrt(3)));
+
+    let i = 0;
+    for (let player in hands) {
+      for (let type in hands[player]) {
+        if (row == i) {
+          let pieceChar = {
+            [Type.Ant]: "A",
+            [Type.Beetle]: "B",
+            [Type.Grasshopper]: "G",
+            [Type.QueenBee]: "Q",
+            [Type.Spider]: "S",
+          }[type];
+          if (player == Player.P2) {
+            pieceChar = pieceChar.toLowerCase();
+          }
+          handleActionInput("+" + pieceChar);
+          return;
+        }
+        if (hands[player][type]) {
+          i++;
+        }
+      }
+    }
+  }
+
   React.useEffect(() => {
     draw(canvasRef.current, hands);
   }, [state]);
 
   return e("canvas", {
     className: "hands",
-    //onClick: handleClick,
+    onClick: handleClick,
     ref: canvasRef,
   });
 }
