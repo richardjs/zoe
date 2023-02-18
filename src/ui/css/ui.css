@@ -12,5 +12,10 @@ body {
 
 .grid {
   display: block;
-  border: 1px solid #eee;
+}
+
+.hands {
+  display: block;
+  position: fixed;
+  left: 10px;
 }

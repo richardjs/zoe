@@ -1,4 +1,5 @@
 import Grid from "./Grid.js";
+import Hands from "./Hands.js";
 import { e } from "./shortcuts.js";
 import { axialToString } from "./util.js";
 
@@ -52,5 +53,10 @@ export default function App() {
     }
   }
 
-  return e(Grid, { state, handleHexClick });
+  return e(
+    React.Fragment,
+    null,
+    e(Grid, { state, handleHexClick }),
+    e(Hands, { state })
+  );
 }

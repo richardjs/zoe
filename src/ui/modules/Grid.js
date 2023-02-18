@@ -1,9 +1,12 @@
 import { Player, Type } from "./enum.js";
 import { HEX, HEX_SIZE } from "./hex.js";
-import { axialToDoubleHeight, pixelToAxial } from "./util.js";
 import { Piece } from "./piece.js";
 import { e } from "./shortcuts.js";
-import { doubleHeightToString } from "./util.js";
+import {
+  axialToDoubleHeight,
+  doubleHeightToString,
+  pixelToAxial,
+} from "./util.js";
 
 // Margin around the rendered hexes, to allow space for move input
 const EDGE_SPACE = HEX_SIZE;
