@@ -50,7 +50,7 @@ export class Piece {
 
       ctx.scale(ON_TOP_SCALE, ON_TOP_SCALE);
       ctx.rotate(ON_TOP_ROTATION);
-      this.on_top.render(ctx, true);
+      this.on_top.draw(ctx, true);
 
       ctx.restore();
     }
