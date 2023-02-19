@@ -141,27 +141,32 @@ export default function Grid({ state, handleActionInput }) {
 
   // The upper-left hex may not be aa ({0, 0}), so determine the offset
   // the hex has from aa, to be added to events (i.e. clicks) later.
-  // It's also possible the leftmost column's topmost hex is not flush
-  // with the top of the canvas (meaning a different column has a higher
-  // hex); in this case, we'll need to shift pixel calculations.
   let minX = Infinity;
-  let minXY = Infinity;
   let minY = Infinity;
+  for (let i = 0; i + 2 < state.length; i += 3) {
+    let q = state.charCodeAt(i + 1) - "a".charCodeAt(0);
+    let r = state.charCodeAt(i + 2) - "a".charCodeAt(0);
+
+    const { x, y } = axialToDoubleHeight({ q, r });
+    minX = Math.min(x, minX);
+    minY = Math.min(y, minY);
+  }
+  const { q: offsetQ, r: offsetR } = doubleHeightToAxial({ x: minX, y: minY });
+
+  // It's possible that odd columns (relative to the leftmost column)
+  // will be flush with the top of the drawn grid. In that case, we'll
+  // need to shift our pixel-to-axial calculations.
+  let minEvenY = Infinity;
   for (let i = 0; i + 2 < state.length; i += 3) {
     let q = state.charCodeAt(i + 1) - "a".charCodeAt(0);
     let r = state.charCodeAt(i + 2) - "a".charCodeAt(0);
     const { x, y } = axialToDoubleHeight({ q, r });
 
-    if (x < minX) {
-      minX = x;
-      minXY = y;
-    } else if (x == minX && y < minXY) {
-      minXY = y;
+    if ((x - minX) % 2 == 0) {
+      minEvenY = Math.min(y, minEvenY);
     }
-    minY = Math.min(y, minY);
   }
-  const { q: offsetQ, r: offsetR } = doubleHeightToAxial({ x: minX, y: minY });
-  const leftColLower = minY !== minXY;
+  const evenColsLower = minY !== minEvenY;
 
   function handleClick(e) {
     const canvas = canvasRef.current;
@@ -169,7 +174,7 @@ export default function Grid({ state, handleActionInput }) {
     const x = e.clientX - canvas.getBoundingClientRect().left - EDGE_SPACE;
     let y = e.clientY - canvas.getBoundingClientRect().top - EDGE_SPACE;
 
-    if (leftColLower) {
+    if (evenColsLower) {
       y += 0.5 * HEX_SIZE * Math.sqrt(3);
     }
 
