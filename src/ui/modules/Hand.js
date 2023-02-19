@@ -47,7 +47,7 @@ export default function Hand({ state, player, handleActionInput }) {
 
   for (let i = 0; i + 2 < state.length; i += 3) {
     const piece = Piece.fromChar(state[i]);
-    if (piece.player === Player) {
+    if (piece.player === player) {
       hand[piece.type]--;
     }
   }
