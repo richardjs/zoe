@@ -19,10 +19,10 @@ body {
   position: fixed;
 }
 
-#hand-P1 {
+.hand-turn {
   left: 10px;
 }
 
-#hand-P2 {
+.hand-other {
   right: 10px;
 }

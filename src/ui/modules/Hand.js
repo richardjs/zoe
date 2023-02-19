@@ -92,8 +92,7 @@ export default function Hand({ state, player, handleActionInput }) {
   }, [state]);
 
   return e("canvas", {
-    className: "hand",
-    id: "hand-" + player,
+    className: "hand " + (turn === player ? "hand-turn" : "hand-other"),
     onClick: handleClick,
     ref: canvasRef,
   });
