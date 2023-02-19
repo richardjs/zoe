@@ -3,7 +3,7 @@ import { Player, Type } from "./enum.js";
 import { HEX } from "./hex.js";
 
 const GAP_SCALE = 0.95;
-const TYPE_SCALE = 0.75;
+const TYPE_SCALE = 0.7;
 
 // Applied with GAP_SCALE but not TYPE_SCALE
 const ON_TOP_SCALE = TYPE_SCALE;
