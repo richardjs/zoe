@@ -64,20 +64,21 @@ export default function Hand({ state, player, handleActionInput }) {
 
     let i = 0;
     for (let type in hand) {
+      if (!hand[type]) continue;
+
       if (row == i) {
         let pieceChar = {
+          [Type.QueenBee]: "q",
           [Type.Ant]: "a",
           [Type.Beetle]: "b",
           [Type.Grasshopper]: "g",
-          [Type.QueenBee]: "q",
           [Type.Spider]: "s",
         }[type];
         handleActionInput("+" + pieceChar);
         return;
       }
-      if (hand[type]) {
-        i++;
-      }
+
+      i++;
     }
   }
 
