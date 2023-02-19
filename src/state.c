@@ -301,6 +301,35 @@ void State_derive_neighbor_count(struct State *state) {
 }
 
 
+void State_derive_result(struct State *state) {
+    state->result = NO_RESULT;
+    for (int p = 0; p < NUM_PLAYERS; p++) {
+        for (int i = 0; i < state->piece_count[p]; i++) {
+            struct Piece *piece = &state->pieces[p][i];
+            if (piece->type != QUEEN_BEE) continue;
+
+            int neighbors =
+                state->neighbor_count[P1][piece->coords.q][piece->coords.r]
+                + state->neighbor_count[P2][piece->coords.q][piece->coords.r];
+            if (neighbors == 6) {
+                switch(state->result) {
+                    case P1_WIN:
+                    case P2_WIN:
+                        state->result = DRAW;
+                        break;
+                    default:
+                        if (p == P1) {
+                            state->result = P2_WIN;
+                        } else {
+                            state->result = P1_WIN;
+                        }
+                        break;
+                }
+            }
+        }
+    }
+}
+
 void State_derive_actions(struct State *state) {
     state->action_count = 0;
 
@@ -537,6 +566,7 @@ void State_derive(struct State *state) {
     State_derive_cut_points(state);
     State_derive_hands(state);
     State_derive_neighbor_count(state);
+    State_derive_result(state);
     State_derive_actions(state);
 }
 

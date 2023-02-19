@@ -681,6 +681,33 @@ int main(int argc, char *argv[]) {
     }
 
 
+    {
+        strcpy(state_string, "AbgAcdacfaddsdebdfsedQeeSefgfdgfegffbgcqgeBgeSgfAhbGhdGheGid1");
+        State_from_string(&state, state_string);
+
+        if (state.result != P2_WIN) {
+            printf("State not marked as P2 win:\n");
+            State_print(&state, stdout);
+        }
+
+        strcpy(state_string, "AbgAcdacfaddsdebdesedQeeSefgfdgfegffbgcGgdqgeBgeSgfAhbGhdGhe2");
+        State_from_string(&state, state_string);
+
+        if (state.result != P1_WIN) {
+            printf("State not marked as P1 win:\n");
+            State_print(&state, stdout);
+        }
+
+        strcpy(state_string, "AbgAcdacfBchaddsdebdfSdgsedQeeSefgfdgfegffbgcGgdqgeBgfAhbGhdGhe1");
+        State_from_string(&state, state_string);
+
+        if (state.result != DRAW) {
+            printf("State not marked as draw:\n");
+            State_print(&state, stdout);
+        }
+    }
+
+
     printf("Done\n");
     return 0;
 }

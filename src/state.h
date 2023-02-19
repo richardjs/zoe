@@ -55,6 +55,7 @@
 
 enum Player {P1=0, P2};
 enum PieceType {ANT=0, BEETLE, GRASSHOPPER, SPIDER, QUEEN_BEE};
+enum Result {P1_WIN=0, P2_WIN, DRAW, NO_RESULT};
 
 
 struct Action {
@@ -93,6 +94,8 @@ struct State {
     uint_fast8_t neighbor_count[NUM_PLAYERS][GRID_SIZE][GRID_SIZE];
 
     bool cut_points[GRID_SIZE][GRID_SIZE];
+
+    enum Result result;
 };
 
 
