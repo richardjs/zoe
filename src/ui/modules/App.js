@@ -4,7 +4,7 @@ import Hand from "./Hand.js";
 import { e } from "./shortcuts.js";
 
 export default function App() {
-  const [state, setState] = React.useState(location.hash.slice(1));
+  const [state, setState] = React.useState(location.hash.slice(1) || "1");
   const [actions, setActions] = React.useState([]);
   const [actionInput, setActionInput] = React.useState("");
 
