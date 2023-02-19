@@ -41,6 +41,8 @@ function draw(canvas, player, hand) {
 export default function Hand({ state, player, handleActionInput }) {
   const canvasRef = React.useRef(null);
 
+  const turn = state.slice(-1) === "1" ? Player.P1 : Player.P2;
+
   let hand = { ...NUM_PIECES };
 
   for (let i = 0; i + 2 < state.length; i += 3) {
@@ -51,6 +53,8 @@ export default function Hand({ state, player, handleActionInput }) {
   }
 
   function handleClick(e) {
+    if (player !== turn) return;
+
     const canvas = canvasRef.current;
 
     const x = e.clientX - canvas.getBoundingClientRect().left;
@@ -62,15 +66,12 @@ export default function Hand({ state, player, handleActionInput }) {
     for (let type in hand) {
       if (row == i) {
         let pieceChar = {
-          [Type.Ant]: "A",
-          [Type.Beetle]: "B",
-          [Type.Grasshopper]: "G",
-          [Type.QueenBee]: "Q",
-          [Type.Spider]: "S",
+          [Type.Ant]: "a",
+          [Type.Beetle]: "b",
+          [Type.Grasshopper]: "g",
+          [Type.QueenBee]: "q",
+          [Type.Spider]: "s",
         }[type];
-        if (player == Player.P2) {
-          pieceChar = pieceChar.toLowerCase();
-        }
         handleActionInput("+" + pieceChar);
         return;
       }

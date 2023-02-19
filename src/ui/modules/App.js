@@ -38,19 +38,15 @@ export default function App() {
   }, [state]);
 
   function handleActionInput(actionInputPart) {
-    console.log("input:", actionInputPart);
     const newActionInput = actionInput + actionInputPart;
 
     for (const action in actions) {
       if (action == newActionInput) {
-        console.log("action:", newActionInput);
-        console.log("finsihed");
         location.hash = actions[action];
         setActionInput("");
         break;
       } else if (action.startsWith(newActionInput)) {
         setActionInput(newActionInput);
-        console.log("action:", newActionInput);
         break;
       }
     }
@@ -61,6 +57,6 @@ export default function App() {
     null,
     e(Grid, { state, handleActionInput }),
     e(Hand, { state, player: Player.P1, handleActionInput }),
-    e(Hand, { state, player: Player.P2, handleActionInput }),
+    e(Hand, { state, player: Player.P2, handleActionInput })
   );
 }
