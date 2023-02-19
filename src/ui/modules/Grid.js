@@ -5,6 +5,7 @@ import { e } from "./shortcuts.js";
 import {
   axialToDoubleHeight,
   axialToString,
+  doubleHeightToAxial,
   doubleHeightToString,
   pixelToAxial,
 } from "./util.js";
@@ -139,26 +140,28 @@ export default function Grid({ state, handleActionInput }) {
   const canvasRef = React.useRef(null);
 
   // The upper-left hex may not be aa ({0, 0}), so determine the offset
-  // the hex has from aa, to be added to events (i.e. clicks) later
-  let offsetQ = Infinity;
-  let offsetR = Infinity;
-  // It's also possible the leftmost column's topmost hex is flush with
-  // the top of the canvas (meaning a different column has a higher
-  // hex); in this case, we'll need to shift pixel calculations
-  let leftColLower;
+  // the hex has from aa, to be added to events (i.e. clicks) later.
+  // It's also possible the leftmost column's topmost hex is not flush
+  // with the top of the canvas (meaning a different column has a higher
+  // hex); in this case, we'll need to shift pixel calculations.
+  let minX = Infinity;
+  let minXY = Infinity;
+  let minY = Infinity;
   for (let i = 0; i + 2 < state.length; i += 3) {
     let q = state.charCodeAt(i + 1) - "a".charCodeAt(0);
     let r = state.charCodeAt(i + 2) - "a".charCodeAt(0);
+    const { x, y } = axialToDoubleHeight({ q, r });
 
-    if (q < offsetQ) {
-      leftColLower = r > offsetR;
-      offsetQ = q;
+    if (x < minX) {
+      minX = x;
+      minXY = y;
+    } else if (x == minX && y < minXY) {
+      minXY = y;
     }
-    if (r < offsetR) {
-      leftColLower = q > offsetQ;
-      offsetR = r;
-    }
+    minY = Math.min(y, minY);
   }
+  const { q: offsetQ, r: offsetR } = doubleHeightToAxial({ x: minX, y: minY });
+  const leftColLower = minY !== minXY;
 
   function handleClick(e) {
     const canvas = canvasRef.current;
