@@ -42,6 +42,7 @@ export default function Hand({ state, player, handleActionInput }) {
   const canvasRef = React.useRef(null);
 
   const turn = state.slice(-1) === "1" ? Player.P1 : Player.P2;
+  const initialState = state.length === 1;
 
   let hand = { ...NUM_PIECES };
 
@@ -74,7 +75,11 @@ export default function Hand({ state, player, handleActionInput }) {
           [Type.Grasshopper]: "g",
           [Type.Spider]: "s",
         }[type];
-        handleActionInput("+" + pieceChar);
+        if (!initialState) {
+          handleActionInput("+" + pieceChar);
+        } else {
+          handleActionInput("+" + pieceChar + "aa");
+        }
         return;
       }
 
