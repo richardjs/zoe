@@ -1,5 +1,6 @@
+import { Player } from "./enum.js";
 import Grid from "./Grid.js";
-import Hands from "./Hands.js";
+import Hand from "./Hand.js";
 import { e } from "./shortcuts.js";
 
 export default function App() {
@@ -59,6 +60,7 @@ export default function App() {
     React.Fragment,
     null,
     e(Grid, { state, handleActionInput }),
-    e(Hands, { state, handleActionInput })
+    e(Hand, { state, player: Player.P1, handleActionInput }),
+    e(Hand, { state, player: Player.P2, handleActionInput }),
   );
 }

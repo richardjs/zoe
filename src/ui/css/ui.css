@@ -14,8 +14,15 @@ body {
   display: block;
 }
 
-.hands {
+.hand {
   display: block;
   position: fixed;
+}
+
+#hand-P1 {
   left: 10px;
+}
+
+#hand-P2 {
+  right: 10px;
 }
