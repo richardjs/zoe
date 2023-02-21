@@ -551,6 +551,11 @@ void State_derive_actions(struct State *state) {
                 break;
         }
     }
+
+    if (state->action_count == 0) {
+        state->actions[0].from.q = PASS_ACTION;
+        state->action_count++;
+    }
 }
 
 
@@ -591,6 +596,11 @@ void State_act(struct State *state, const struct Action *action) {
         exit(ERROR_ILLEGAL_ACTION);
     }
     #endif
+
+    if (action->from.q == PASS_ACTION) {
+        state->turn = !state->turn;
+        return;
+    }
 
     struct Piece *piece;
     if (action->from.q == PLACE_ACTION) {

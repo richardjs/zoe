@@ -681,6 +681,7 @@ int main(int argc, char *argv[]) {
     }
 
 
+    // Result detection
     {
         strcpy(state_string, "AbgAcdacfaddsdebdfsedQeeSefgfdgfegffbgcqgeBgeSgfAhbGhdGheGid1");
         State_from_string(&state, state_string);
@@ -704,6 +705,25 @@ int main(int argc, char *argv[]) {
         if (state.result != DRAW) {
             printf("State not marked as draw:\n");
             State_print(&state, stdout);
+        }
+    }
+
+
+    // No moves
+    {
+        strcpy(state_string, "AbbQcbAcdGdbsdcqecAfc2");
+        State_from_string(&state, state_string);
+
+        if (state.action_count != 1) {
+            printf("More actions when there should only be a pass action\n");
+        }
+        if (state.actions[0].from.q != PASS_ACTION) {
+            printf("First action is not a pass action\n");
+        }
+
+        State_act(&state, &state.actions[0]);
+        if (state.turn != P1) {
+            printf("Pass didn't change turns\n");
         }
     }
 

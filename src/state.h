@@ -48,7 +48,9 @@
 
 // If Action.from.q == PLACE_ACTION, it means the action is a place, with
 // Action.r = PieceType
-#define PLACE_ACTION (2 << 6)
+#define PLACE_ACTION (GRID_SIZE + 1)
+// TODO support passing when no moves are possible
+#define PASS_ACTION (GRID_SIZE + 2)
 
 #define SPIDER_MOVES 3
 

@@ -323,7 +323,10 @@ void State_to_string(const struct State *s, char string[]) {
 
 
 void Action_from_string(struct Action *action, const char string[]) {
-    if (string[0] == '+') {
+    if (string[0] == 'z') {
+        action->from.q = PASS_ACTION;
+        return;
+    } else if (string[0] == '+') {
         action->from.q = PLACE_ACTION;
         for (int t = 0; t < NUM_PIECETYPES; t++) {
             if (tolower(PIECE_CHAR[P1][t]) == string[1] ){
@@ -342,7 +345,15 @@ void Action_from_string(struct Action *action, const char string[]) {
 
 
 void Action_to_string(const struct Action *action, char string[]) {
-    if (action->from.q == PLACE_ACTION) {
+    string[4] = '\0';
+
+    if (action->from.q == PASS_ACTION) {
+        string[0] = 'z';
+        string[1] = 'z';
+        string[2] = 'z';
+        string[3] = 'z';
+        return;
+    } else if (action->from.q == PLACE_ACTION) {
         string[0] = '+';
         string[1] = tolower(PIECE_CHAR[P1][action->from.r]);
     } else {
@@ -352,8 +363,6 @@ void Action_to_string(const struct Action *action, char string[]) {
 
     string[2] = action->to.q + 'a';
     string[3] = action->to.r + 'a';
-
-    string[4] = '\0';
 }
 
 
