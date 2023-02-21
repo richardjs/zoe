@@ -187,7 +187,8 @@ float iterate(struct Node *root, struct State *state)
     }
 
     struct Node *child = root->children[childi];
-    State_act(state, &state->actions[childi]);
+    struct Action action = state->actions[childi];
+    State_act(state, &action);
 
     float score = -1*iterate(child, state);
 
