@@ -599,6 +599,7 @@ void State_act(struct State *state, const struct Action *action) {
 
     if (action->from.q == PASS_ACTION) {
         state->turn = !state->turn;
+        State_derive_actions(state);
         return;
     }
 
@@ -608,7 +609,7 @@ void State_act(struct State *state, const struct Action *action) {
         piece->type = action->from.r;
         piece->coords.q = action->to.q;
         piece->coords.r = action->to.r;
-        piece->player = state->turn;;
+        piece->player = state->turn;
 
         state->grid[action->to.q][action->to.r] = piece;
 
