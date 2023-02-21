@@ -163,6 +163,8 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "iters/s:\t%ld\n",
         results.stats.duration ?
             1000 * results.stats.iterations / results.stats.duration : 0);
+    fprintf(stderr, "depth outs:\t%.2f%%\n",
+        100 * (float)results.stats.depth_outs / results.stats.simulations);
     fprintf(stderr, "tree size:\t%ld MiB\n",
         results.stats.tree_bytes / 1024 / 1024);
 
