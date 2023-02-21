@@ -26,7 +26,6 @@ struct Node {
 struct MCTSOptions {
     uint64_t iterations;
     float uctc;
-    float down_pass_rate;
     uint16_t max_sim_depth;
     bool save_tree;
 };
@@ -43,6 +42,7 @@ struct MCTSStats {
     uint32_t depth_outs;
     uint64_t duration;
 };
+
 
 struct MCTSResults {
     uint16_t actioni;

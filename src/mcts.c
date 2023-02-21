@@ -221,7 +221,8 @@ void mcts(const struct State *state, struct MCTSResults *r, const struct MCTSOpt
     gettimeofday(&start, NULL);
 
     for (int i = 0; i < options.iterations; i++) {
-        struct State s = *state;
+        struct State s;
+        State_copy(state, &s);
         iterate(root, &s);
         results->stats.iterations++;
     }

@@ -5,6 +5,7 @@
 
 #ifdef CHECK_ACTIONS
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "errorcodes.h"
 #endif
@@ -364,7 +365,7 @@ void State_derive_actions(struct State *state) {
     }
 
     // Places
-    // TODO Force queen move at turn 4
+    // TODO Force queen place at turn 4
     bool pieces_to_place = false;
     for (int t = 0; t < NUM_PIECETYPES; t++) {
         if (state->hands[state->turn][t] > 0) {
@@ -573,8 +574,37 @@ void State_derive(struct State *state) {
     State_derive_neighbor_count(state);
     State_derive_result(state);
     State_derive_actions(state);
+    //State_derive_winning_action(state);
 }
 
+
+void State_copy(const struct State *source, struct State *dest) {
+    // TODO In theory, we don't need to copy grid; we could put it on
+    // the end of the struct and leave it off the memcpy. Before doing
+    // that, let's get benchmarks going.
+    memcpy(dest, source, sizeof(struct State));
+
+    // Transfer on_top pointers
+    for (int p = 0; p < NUM_PLAYERS; p++) {
+        for (int i = 0; i < source->piece_count[p]; i++) {
+            const struct Piece *source_piece = &source->pieces[p][i];
+            if (!source_piece->on_top) {
+                continue;
+            }
+
+            struct Piece *dest_piece = &dest->pieces[p][i];
+            struct Piece *source_on_top = source_piece->on_top;
+            for (int j = 0; j < source->piece_count[source_on_top->player]; j++) {
+                if (&source->pieces[source_on_top->player][j] == source_on_top) {
+                    dest_piece->on_top = &dest->pieces[source_on_top->player][j];
+                    break;
+                }
+            }
+        }
+    }
+
+    State_derive_grid(dest);
+}
 
 void State_new(struct State *state) {
     memset(state, 0, sizeof(struct State));
@@ -597,6 +627,7 @@ void State_act(struct State *state, const struct Action *action) {
     }
     #endif
 
+    // Pass action
     if (action->from.q == PASS_ACTION) {
         state->turn = !state->turn;
         State_derive_actions(state);
@@ -604,6 +635,8 @@ void State_act(struct State *state, const struct Action *action) {
     }
 
     struct Piece *piece;
+
+    // Place action
     if (action->from.q == PLACE_ACTION) {
         piece = &state->pieces[state->turn][state->piece_count[state->turn]];
         piece->type = action->from.r;
@@ -628,6 +661,9 @@ void State_act(struct State *state, const struct Action *action) {
         return;
     }
 
+    // Move action
+
+    // Find piece being moved, walking up a stack of pieces if necessary
     piece = state->grid[action->from.q][action->from.r];
     struct Piece *under = NULL;
     while (piece->on_top) {
@@ -635,10 +671,11 @@ void State_act(struct State *state, const struct Action *action) {
         piece = piece->on_top;
     }
 
+    // Move piece to new location
     piece->coords.q = action->to.q;
     piece->coords.r = action->to.r;
-
     State_add_neighor_count(state, &action->from, piece->player, -1);
+    State_add_neighor_count(state, &action->to, piece->player, 1);
 
     if (under) {
         under->on_top = NULL;
@@ -647,8 +684,7 @@ void State_act(struct State *state, const struct Action *action) {
         state->grid[action->from.q][action->from.r] = NULL;
     }
 
-    State_add_neighor_count(state, &action->to, piece->player, 1);
-
+    // If there's already a piece at new location, put moved piece on top of it
     if (state->grid[action->to.q][action->to.r]) {
         struct Piece *p = state->grid[action->to.q][action->to.r];
         while (p->on_top) {
@@ -661,6 +697,7 @@ void State_act(struct State *state, const struct Action *action) {
     }
 
     state->turn = !state->turn;
+    // TODO don't need to do this for beetle moves on hive
     State_derive_cut_points(state);
     State_derive_actions(state);
 }
