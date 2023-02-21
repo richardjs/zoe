@@ -242,7 +242,7 @@ bool Piece_from_string(struct Piece *piece, const char string[]) {
     piece->coords.q = tolower(string[1]) - 'a';
     piece->coords.r = tolower(string[2]) - 'a';
 
-    return piece->coords.q < MAX_PIECES && piece->coords.r < MAX_PIECES;
+    return piece->coords.q < GRID_SIZE && piece->coords.r < GRID_SIZE;
 }
 
 
