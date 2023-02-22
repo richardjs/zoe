@@ -2,6 +2,7 @@
 #define COORDS_H
 
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -19,6 +20,8 @@ struct Coords {
 
 
 void Coords_move(struct Coords *coords, enum Direction direction);
+
+bool Coords_adjacent(const struct Coords *coords, const struct Coords *other);
 
 
 enum Direction Direction_rotate(enum Direction direction, int n);

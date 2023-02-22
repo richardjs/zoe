@@ -94,7 +94,7 @@ bool State_compare(const struct State *state, const struct State *other, bool de
     }
 
     if (state->action_count != other->action_count) {
-        if (debug_print) fprintf(stderr, "Different action_count: %d != %d\n",
+        if (debug_print) fprintf(stderr, "Different action_count: %lu != %lu\n",
             state->action_count, other->action_count);
         return true;
     }

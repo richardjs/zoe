@@ -223,11 +223,11 @@ int main(int argc, char *argv[]) {
         State_act(&state, &state.actions[0]);
         State_act(&state, &state.actions[0]);
         if (state.action_count != 15) {
-            printf("Incorrect action count after 2 moves: %d (should be 15)\n", state.action_count);
+            printf("Incorrect action count after 2 moves: %lu (should be 15)\n", state.action_count);
         }
         State_act(&state, &state.actions[0]);
         if (state.action_count != 15) {
-            printf("Incorrect action count after 3 moves: %d (should be 15)\n", state.action_count);
+            printf("Incorrect action count after 3 moves: %lu (should be 15)\n", state.action_count);
         }
     }
 

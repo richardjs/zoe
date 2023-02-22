@@ -48,6 +48,19 @@ void Coords_move(struct Coords *coords, enum Direction direction) {
 }
 
 
+bool Coords_adjacent(const struct Coords *coords, const struct Coords *other) {
+    for (enum Direction d = 0; d < NUM_DIRECTIONS; d++ ) {
+        struct Coords c = *coords;
+        Coords_move(&c, d);
+        if (c.q == other->q &&  c.r == other->r) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 enum Direction Direction_rotate(enum Direction direction, int n) {
     direction += n;
     // The (unsigned) enum needs to be cast to int in these comparisons,
