@@ -89,7 +89,7 @@ struct State {
     struct Piece *grid[GRID_SIZE][GRID_SIZE];
 
     struct Action actions[MAX_ACTIONS];
-    uint_fast8_t action_count;
+    uint_fast16_t action_count;
 
     uint_fast8_t hands[NUM_PLAYERS][NUM_PIECETYPES];
 
