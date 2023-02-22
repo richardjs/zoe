@@ -81,6 +81,7 @@ int main(int argc, char *argv[]) {
         p1.type = GRASSHOPPER;
         p1.coords.q = 3;
         p1.coords.r = 5;
+        p1.on_top = NULL;
         p1.player = P1;
 
         struct Piece p2 = p1;
