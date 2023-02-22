@@ -697,7 +697,52 @@ void State_act(struct State *state, const struct Action *action) {
     }
 
     state->turn = !state->turn;
-    // TODO don't need to do this for beetle moves on hive
-    State_derive_cut_points(state);
+    State_derive_result(state);
+    if (state->result == NO_RESULT) {
+        // TODO don't need to do this for beetle moves on hive
+        State_derive_cut_points(state);
+    }
     State_derive_actions(state);
+}
+
+
+int State_find_win(const struct State *state) {
+    enum Player other = !state->turn;
+    const struct Piece *queen = NULL;
+    // TODO It's probably worth it to cache pointers to the queens in State
+    for (int i = 0; i < state->piece_count[other]; i++) {
+        if (state->pieces[other][i].type == QUEEN_BEE) {
+            queen = &state->pieces[other][i];
+            break;
+        }
+    }
+
+    if (state->neighbor_count[P1][queen->coords.q][queen->coords.r]
+            + state->neighbor_count[P2][queen->coords.q][queen->coords.r] != NUM_DIRECTIONS - 1) {
+        return -1;
+    }
+
+    struct Coords empty;
+    for (int d = 0; d < NUM_DIRECTIONS; d++) {
+        empty = queen->coords;
+        Coords_move(&empty, d);
+        if (!state->grid[empty.q][empty.r]) {
+            break;
+        }
+    }
+
+    for (int i = 0; i < state->action_count; i++) {
+        const struct Action *action = &state->actions[i];
+        if (action->to.q != empty.q || action->to.r != empty.r) continue;
+
+        if (Coords_adjacent(&action->from, &queen->coords) &&
+                !state->grid[action->from.q][action->from.r]->on_top) {
+            continue;
+        }
+
+        // TODO Make sure not a draw
+        return i;
+    }
+
+    return -1;
 }
