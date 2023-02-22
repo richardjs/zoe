@@ -176,6 +176,10 @@ void State_spider_walk(
 void State_derive_cut_points(struct State *state) {
     memset(state->cut_points, 0, sizeof(bool)*GRID_SIZE*GRID_SIZE);
 
+    if (state->piece_count[P1] <= 1 && state->piece_count[P2] <= 1) {
+        return;
+    }
+
     struct Coords stack[MAX_PIECES];
     int_fast8_t sp = 0;
     stack[sp] = state->pieces[P1][0].coords;
@@ -184,6 +188,7 @@ void State_derive_cut_points(struct State *state) {
     depth[sp] = 0;
 
     uint_fast8_t lowpoint[MAX_PIECES];
+    lowpoint[sp] = 0;
 
     // crumbs[q][r] is the same as depth[sp] for a particular Coords
     int_fast8_t crumbs[GRID_SIZE][GRID_SIZE];
@@ -191,10 +196,10 @@ void State_derive_cut_points(struct State *state) {
     crumbs[stack[sp].q][stack[sp].r] = 0;
 
     uint_fast8_t next_direction[MAX_PIECES];
-    next_direction[0] = 0;
+    next_direction[sp] = 0;
 
     uint_fast8_t parent_direction[MAX_PIECES];
-    parent_direction[0] = -1;
+    parent_direction[sp] = -1;
 
     // If the root (i.e. sp=0) has more than one child, it is an
     // articulation point, because otherwise the DFS would have worked
@@ -238,11 +243,13 @@ void State_derive_cut_points(struct State *state) {
                 sp++;
             }
         } else {
-            if (lowpoint[sp] == depth[sp-1] && (sp-1 != 0)) {
-                state->cut_points[stack[sp-1].q][stack[sp-1].r] = true;
-            } else {
-                if (lowpoint[sp] < lowpoint[sp-1]) {
-                    lowpoint[sp-1] = lowpoint[sp];
+            if (sp != 0) {
+                if (lowpoint[sp] == depth[sp-1] && (sp-1 != 0)) {
+                    state->cut_points[stack[sp-1].q][stack[sp-1].r] = true;
+                } else {
+                    if (lowpoint[sp] < lowpoint[sp-1]) {
+                        lowpoint[sp-1] = lowpoint[sp];
+                    }
                 }
             }
             sp--;
