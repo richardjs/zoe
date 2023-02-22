@@ -105,9 +105,7 @@ float simulate(struct State *state)
             return 0.0;
         }
 
-        struct Action action;
-        action = state->actions[rand() % state->action_count];
-        State_act(state, &action);
+        State_act(state, &state->actions[rand() % state->action_count]);
     }
 
     // TODO
@@ -187,8 +185,7 @@ float iterate(struct Node *root, struct State *state)
     }
 
     struct Node *child = root->children[childi];
-    struct Action action = state->actions[childi];
-    State_act(state, &action);
+    State_act(state, &state->actions[childi]);
 
     float score = -1*iterate(child, state);
 

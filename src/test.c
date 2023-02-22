@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "state.h"
 #include "stateio.h"
@@ -15,8 +17,11 @@ int main(int argc, char *argv[]) {
     struct State state;
     char state_string[STATE_STRING_SIZE];
 
+    printf("Zo\u00e9 tests\n");
 
-    printf("Running tests...\n");
+    time_t seed = time(NULL);
+    printf("Seed:\t%ld\n", seed);
+    srand(seed);
 
 
     // Grid derive
@@ -725,6 +730,77 @@ int main(int argc, char *argv[]) {
         if (state.turn != P1) {
             printf("Pass didn't change turns\n");
         }
+    }
+
+
+    // Coords adjacency
+    {
+        struct Coords c1;
+        struct Coords c2;
+
+        c1.q = 5;
+        c1.r = 3;
+
+        for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
+            c2 = c1;
+            Coords_move(&c2, d);
+            if (!Coords_adjacent(&c1, &c2)) {
+                printf("Adjacent coords not adjacent\n");
+            }
+        }
+
+        c2.q = 3;
+        c2.r = 4;
+        if (Coords_adjacent(&c1, &c2)) {
+            printf("Not adjacent coords are adjacent\n");
+        }
+    }
+
+
+    // Win finding
+    {
+        strcpy(state_string, "sbigcgQchbciAcjsdggdhgeeBeeqefGegAehaeiGfcGfdAfgagbBgdbgdSgeaggShb2");
+        State_from_string(&state, state_string);
+
+        int win = State_find_win(&state);
+        if (win < 0) {
+            printf("No win found\n");
+        }
+
+        struct Action action = state.actions[win];
+        State_act(&state, &action);
+
+        if (state.result != P2_WIN) {
+            printf("Winning move gives unexpected result: %d\n", state.result);
+            State_print(&state, stdout);
+        }
+
+        // TODO test for winning move with beetle moving off
+        // TODO test for non-win that involves empty space being filled by another adjacent piece
+        // TODO test for not calling draw a win
+    }
+
+
+    // Simulate a game without crashing
+    {
+        State_new(&state);
+        //strcpy(state_string, "saeAafQbbabebbfGcbbcbSccgcdgcesdaqddgdxAedBfdafeSgeGhbGhcBhdaxdAxe1");
+        //State_from_string(&state, state_string);
+        struct Action action;
+        while (state.result == NO_RESULT) {
+            action = state.actions[rand() % state.action_count];
+            State_act(&state, &action);
+
+            //struct State print_state;
+            //State_copy(&state, &print_state);
+            //State_normalize(&print_state);
+            //State_print(&print_state, stdout);
+        }
+
+        State_normalize(&state);
+        State_print(&state, stdout);
+        State_to_string(&state, state_string);
+        printf("%s\n", state_string);
     }
 
 

@@ -191,7 +191,7 @@ void State_derive_cut_points(struct State *state) {
     crumbs[stack[sp].q][stack[sp].r] = 0;
 
     uint_fast8_t next_direction[MAX_PIECES];
-    next_direction[MAX_PIECES] = 0;
+    next_direction[0] = 0;
 
     uint_fast8_t parent_direction[MAX_PIECES];
     parent_direction[0] = -1;
@@ -555,7 +555,7 @@ void State_derive_actions(struct State *state) {
 
     if (state->action_count == 0) {
         state->actions[0].from.q = PASS_ACTION;
-        state->action_count++;
+        state->action_count = 1;
     }
 }
 
