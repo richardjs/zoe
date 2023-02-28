@@ -19,10 +19,20 @@ server: zoe
 
 test: $(objects)
 
+
 run-test: test
 	@./test
 
 
+bench: $(objects)
+#bench: CFLAGS+=-O0
+
+
+run-bench: bench
+	@./bench
+
+
+bench.o: bench.h coords.h
 coords.o: coords.h state.h
 mcts.o: mcts.h state.h
 state.o: coords.h errorcodes.h state.h
@@ -35,6 +45,7 @@ zoe.o: errorcodes.h mcts.h state.h stateio.h
 clean:
 	rm -f $(objects)
 	rm -f test
+	rm -f bench
 	rm -f zoe
 
 
