@@ -789,6 +789,13 @@ int main(int argc, char *argv[]) {
         //State_from_string(&state, state_string);
         struct Action action;
         while (state.result == NO_RESULT) {
+            int win = State_find_win(&state);
+
+            if (win >= 0) {
+                State_act(&state, &state.actions[win]);
+                continue;
+            }
+
             action = state.actions[rand() % state.action_count];
             State_act(&state, &action);
 
