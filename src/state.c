@@ -724,6 +724,10 @@ int State_find_win(const struct State *state) {
         }
     }
 
+    if (queen == NULL) {
+        return -1;
+    }
+
     if (state->neighbor_count[P1][queen->coords.q][queen->coords.r]
             + state->neighbor_count[P2][queen->coords.q][queen->coords.r] != NUM_DIRECTIONS - 1) {
         return -1;

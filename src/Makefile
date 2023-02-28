@@ -25,7 +25,6 @@ run-test: test
 
 
 bench: $(objects)
-#bench: CFLAGS+=-O0
 
 
 run-bench: bench
