@@ -23,6 +23,8 @@ int main(int argc, char *argv[]) {
     time_t seed = time(NULL);
     srand(seed);
 
+    init_coords();
+
     enum Command command = NONE;
     //int workers = 1;
 

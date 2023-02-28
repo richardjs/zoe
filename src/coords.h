@@ -18,8 +18,10 @@ struct Coords {
     uint8_t r;
 };
 
+void init_coords();
 
 void Coords_move(struct Coords *coords, enum Direction direction);
+void Coords_move_old(struct Coords *coords, enum Direction direction);
 
 bool Coords_adjacent(const struct Coords *coords, const struct Coords *other);
 

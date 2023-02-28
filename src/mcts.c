@@ -99,10 +99,16 @@ float simulate(struct State *state)
     enum Player turn = state->turn;
 
     int depth = 0;
-    while (state->action_count) {
+    while (state->result == NO_RESULT) {
         if (depth++ > options.max_sim_depth) {
             results->stats.depth_outs++;
             return 0.0;
+        }
+
+        int win = State_find_win(state);
+        if (win >= 0) {
+            State_act(state, &state->actions[win]);
+            continue;
         }
 
         State_act(state, &state->actions[rand() % state->action_count]);

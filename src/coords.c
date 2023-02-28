@@ -9,7 +9,10 @@ const enum Direction OPPOSITE[NUM_DIRECTIONS] = {
 };
 
 
-void Coords_move(struct Coords *coords, enum Direction direction) {
+struct Coords coords_neighbors[GRID_SIZE][GRID_SIZE][NUM_DIRECTIONS];
+
+
+void Coords_calc_move(struct Coords *coords, enum Direction direction) {
     switch(direction) {
         case NORTH:
             if (coords->r == 0) coords->r = GRID_SIZE - 1;
@@ -45,6 +48,29 @@ void Coords_move(struct Coords *coords, enum Direction direction) {
             else coords->q--;
             break;
     }
+}
+
+
+void init_coords() {
+    for (int q = 0; q < GRID_SIZE; q++) {
+        for (int r = 0; r < GRID_SIZE; r++) {
+            for (int d = 0; d < NUM_DIRECTIONS; d++) {
+                coords_neighbors[q][r][d].q = q;
+                coords_neighbors[q][r][d].r = r;
+                Coords_calc_move(&coords_neighbors[q][r][d], d);
+            }
+        }
+    }
+}
+
+
+void Coords_map_move(struct Coords *coords, enum Direction direction) {
+    *coords = coords_neighbors[coords->q][coords->r][direction];
+}
+
+
+void Coords_move(struct Coords *coords, enum Direction direction) {
+    Coords_map_move(coords, direction);
 }
 
 

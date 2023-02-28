@@ -21,7 +21,7 @@
     clock_t BM_clock_elapsed = clock() - BM_clock_start; \
     float BM_clock_secs = (float)BM_clock_elapsed / CLOCKS_PER_SEC / BM_n; \
     float BM_clock_usecs = 1000 * 1000  * BM_clock_secs; \
-    printf("\r%s: %fus\n", BM_name, BM_clock_usecs); \
+    printf("\r%s: %f usecs\n", BM_name, BM_clock_usecs); \
 }
 
 

@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
     printf("Seed:\t%ld\n", seed);
     srand(seed);
 
+    init_coords();
 
     // Grid derive
     {
