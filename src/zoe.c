@@ -14,7 +14,7 @@
 #define TOP_ACTIONS 5
 
 
-enum Command {NONE, THINK, VERSION, NORMALIZE, LIST_ACTIONS, ACT};
+enum Command {NONE, THINK, NORMALIZE, LIST_ACTIONS, ACT};
 
 
 int main(int argc, char *argv[]) {
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     while ((opt = getopt(argc, argv, "vnlta:i:c:w:")) != -1) {
         switch(opt) {
             case 'v':
-                command = VERSION;
+                return 0;
                 break;
 
             case 'n':
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (argc == optind && command != VERSION) {
+    if (argc == optind) {
         fprintf(stderr, "No state provided\n");
         return ERROR_NO_STATE_GIVEN;
     }
@@ -82,9 +82,6 @@ int main(int argc, char *argv[]) {
         case NONE:
             fprintf(stderr, "No command given\n");
             return ERROR_NO_COMMAND_GIVEN;
-
-        case VERSION:
-            return 0;
 
         case NORMALIZE:
             State_normalize(&state);
