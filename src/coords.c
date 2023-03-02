@@ -9,7 +9,8 @@ const enum Direction OPPOSITE[NUM_DIRECTIONS] = {
 };
 
 
-struct Coords coords_neighbors[GRID_SIZE][GRID_SIZE][NUM_DIRECTIONS];
+struct Coords coords_neighbors_map[GRID_SIZE][GRID_SIZE][NUM_DIRECTIONS];
+bool coords_adjacent_map[GRID_SIZE][GRID_SIZE][GRID_SIZE][GRID_SIZE];
 
 
 void Coords_calc_move(struct Coords *coords, enum Direction direction) {
@@ -51,21 +52,8 @@ void Coords_calc_move(struct Coords *coords, enum Direction direction) {
 }
 
 
-void init_coords() {
-    for (int q = 0; q < GRID_SIZE; q++) {
-        for (int r = 0; r < GRID_SIZE; r++) {
-            for (int d = 0; d < NUM_DIRECTIONS; d++) {
-                coords_neighbors[q][r][d].q = q;
-                coords_neighbors[q][r][d].r = r;
-                Coords_calc_move(&coords_neighbors[q][r][d], d);
-            }
-        }
-    }
-}
-
-
 void Coords_map_move(struct Coords *coords, enum Direction direction) {
-    *coords = coords_neighbors[coords->q][coords->r][direction];
+    *coords = coords_neighbors_map[coords->q][coords->r][direction];
 }
 
 
@@ -74,7 +62,7 @@ void Coords_move(struct Coords *coords, enum Direction direction) {
 }
 
 
-bool Coords_adjacent(const struct Coords *coords, const struct Coords *other) {
+bool Coords_calc_adjacent(const struct Coords *coords, const struct Coords *other) {
     for (enum Direction d = 0; d < NUM_DIRECTIONS; d++ ) {
         struct Coords c = *coords;
         Coords_move(&c, d);
@@ -84,6 +72,43 @@ bool Coords_adjacent(const struct Coords *coords, const struct Coords *other) {
     }
 
     return false;
+}
+
+
+bool Coords_map_adjacent(const struct Coords *coords, const struct Coords *other) {
+    return coords_adjacent_map[coords->q][coords->r][other->q][other->r];
+}
+
+
+bool Coords_adjacent(const struct Coords *coords, const struct Coords *other) {
+    return Coords_calc_adjacent(coords, other);
+}
+
+
+void init_coords() {
+    for (int q = 0; q < GRID_SIZE; q++) {
+        for (int r = 0; r < GRID_SIZE; r++) {
+            for (int d = 0; d < NUM_DIRECTIONS; d++) {
+                coords_neighbors_map[q][r][d].q = q;
+                coords_neighbors_map[q][r][d].r = r;
+                Coords_calc_move(&coords_neighbors_map[q][r][d], d);
+            }
+
+            for (int oq = 0; oq < GRID_SIZE; oq++) {
+                for (int or = 0; or < GRID_SIZE; or++) {
+                    struct Coords coords;
+                    coords.q = q;
+                    coords.r = r;
+                    struct Coords other;
+                    other.q = oq;
+                    other.r = or;
+                    coords_adjacent_map[q][r][oq][or] = Coords_calc_adjacent(
+                        &coords, &other
+                    );
+                }
+            }
+        }
+    }
 }
 
 
