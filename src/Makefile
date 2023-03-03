@@ -7,10 +7,10 @@ objects=coords.o mcts.o state.o stateio.o stateutil.o
 ZOE_PORT ?= 8000
 
 
-all: zoe
-
-
 zoe: $(objects)
+
+
+all: zoe test bench
 
 
 server: zoe
@@ -29,6 +29,14 @@ bench: $(objects)
 
 run-bench: bench
 	@./bench
+
+
+debug: zoe test bench
+debug: CFLAGS+=-g
+
+
+slow: zoe test bench
+slow: CFLAGS+=-O0
 
 
 bench.o: bench.h coords.h
