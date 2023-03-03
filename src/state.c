@@ -372,7 +372,6 @@ void State_derive_actions(struct State *state) {
     }
 
     // Places
-    // TODO Force queen place at turn 4
     bool pieces_to_place = false;
     for (int t = 0; t < NUM_PIECETYPES; t++) {
         if (state->hands[state->turn][t] > 0) {
@@ -380,6 +379,9 @@ void State_derive_actions(struct State *state) {
             break;
         }
     }
+
+    bool force_queen_place = state->hands[state->turn][QUEEN_BEE] && state->piece_count[state->turn] >= 3;
+
     if (pieces_to_place) {
         struct Coords place_coords[MAX_PLACE_SPOTS];
         int place_coords_count = 0;
@@ -400,6 +402,7 @@ void State_derive_actions(struct State *state) {
         }
         for (int t = 0; t < NUM_PIECETYPES; t++) {
             if (state->hands[state->turn][t] == 0) continue;
+            if (force_queen_place && t != QUEEN_BEE) continue;
 
             for (int i = 0; i < place_coords_count; i++) {
                 state->actions[state->action_count].from.q = PLACE_ACTION;

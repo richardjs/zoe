@@ -799,17 +799,47 @@ int main(int argc, char *argv[]) {
 
             action = state.actions[rand() % state.action_count];
             State_act(&state, &action);
+        }
+    }
 
-            //struct State print_state;
-            //State_copy(&state, &print_state);
-            //State_normalize(&print_state);
-            //State_print(&print_state, stdout);
+
+    // Simulate an in-progress game without crashing
+    {
+        strcpy(state_string, "saeAafQbbabebbfGcbbcbSccgcdgcesdaqddgdxAedBfdafeSgeGhbGhcBhdaxdAxe1");
+        State_from_string(&state, state_string);
+        struct Action action;
+        while (state.result == NO_RESULT) {
+            int win = State_find_win(&state);
+
+            if (win >= 0) {
+                State_act(&state, &state.actions[win]);
+                continue;
+            }
+
+            action = state.actions[rand() % state.action_count];
+            State_act(&state, &action);
+        }
+    }
+
+
+    // Queen must be placed by turn 4
+    {
+        strcpy(state_string, "gbcgbdgccBdbBebAec1");
+        State_from_string(&state, state_string);
+
+        for (int i = 0; i < state.action_count; i++) {
+            if (state.actions[i].from.q != PLACE_ACTION && state.actions[i].from.r != QUEEN_BEE) {
+                printf("Player 1 can do something besides placing queen bee on turn 4\n");
+            }
         }
 
-        State_normalize(&state);
-        State_print(&state, stdout);
-        State_to_string(&state, state_string);
-        printf("%s\n", state_string);
+        State_act(&state, &state.actions[rand() % state.action_count]);
+
+        for (int i = 0; i < state.action_count; i++) {
+            if (state.actions[i].from.q != PLACE_ACTION && state.actions[i].from.r != QUEEN_BEE) {
+                printf("Player 2 can do something besides placing queen bee on turn 4\n");
+            }
+        }
     }
 
 
