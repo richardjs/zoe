@@ -12,6 +12,7 @@
 
 uint_fast8_t State_articulation_points(const struct State *state, struct Coords points[]);
 void State_derive_neighbor_count(struct State *state);
+int State_height_at(const struct State *state, const struct Coords *coords);
 
 
 int main(int argc, char *argv[]) {
@@ -844,6 +845,7 @@ int main(int argc, char *argv[]) {
     }
 
 
+    // Minimax search detects a loss
     {
         strcpy(state_string, "AbdacdbceschadcsddbdfQdggdhgedGeeaefBfcGfdgfeBgbqgcGgdShcShd2");
         State_from_string(&state, state_string);
@@ -854,6 +856,27 @@ int main(int argc, char *argv[]) {
             printf("Failed to detect losing state with minimax search\n");
             printf("score\t%f\n", results.score);
             State_print(&state, stdout);
+        }
+    }
+
+
+    // Height at
+    {
+        strcpy(state_string, "BaababBabBacbacbac1");
+        State_from_string(&state, state_string);
+        struct Coords coords;
+        coords.q = 0;
+        coords.r = 0;
+        if (State_height_at(&state, &coords) != 1) {
+            printf("Incorrect height at aa\n");
+        }
+        coords.r = 1;
+        if (State_height_at(&state, &coords) != 2) {
+            printf("Incorrect height at ab\n");
+        }
+        coords.r = 2;
+        if (State_height_at(&state, &coords) != 3) {
+            printf("Incorrect height at ac\n");
         }
     }
 

@@ -11,6 +11,20 @@
 #endif
 
 
+int State_height_at(const struct State *state, const struct Coords *coords) {
+    struct Piece *piece = state->grid[coords->q][coords->r];
+    if (!piece) {
+        return 0;
+    }
+    int height = 1;
+    while (piece->on_top) {
+        height++;
+        piece = piece->on_top;
+    }
+    return height;
+}
+
+
 void State_derive_piece_players(struct State *state) {
     for (int p = 0; p < NUM_PLAYERS; p++) {
         for (int i = 0; i < state->piece_count[p]; i++) {
