@@ -48,6 +48,7 @@ export default function App() {
       .then((response) => response.json())
       .then((json) => {
         if (ignore) return;
+        console.log(json.log);
         location.hash = json.state;
       });
 
