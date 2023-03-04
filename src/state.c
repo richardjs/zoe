@@ -731,6 +731,12 @@ int State_find_win(const struct State *state) {
         return -1;
     }
 
+    // Check to see if it's already a win
+    if (state->neighbor_count[P1][queen->coords.q][queen->coords.r]
+            + state->neighbor_count[P2][queen->coords.q][queen->coords.r] == NUM_DIRECTIONS) {
+        return 0;
+    }
+
     if (state->neighbor_count[P1][queen->coords.q][queen->coords.r]
             + state->neighbor_count[P2][queen->coords.q][queen->coords.r] != NUM_DIRECTIONS - 1) {
         return -1;
