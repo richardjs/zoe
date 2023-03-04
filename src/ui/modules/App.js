@@ -37,6 +37,25 @@ export default function App() {
     };
   }, [state]);
 
+  React.useEffect(() => {
+    if (!state.endsWith(2)) {
+      return;
+    }
+
+    let ignore = false;
+
+    fetch("/state/" + state + "/think")
+      .then((response) => response.json())
+      .then((json) => {
+        if (ignore) return;
+        location.hash = json.state;
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [state]);
+
   function handleActionInput(actionInputPart) {
     const newActionInput = actionInput + actionInputPart;
 

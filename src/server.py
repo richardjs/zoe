@@ -23,6 +23,11 @@ class ActionsResponse(EngineResponse):
     actions: dict[str, str]
 
 
+class ThinkResponse(ActionsResponse):
+    action: str
+    state: str
+
+
 def zoe(*args) -> (str, str):
     p = run([ZOE] + list(args), capture_output=True, encoding="utf-8")
 
@@ -42,6 +47,19 @@ async def state_actions(state: str = Path(regex=STATE_REGEX)) -> ActionsResponse
     actions, stderr = get_actions(state)
     action_states = {action: zoe("-a", action, state)[0].strip() for action in actions}
     return ActionsResponse(actions=action_states, log=stderr)
+
+
+@app.get("/state/{state}/think", response_model=ThinkResponse)
+async def state_think(state: str = Path(regex=STATE_REGEX)) -> ThinkResponse:
+    action, stderr = zoe("-t", "-i", "10000", state)
+    new_state, _ = zoe("-a", action, state)
+    actions, _ = get_actions(new_state)
+    action_states = {
+        action: zoe("-a", action, new_state)[0].strip() for action in actions
+    }
+    return ThinkResponse(
+        action=action, state=new_state, actions=action_states, log=stderr
+    )
 
 
 app.mount("/", StaticFiles(directory="ui", html=True))
