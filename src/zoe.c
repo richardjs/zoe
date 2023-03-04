@@ -87,6 +87,9 @@ int main(int argc, char *argv[]) {
     struct State state;
     State_from_string(&state, argv[optind]);
 
+    fprintf(stderr, "input: %s\n", argv[optind]);
+    State_print(&state, stderr);
+
     char state_string[STATE_STRING_SIZE];
 
     switch (command) {
