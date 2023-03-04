@@ -7,6 +7,7 @@
 
 #include "errorcodes.h"
 #include "mcts.h"
+#include "minimax.h"
 #include "state.h"
 #include "stateio.h"
 
@@ -14,7 +15,7 @@
 #define TOP_ACTIONS 5
 
 
-enum Command {NONE, THINK, NORMALIZE, LIST_ACTIONS, ACT};
+enum Command {NONE, THINK, SEARCH, NORMALIZE, LIST_ACTIONS, ACT};
 
 
 int main(int argc, char *argv[]) {
@@ -31,9 +32,12 @@ int main(int argc, char *argv[]) {
     struct MCTSOptions options;
     MCTSOptions_default(&options);
 
+    struct MinimaxOptions minimax_options;
+    MinimaxOptions_default(&minimax_options);
+
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vnlta:i:c:w:")) != -1) {
+    while ((opt = getopt(argc, argv, "vnltsa:i:c:w:")) != -1) {
         switch(opt) {
             case 'v':
                 return 0;
@@ -51,6 +55,10 @@ int main(int argc, char *argv[]) {
                 command = THINK;
                 break;
 
+            case 's':
+                command = SEARCH;
+                break;
+
             case 'a':
                 command = ACT;
                 Action_from_string(&action, optarg);
@@ -58,6 +66,7 @@ int main(int argc, char *argv[]) {
 
             case 'i':
                 options.iterations = atoi(optarg);
+                minimax_options.depth = atoi(optarg);
                 break;
 
             case 'c':
@@ -101,7 +110,16 @@ int main(int argc, char *argv[]) {
             State_act(&state, &action);
             State_normalize(&state);
             State_to_string(&state, state_string);
+            State_print(&state, stderr);
             printf("%s\n", state_string);
+            return 0;
+
+        case SEARCH:
+            struct MinimaxResults minimax_results;
+            minimax(&state, &minimax_results, &minimax_options);
+            fprintf(stderr, "action:\t");
+            Action_print(&state.actions[minimax_results.actioni], stderr);
+            fprintf(stderr, "score:\t%.2f\n", minimax_results.score);
             return 0;
 
         case THINK:

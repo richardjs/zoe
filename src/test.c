@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "minimax.h"
 #include "state.h"
 #include "stateio.h"
 #include "stateutil.h"
@@ -839,6 +840,20 @@ int main(int argc, char *argv[]) {
             if (state.actions[i].from.q != PLACE_ACTION && state.actions[i].from.r != QUEEN_BEE) {
                 printf("Player 2 can do something besides placing queen bee on turn 4\n");
             }
+        }
+    }
+
+
+    {
+        strcpy(state_string, "AbdacdbceschadcsddbdfQdggdhgedGeeaefBfcGfdgfeBgbqgcGgdShcShd2");
+        State_from_string(&state, state_string);
+
+        struct MinimaxResults results;
+        minimax(&state, &results, NULL);
+        if (results.score >= 0) {
+            printf("Failed to detect losing state with minimax search\n");
+            printf("score\t%f\n", results.score);
+            State_print(&state, stdout);
         }
     }
 
