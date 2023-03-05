@@ -133,6 +133,18 @@ int main(int argc, char* argv[])
     case THINK:
     }
 
+    char action_string[ACTION_STRING_SIZE];
+
+    int win = State_find_win(&state);
+    if (win >= 0) {
+        fprintf(stderr, "Taking win\n");
+        fprintf(stderr, "result: win\n");
+
+        Action_to_string(&state.actions[win], action_string);
+        printf("%s\n", action_string);
+        return 0.0;
+    }
+
     struct MCTSResults results;
     memset(&results, 0, sizeof(struct MCTSResults));
 
@@ -174,7 +186,6 @@ int main(int argc, char* argv[])
         }
     }
 
-    char action_string[ACTION_STRING_SIZE];
     Action_to_string(&state.actions[results.actioni], action_string);
     printf("%s\n", action_string);
 

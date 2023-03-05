@@ -931,7 +931,6 @@ int main(int argc, char* argv[])
         }
     }
 
-
     // Winning state should produce no actions
     {
         strcpy(state_string, "abdgbeacdGdcGddAebqecBedaeeAfbbfcGfdsfesgebhdgheQhfghgBif1");
