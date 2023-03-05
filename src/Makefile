@@ -51,7 +51,7 @@ zoe.o: errorcodes.h mcts.h minimax.h state.h stateio.h
 
 
 format:
-	clang-format -i *.c *.h
+	clang-format -i *.c *.h --style=WebKit
 
 
 clean:

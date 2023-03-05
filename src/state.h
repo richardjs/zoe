@@ -52,55 +52,69 @@
 
 #define SPIDER_MOVES 3
 
-enum Player { P1 = 0, P2 };
-enum PieceType { ANT = 0, BEETLE, GRASSHOPPER, SPIDER, QUEEN_BEE };
-enum Result { P1_WIN = 0, P2_WIN, DRAW, NO_RESULT };
+enum Player {
+    P1 = 0,
+    P2
+};
+enum PieceType {
+    ANT = 0,
+    BEETLE,
+    GRASSHOPPER,
+    SPIDER,
+    QUEEN_BEE
+};
+enum Result {
+    P1_WIN = 0,
+    P2_WIN,
+    DRAW,
+    NO_RESULT
+};
 
 struct Action {
-  struct Coords from;
-  struct Coords to;
+    struct Coords from;
+    struct Coords to;
 };
 
 struct Piece {
-  // Core information
-  enum PieceType type;
-  struct Coords coords;
-  // Points to a beetle on top of the piece
-  struct Piece *on_top;
+    // Core information
+    enum PieceType type;
+    struct Coords coords;
+    // Points to a beetle on top of the piece
+    struct Piece* on_top;
 
-  // Derived information
-  enum Player player;
+    // Derived information
+    enum Player player;
 };
 
 struct State {
-  // Core information
-  struct Piece pieces[NUM_PLAYERS][PLAYER_PIECES];
-  uint_fast8_t piece_count[NUM_PLAYERS];
+    // Core information
+    struct Piece pieces[NUM_PLAYERS][PLAYER_PIECES];
+    uint_fast8_t piece_count[NUM_PLAYERS];
 
-  enum Player turn;
+    enum Player turn;
 
-  // Derived information
-  struct Piece *grid[GRID_SIZE][GRID_SIZE];
+    // Derived information
+    struct Piece* grid[GRID_SIZE][GRID_SIZE];
 
-  struct Action actions[MAX_ACTIONS];
-  uint_fast16_t action_count;
+    struct Action actions[MAX_ACTIONS];
+    uint_fast16_t action_count;
 
-  uint_fast8_t hands[NUM_PLAYERS][NUM_PIECETYPES];
+    uint_fast8_t hands[NUM_PLAYERS][NUM_PIECETYPES];
 
-  uint_fast8_t neighbor_count[NUM_PLAYERS][GRID_SIZE][GRID_SIZE];
+    uint_fast8_t neighbor_count[NUM_PLAYERS][GRID_SIZE][GRID_SIZE];
 
-  bool cut_points[GRID_SIZE][GRID_SIZE];
+    bool cut_points[GRID_SIZE][GRID_SIZE];
 
-  enum Result result;
+    enum Result result;
 };
 
-void State_new(struct State *state);
-void State_derive(struct State *state);
+void State_new(struct State* state);
+void State_derive(struct State* state);
 
-void State_copy(const struct State *source, struct State *dest);
+void State_copy(const struct State* source, struct State* dest);
 
-void State_act(struct State *state, const struct Action *action);
+void State_act(struct State* state, const struct Action* action);
 
-int State_find_win(const struct State *state);
+int State_find_win(const struct State* state);
 
 #endif
