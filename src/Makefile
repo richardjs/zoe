@@ -50,6 +50,10 @@ test.o: minimax.h state.h stateio.h stateutil.h
 zoe.o: errorcodes.h mcts.h minimax.h state.h stateio.h
 
 
+format:
+	clang-format -i *.c *.h
+
+
 clean:
 	rm -f $(objects)
 	rm -f test
@@ -57,6 +61,6 @@ clean:
 	rm -f zoe
 
 
-.PHONY: clean run-test server
+.PHONY: clean format run-test server
 
 # vim: set noexpandtab sts=0:

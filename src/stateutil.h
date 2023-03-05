@@ -6,14 +6,12 @@
 #ifndef STATEUTL_H
 #define STATEUTL_H
 
-
 #include <stdbool.h>
-
 
 #include "state.h"
 
-
-struct Piece *State_top_piece(const struct State *state, unsigned int q, unsigned r);
+struct Piece *State_top_piece(const struct State *state, unsigned int q,
+                              unsigned r);
 
 void Piece_pieces_above(const struct Piece *piece, struct Piece *above[]);
 
@@ -21,6 +19,7 @@ void Piece_pieces_above(const struct Piece *piece, struct Piece *above[]);
 // difference is found, and false if the structs are (functionally)
 // identical. We can't just memcmp because of all the pointers.
 bool Piece_compare(const struct Piece *piece, const struct Piece *other);
-bool State_compare(const struct State *state, const struct State *other, bool debug_print);
+bool State_compare(const struct State *state, const struct State *other,
+                   bool debug_print);
 
 #endif
