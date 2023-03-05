@@ -349,6 +349,10 @@ void State_derive_actions(struct State* state)
 {
     state->action_count = 0;
 
+    if (state->result != NO_RESULT) {
+        return;
+    }
+
     // P1 start actions
     if (state->piece_count[P1] == 0) {
         for (int t = 0; t < NUM_PIECETYPES; t++) {

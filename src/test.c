@@ -931,6 +931,17 @@ int main(int argc, char* argv[])
         }
     }
 
+
+    // Winning state should produce no actions
+    {
+        strcpy(state_string, "abdgbeacdGdcGddAebqecBedaeeAfbbfcGfdsfesgebhdgheQhfghgBif1");
+        State_from_string(&state, state_string);
+
+        if (state.action_count > 0) {
+            printf("Winning state has actions\n");
+        }
+    }
+
     // TODO this should really MCTS to a game-theoretic value
     // gbjaciBdiAeiBeiGejaekAfgqfhSfibgfGggAghghbghcbheGhfsicsidQjd2
 
