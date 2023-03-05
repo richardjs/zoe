@@ -1,3 +1,4 @@
 *.o
+src/bench
 src/test
 src/zoe
