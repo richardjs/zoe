@@ -131,6 +131,9 @@ void State_normalize(struct State *state) {
 
 
 void State_print(const struct State *s, FILE *stream) {
+    // TODO non-normalized beetle stacking doesn't print correctly
+    // e.g. abbgbcaccQdcBdc1
+
     struct State state = *s;
     State_normalize(&state);
 

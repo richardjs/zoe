@@ -463,9 +463,35 @@ void State_derive_actions(struct State *state) {
 
                 if (on_top) {
                     for (int d = 0; d < NUM_DIRECTIONS; d++) {
-                        //TODO check for on top freedom to move subcase
                         struct Coords c = *coords;
+                        int from_height = State_height_at(state, &c);
+
                         Coords_move(&c, d);
+                        int to_height = State_height_at(state, &c);
+
+                        int move_height = from_height > to_height ? from_height : to_height;
+
+                        struct Coords test = *coords;
+                        int test_height;
+                        Coords_move(&test, Direction_rotate(d, 1));
+                        test_height = State_height_at(state, &test);
+
+                        if (move_height >= test_height) {
+                            goto can_move;
+                        }
+
+                        test = *coords;
+                        Coords_move(&test, Direction_rotate(d, -1));
+                        test_height = State_height_at(state, &test);
+
+                        if (move_height >= test_height) {
+                            goto can_move;
+                        }
+
+                        continue;
+
+                        can_move:
+
                         state->actions[state->action_count].from = piece->coords;
                         state->actions[state->action_count++].to = c;
                     }
