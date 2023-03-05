@@ -477,7 +477,7 @@ void State_derive_actions(struct State *state) {
                         test_height = State_height_at(state, &test);
 
                         if (move_height >= test_height) {
-                            goto can_move;
+                            goto can_move_on_top;
                         }
 
                         test = *coords;
@@ -485,12 +485,12 @@ void State_derive_actions(struct State *state) {
                         test_height = State_height_at(state, &test);
 
                         if (move_height >= test_height) {
-                            goto can_move;
+                            goto can_move_on_top;
                         }
 
                         continue;
 
-                        can_move:
+                        can_move_on_top:
 
                         state->actions[state->action_count].from = piece->coords;
                         state->actions[state->action_count++].to = c;
@@ -508,7 +508,29 @@ void State_derive_actions(struct State *state) {
                     }
 
                     // Climb on top of adjacent piece
-                    // TODO Check for freedom to move, climbing subcase
+                    int move_height = State_height_at(state, &c);
+
+                    struct Coords test = *coords;
+                    int test_height;
+                    Coords_move(&test, Direction_rotate(d, 1));
+                    test_height = State_height_at(state, &test);
+
+                    if (move_height >= test_height) {
+                        goto can_move_climb;
+                    }
+
+                    test = *coords;
+                    Coords_move(&test, Direction_rotate(d, -1));
+                    test_height = State_height_at(state, &test);
+
+                    if (move_height >= test_height) {
+                        goto can_move_climb;
+                    }
+
+                    continue;
+
+                    can_move_climb:
+
                     state->actions[state->action_count].from = piece->coords;
                     state->actions[state->action_count++].to = c;
 

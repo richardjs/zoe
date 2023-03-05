@@ -917,6 +917,45 @@ int main(int argc, char *argv[]) {
     }
 
 
+    // FTM rule for beetles climbing on hive
+    {
+        strcpy(state_string, "abcBbcbbcQcbBcbqccAdbBdbbdb1");
+        State_from_string(&state, state_string);
+
+        char action_string[ACTION_STRING_SIZE];
+
+        for (int i = 0; i < state.action_count; i++) {
+            struct Action *action = &state.actions[i];
+            if (action->from.q == 2 && action->from.r == 1
+                    && action->to.q == 2 && action->to.r == 2) {
+                Action_to_string(action, action_string);
+                State_print(&state, stdout);
+                printf("Shouldn't be able to do this action: %s\n", action_string);
+            }
+        }
+
+        strcpy(state_string, "abcbbcQcbBcbqccAdbBdbbdb1");
+        State_from_string(&state, state_string);
+
+        bool can_move_south = false;
+        for (int i = 0; i < state.action_count; i++) {
+            struct Action *action = &state.actions[i];
+            if (action->from.q == 2 && action->from.r == 1
+                    && action->to.q == 2 && action->to.r == 2) {
+                can_move_south = true;
+            }
+        }
+
+        if (!can_move_south) {
+            printf("Beetle can't move south in FTM test\n");
+            State_print(&state, stdout);
+        }
+    }
+
+    // TODO this should really MCTS to a game-theoretic value
+    // gbjaciBdiAeiBeiGejaekAfgqfhSfibgfGggAghghbghcbheGhfsicsidQjd2
+
+
     printf("Done\n");
     return 0;
 }
