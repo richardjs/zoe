@@ -17,6 +17,7 @@ enum Command {
     NONE,
     THINK,
     SEARCH,
+    RANDOM,
     NORMALIZE,
     LIST_ACTIONS,
     ACT
@@ -42,7 +43,7 @@ int main(int argc, char* argv[])
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vnltsa:i:c:w:")) != -1) {
+    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -62,6 +63,10 @@ int main(int argc, char* argv[])
 
         case 's':
             command = SEARCH;
+            break;
+
+        case 'r':
+            command = RANDOM;
             break;
 
         case 'a':
@@ -130,6 +135,7 @@ int main(int argc, char* argv[])
         fprintf(stderr, "score:\t%.2f\n", minimax_results.score);
         return 0;
 
+    case RANDOM:
     case THINK:
     }
 
@@ -142,6 +148,20 @@ int main(int argc, char* argv[])
 
         Action_to_string(&state.actions[win], action_string);
         printf("%s\n", action_string);
+        return 0;
+    }
+
+    if (command == RANDOM) {
+        struct Action* action = &state.actions[rand() % state.action_count];
+
+        Action_to_string(action, action_string);
+        printf("%s\n", action_string);
+
+        struct State after;
+        State_copy(&state, &after);
+        State_act(&after, action);
+        State_to_string(&after, state_string);
+        fprintf(stderr, "next:\t%s\n", state_string);
         return 0.0;
     }
 
@@ -212,7 +232,8 @@ int main(int argc, char* argv[])
         fprintf(stderr, "alt:\t%.2f\t%s\n", score, action_string);
     }
 
-    struct State after = state;
+    struct State after;
+    State_copy(&state, &after);
     State_act(&after, &state.actions[results.actioni]);
     State_print(&after, stderr);
 
