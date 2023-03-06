@@ -160,6 +160,7 @@ int main(int argc, char* argv[])
         struct State after;
         State_copy(&state, &after);
         State_act(&after, action);
+        State_normalize(&after);
         State_to_string(&after, state_string);
         fprintf(stderr, "next:\t%s\n", state_string);
         return 0.0;
@@ -237,6 +238,7 @@ int main(int argc, char* argv[])
     State_act(&after, &state.actions[results.actioni]);
     State_print(&after, stderr);
 
+    State_normalize(&after);
     State_to_string(&after, state_string);
     fprintf(stderr, "next:\t%s\n", state_string);
 
