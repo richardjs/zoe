@@ -8,6 +8,8 @@
 #define DEFAULT_UCTC 0.3
 #define DEFAULT_SAVE_TREE false
 
+#define AWAY_FROM_QUEEN_SKIP_RATE .9
+
 struct Node {
     bool expanded;
     unsigned int visits;

@@ -92,11 +92,26 @@ float simulate(struct State* state)
 
     enum Player turn = state->turn;
 
+    struct Piece *queens[2];
+    queens[P1] = NULL;
+    queens[P2] = NULL;
+
     int depth = 0;
     while (state->result == NO_RESULT) {
         if (depth++ > options.max_sim_depth) {
             results->stats.depth_outs++;
             return 0.0;
+        }
+
+        enum Player other = !turn;
+
+        if (queens[other] == NULL) {
+            for (int i = 0; i < state->piece_count[other]; i++) {
+                if (state->pieces[other][i].type == QUEEN_BEE) {
+                    queens[other] = &state->pieces[other][i];
+                    break;
+                }
+            }
         }
 
         int win = State_find_win(state);
@@ -105,7 +120,19 @@ float simulate(struct State* state)
             continue;
         }
 
-        State_act(state, &state->actions[rand() % state->action_count]);
+        struct Action *action = &state->actions[rand() % state->action_count];
+        if (queens[other] != NULL) {
+            // TODO restructure this
+            queen_adjacent_check:
+            if (Coords_adjacent(&action->from, &queens[other]->coords)) {
+                if ((rand() / (float) RAND_MAX) < AWAY_FROM_QUEEN_SKIP_RATE) {
+                    action = &state->actions[rand() % state->action_count];
+                    goto queen_adjacent_check;
+                }
+            }
+        }
+
+        State_act(state, action);
     }
 
     // TODO
