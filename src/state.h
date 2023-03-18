@@ -104,6 +104,9 @@ struct State {
     struct Action* queen_moves[4];
     uint_fast8_t queen_move_count;
 
+    struct Action* queen_adjacent_actions[MAX_ACTIONS];
+    struct Action* queen_adjacent_action_count;
+
     uint_fast8_t hands[NUM_PLAYERS][NUM_PIECETYPES];
 
     uint_fast8_t neighbor_count[NUM_PLAYERS][GRID_SIZE][GRID_SIZE];

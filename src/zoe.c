@@ -11,7 +11,7 @@
 #include "state.h"
 #include "stateio.h"
 
-#define TOP_ACTIONS 5
+#define TOP_ACTIONS 10
 
 enum Command {
     NONE,

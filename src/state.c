@@ -54,6 +54,14 @@ void State_derive_grid(struct State* state)
     }
 }
 
+void State_add_action(struct State* state, const struct Coords* from, const struct Coords* to)
+{
+    state->actions[state->action_count].from = *from;
+    state->actions[state->action_count].to = *to;
+
+    state->action_count++;
+}
+
 void State_ant_walk(struct State* state,
     const struct Piece* piece,
     const struct Coords* coords,
@@ -69,8 +77,7 @@ void State_ant_walk(struct State* state,
     if (&piece->coords == coords) {
         state->grid[coords->q][coords->r] = NULL;
     } else {
-        state->actions[state->action_count].from = piece->coords;
-        state->actions[state->action_count++].to = *coords;
+        State_add_action(state, &piece->coords, coords);
     }
 
     crumbs[coords->q][coords->r] = true;
@@ -128,8 +135,7 @@ void State_spider_walk(struct State* state,
 
     if (depth == SPIDER_MOVES) {
         if (!tos[coords->q][coords->r]) {
-            state->actions[state->action_count].from = piece->coords;
-            state->actions[state->action_count++].to = *coords;
+            State_add_action(state, &piece->coords, coords);
             tos[coords->q][coords->r] = true;
         }
         return;
@@ -432,9 +438,10 @@ void State_derive_actions(struct State* state)
                 continue;
 
             for (int i = 0; i < place_coords_count; i++) {
-                state->actions[state->action_count].from.q = PLACE_ACTION;
-                state->actions[state->action_count].from.r = t;
-                state->actions[state->action_count++].to = place_coords[i];
+                struct Coords from;
+                from.q = PLACE_ACTION;
+                from.r = t;
+                State_add_action(state, &from, &place_coords[i]);
             }
         }
     }
@@ -503,9 +510,7 @@ void State_derive_actions(struct State* state)
                     continue;
 
                 can_move_on_top:
-
-                    state->actions[state->action_count].from = piece->coords;
-                    state->actions[state->action_count++].to = c;
+                    State_add_action(state, &piece->coords, &c);
                 }
 
                 break;
@@ -542,9 +547,8 @@ void State_derive_actions(struct State* state)
                 continue;
 
             can_move_climb:
-
-                state->actions[state->action_count].from = piece->coords;
-                state->actions[state->action_count++].to = c;
+                // TODO what is this doing?
+                State_add_action(state, &piece->coords, &c);
 
                 // For every adjacent piece, try to move to the
                 // right and left of it, first checking for
@@ -555,8 +559,7 @@ void State_derive_actions(struct State* state)
                     c = *coords;
                     Coords_move(&c, Direction_rotate(d, 1));
                     if (!state->grid[c.q][c.r]) {
-                        state->actions[state->action_count].from = piece->coords;
-                        state->actions[state->action_count++].to = c;
+                        State_add_action(state, &piece->coords, &c);
                     }
                 }
                 c = *coords;
@@ -565,8 +568,7 @@ void State_derive_actions(struct State* state)
                     c = *coords;
                     Coords_move(&c, Direction_rotate(d, -1));
                     if (!state->grid[c.q][c.r]) {
-                        state->actions[state->action_count].from = piece->coords;
-                        state->actions[state->action_count++].to = c;
+                        State_add_action(state, &piece->coords, &c);
                     }
                 }
             }
@@ -586,8 +588,7 @@ void State_derive_actions(struct State* state)
                     Coords_move(&c, d);
                 } while (state->grid[c.q][c.r]);
 
-                state->actions[state->action_count].from = piece->coords;
-                state->actions[state->action_count++].to = c;
+                State_add_action(state, &piece->coords, &c);
             }
             break;
 
@@ -609,9 +610,8 @@ void State_derive_actions(struct State* state)
                     c = *coords;
                     Coords_move(&c, Direction_rotate(d, 1));
                     if (!state->grid[c.q][c.r]) {
-                        state->actions[state->action_count].from = piece->coords;
-                        state->actions[state->action_count].to = c;
-                        state->queen_moves[state->queen_move_count++] = &state->actions[state->action_count++];
+                        State_add_action(state, &piece->coords, &c);
+                        state->queen_moves[state->queen_move_count++] = &state->actions[state->action_count - 1];
                     }
                 }
                 c = *coords;
@@ -620,8 +620,8 @@ void State_derive_actions(struct State* state)
                     c = *coords;
                     Coords_move(&c, Direction_rotate(d, -1));
                     if (!state->grid[c.q][c.r]) {
-                        state->actions[state->action_count].from = piece->coords;
-                        state->actions[state->action_count++].to = c;
+                        State_add_action(state, &piece->coords, &c);
+                        state->queen_moves[state->queen_move_count++] = &state->actions[state->action_count - 1];
                     }
                 }
             }
