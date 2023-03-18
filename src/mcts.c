@@ -105,7 +105,11 @@ float simulate(struct State* state)
             continue;
         }
 
-        State_act(state, &state->actions[rand() % state->action_count]);
+        if (state->queen_move_count && (rand() / (float)RAND_MAX) < QUEEN_MOVE_BIAS) {
+            State_act(state, state->queen_moves[rand() % state->queen_move_count]);
+        } else {
+            State_act(state, &state->actions[rand() % state->action_count]);
+        }
     }
 
     // TODO
