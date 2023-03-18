@@ -360,6 +360,7 @@ void State_derive_result(struct State* state)
 void State_derive_actions(struct State* state)
 {
     state->action_count = 0;
+    state->queen_move_count = 0;
 
     if (state->result != NO_RESULT) {
         return;
@@ -609,7 +610,8 @@ void State_derive_actions(struct State* state)
                     Coords_move(&c, Direction_rotate(d, 1));
                     if (!state->grid[c.q][c.r]) {
                         state->actions[state->action_count].from = piece->coords;
-                        state->actions[state->action_count++].to = c;
+                        state->actions[state->action_count].to = c;
+                        state->queen_moves[state->queen_move_count++] = &state->actions[state->action_count++];
                     }
                 }
                 c = *coords;
