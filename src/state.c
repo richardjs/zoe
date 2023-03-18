@@ -333,26 +333,25 @@ void State_derive_result(struct State* state)
 {
     state->result = NO_RESULT;
     for (int p = 0; p < NUM_PLAYERS; p++) {
-        for (int i = 0; i < state->piece_count[p]; i++) {
-            struct Piece* piece = &state->pieces[p][i];
-            if (piece->type != QUEEN_BEE)
-                continue;
+        if (!state->queens[p]) {
+            continue;
+        }
+        struct Piece* queen = state->queens[p];
 
-            int neighbors = state->neighbor_count[P1][piece->coords.q][piece->coords.r] + state->neighbor_count[P2][piece->coords.q][piece->coords.r];
-            if (neighbors == 6) {
-                switch (state->result) {
-                case P1_WIN:
-                case P2_WIN:
-                    state->result = DRAW;
-                    break;
-                default:
-                    if (p == P1) {
-                        state->result = P2_WIN;
-                    } else {
-                        state->result = P1_WIN;
-                    }
-                    break;
+        int neighbors = state->neighbor_count[P1][queen->coords.q][queen->coords.r] + state->neighbor_count[P2][queen->coords.q][queen->coords.r];
+        if (neighbors == 6) {
+            switch (state->result) {
+            case P1_WIN:
+            case P2_WIN:
+                state->result = DRAW;
+                break;
+            default:
+                if (p == P1) {
+                    state->result = P2_WIN;
+                } else {
+                    state->result = P1_WIN;
                 }
+                break;
             }
         }
     }
@@ -729,6 +728,9 @@ void State_act(struct State* state, const struct Action* action)
         piece->player = state->turn;
 
         state->grid[action->to.q][action->to.r] = piece;
+        if (piece->type == QUEEN_BEE) {
+            state->queens[state->turn] = piece;
+        }
 
         state->piece_count[state->turn]++;
         state->hands[state->turn][piece->type]--;
@@ -792,14 +794,7 @@ void State_act(struct State* state, const struct Action* action)
 int State_find_win(const struct State* state)
 {
     enum Player other = !state->turn;
-    const struct Piece* queen = NULL;
-    // TODO It's probably worth it to cache pointers to the queens in State
-    for (int i = 0; i < state->piece_count[other]; i++) {
-        if (state->pieces[other][i].type == QUEEN_BEE) {
-            queen = &state->pieces[other][i];
-            break;
-        }
-    }
+    const struct Piece* queen = state->queens[other];
 
     if (queen == NULL) {
         return -1;
