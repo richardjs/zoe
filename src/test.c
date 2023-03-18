@@ -941,6 +941,19 @@ int main(int argc, char* argv[])
         }
     }
 
+    // Queen cache
+    {
+        strcpy(state_string, "QbbabeAbfGcbgccqcd2");
+        State_from_string(&state, state_string);
+
+        if (!state.queens[P1] || state.queens[P1]->coords.q != 1 || state.queens[P1]->coords.r != 1) {
+            printf("Invalid queen cache for P1\n");
+        }
+        if (!state.queens[P2] || state.queens[P2]->coords.q != 2 || state.queens[P2]->coords.r != 3) {
+            printf("Invalid queen cache for P2\n");
+        }
+    }
+
     // TODO this should really MCTS to a game-theoretic value
     // gbjaciBdiAeiBeiGejaekAfgqfhSfibgfGggAghghbghcbheGhfsicsidQjd2
 

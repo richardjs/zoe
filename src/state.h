@@ -99,6 +99,8 @@ struct State {
     struct Action actions[MAX_ACTIONS];
     uint_fast16_t action_count;
 
+    struct Piece* queens[NUM_PLAYERS];
+
     uint_fast8_t hands[NUM_PLAYERS][NUM_PIECETYPES];
 
     uint_fast8_t neighbor_count[NUM_PLAYERS][GRID_SIZE][GRID_SIZE];
