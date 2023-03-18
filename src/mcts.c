@@ -105,11 +105,11 @@ float simulate(struct State* state)
             continue;
         }
 
-        if (state->queen_move_count && (rand() / (float)RAND_MAX) < QUEEN_MOVE_BIAS) {
-            State_act(state, state->queen_moves[rand() % state->queen_move_count]);
-        } else {
-            State_act(state, &state->actions[rand() % state->action_count]);
-        }
+        // if (state->queen_move_count && (rand() / (float)RAND_MAX) < QUEEN_MOVE_BIAS) {
+        //     State_act(state, state->queen_moves[rand() % state->queen_move_count]);
+        // } else {
+        State_act(state, &state->actions[rand() % state->action_count]);
+        //}
     }
 
     // TODO
@@ -145,6 +145,7 @@ float iterate(struct Node* root, struct State* state)
 
         if ((state->result == P1_WIN && state->turn == P1) || (state->result == P2_WIN && state->turn == P2)) {
             // TODO How often do we hit this block? We won after an opponent move
+            // ~24/1000 times; may want to prevent it from happening
             root->visits++;
             root->value += 1.0;
             return 1.0;
@@ -153,6 +154,13 @@ float iterate(struct Node* root, struct State* state)
         root->visits++;
         root->value += -1.0;
         return -1.0;
+    }
+
+    // Treat a state that has a winning moves a game-terminal
+    if (State_find_win(state) >= 0) {
+        root->visits++;
+        root->value += 1.0;
+        return 1.0;
     }
 
     if (!root->expanded) {
