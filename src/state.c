@@ -363,6 +363,190 @@ void State_derive_result(struct State* state)
     }
 }
 
+void State_derive_piece_moves(struct State* state, int piecei)
+{
+    struct Piece* piece = &state->pieces[state->turn][piecei];
+    struct Coords* coords = &piece->coords;
+
+    // A piece can't move if it's under another piece
+    if (piece->on_top) {
+        return;
+    }
+
+    // One hive rule
+    if (state->cut_points[piece->coords.q][piece->coords.r]) {
+        // Beetles on top of the hive ignore one hive rule
+        if (piece->type != BEETLE || state->grid[coords->q][coords->r] == piece) {
+            return;
+        }
+    }
+
+    bool crumbs[GRID_SIZE][GRID_SIZE];
+    switch (piece->type) {
+    case ANT:
+        memset(crumbs, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
+        State_ant_walk(state, piece, coords, crumbs);
+        break;
+
+    case BEETLE:
+        bool on_top = state->grid[coords->q][coords->r] != piece;
+
+        if (on_top) {
+            for (int d = 0; d < NUM_DIRECTIONS; d++) {
+                struct Coords c = *coords;
+                int from_height = State_height_at(state, &c);
+
+                Coords_move(&c, d);
+                int to_height = State_height_at(state, &c);
+
+                int move_height = from_height > to_height ? from_height : to_height;
+
+                struct Coords test = *coords;
+                int test_height;
+                Coords_move(&test, Direction_rotate(d, 1));
+                test_height = State_height_at(state, &test);
+
+                if (move_height >= test_height) {
+                    goto can_move_on_top;
+                }
+
+                test = *coords;
+                Coords_move(&test, Direction_rotate(d, -1));
+                test_height = State_height_at(state, &test);
+
+                if (move_height >= test_height) {
+                    goto can_move_on_top;
+                }
+
+                continue;
+
+            can_move_on_top:
+                State_add_action(state, &piece->coords, &c);
+            }
+
+            break;
+        }
+
+        for (int d = 0; d < NUM_DIRECTIONS; d++) {
+            // Look for adjacent pieces
+            struct Coords c = *coords;
+            Coords_move(&c, d);
+            if (!state->grid[c.q][c.r]) {
+                continue;
+            }
+
+            // Climb on top of adjacent piece
+            int move_height = State_height_at(state, &c);
+
+            struct Coords test = *coords;
+            int test_height;
+            Coords_move(&test, Direction_rotate(d, 1));
+            test_height = State_height_at(state, &test);
+
+            if (move_height >= test_height) {
+                goto can_move_climb;
+            }
+
+            test = *coords;
+            Coords_move(&test, Direction_rotate(d, -1));
+            test_height = State_height_at(state, &test);
+
+            if (move_height >= test_height) {
+                goto can_move_climb;
+            }
+
+            continue;
+
+        can_move_climb:
+            // TODO what is this doing?
+            State_add_action(state, &piece->coords, &c);
+
+            // For every adjacent piece, try to move to the
+            // right and left of it, first checking for
+            // freedom to move
+            c = *coords;
+            Coords_move(&c, Direction_rotate(d, 2));
+            if (!state->grid[c.q][c.r]) {
+                c = *coords;
+                Coords_move(&c, Direction_rotate(d, 1));
+                if (!state->grid[c.q][c.r]) {
+                    State_add_action(state, &piece->coords, &c);
+                }
+            }
+            c = *coords;
+            Coords_move(&c, Direction_rotate(d, -2));
+            if (!state->grid[c.q][c.r]) {
+                c = *coords;
+                Coords_move(&c, Direction_rotate(d, -1));
+                if (!state->grid[c.q][c.r]) {
+                    State_add_action(state, &piece->coords, &c);
+                }
+            }
+        }
+        break;
+
+    case GRASSHOPPER:
+        for (int d = 0; d < NUM_DIRECTIONS; d++) {
+            // Look for adjacent pieces
+            struct Coords c = *coords;
+            Coords_move(&c, d);
+            if (!state->grid[c.q][c.r]) {
+                continue;
+            }
+
+            // Find an empty spot in the direction of the piece
+            do {
+                Coords_move(&c, d);
+            } while (state->grid[c.q][c.r]);
+
+            State_add_action(state, &piece->coords, &c);
+        }
+        break;
+
+    case QUEEN_BEE:
+        for (int d = 0; d < NUM_DIRECTIONS; d++) {
+            // Look for adjacent pieces
+            struct Coords c = *coords;
+            Coords_move(&c, d);
+            if (!state->grid[c.q][c.r]) {
+                continue;
+            }
+
+            // For every adjacent piece, try to move to the
+            // right and left of it, first checking for
+            // freedom to move
+            c = *coords;
+            Coords_move(&c, Direction_rotate(d, 2));
+            if (!state->grid[c.q][c.r]) {
+                c = *coords;
+                Coords_move(&c, Direction_rotate(d, 1));
+                if (!state->grid[c.q][c.r]) {
+                    State_add_action(state, &piece->coords, &c);
+                    state->queen_moves[state->queen_move_count++] = &state->actions[state->action_count - 1];
+                }
+            }
+            c = *coords;
+            Coords_move(&c, Direction_rotate(d, -2));
+            if (!state->grid[c.q][c.r]) {
+                c = *coords;
+                Coords_move(&c, Direction_rotate(d, -1));
+                if (!state->grid[c.q][c.r]) {
+                    State_add_action(state, &piece->coords, &c);
+                    state->queen_moves[state->queen_move_count++] = &state->actions[state->action_count - 1];
+                }
+            }
+        }
+        break;
+
+    case SPIDER:
+        memset(crumbs, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
+        bool tos[GRID_SIZE][GRID_SIZE];
+        memset(tos, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
+        State_spider_walk(state, piece, coords, crumbs, tos, 0);
+        break;
+    }
+}
+
 void State_derive_actions(struct State* state)
 {
     state->action_count = 0;
@@ -454,186 +638,7 @@ void State_derive_actions(struct State* state)
     }
 
     for (int i = 0; i < state->piece_count[state->turn]; i++) {
-        struct Piece* piece = &state->pieces[state->turn][i];
-        struct Coords* coords = &piece->coords;
-
-        // A piece can't move if it's under another piece
-        if (piece->on_top) {
-            continue;
-        }
-
-        // One hive rule
-        if (state->cut_points[piece->coords.q][piece->coords.r]) {
-            // Beetles on top of the hive ignore one hive rule
-            if (piece->type != BEETLE || state->grid[coords->q][coords->r] == piece) {
-                continue;
-            }
-        }
-
-        bool crumbs[GRID_SIZE][GRID_SIZE];
-        switch (piece->type) {
-        case ANT:
-            memset(crumbs, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
-            State_ant_walk(state, piece, coords, crumbs);
-            break;
-
-        case BEETLE:
-            bool on_top = state->grid[coords->q][coords->r] != piece;
-
-            if (on_top) {
-                for (int d = 0; d < NUM_DIRECTIONS; d++) {
-                    struct Coords c = *coords;
-                    int from_height = State_height_at(state, &c);
-
-                    Coords_move(&c, d);
-                    int to_height = State_height_at(state, &c);
-
-                    int move_height = from_height > to_height ? from_height : to_height;
-
-                    struct Coords test = *coords;
-                    int test_height;
-                    Coords_move(&test, Direction_rotate(d, 1));
-                    test_height = State_height_at(state, &test);
-
-                    if (move_height >= test_height) {
-                        goto can_move_on_top;
-                    }
-
-                    test = *coords;
-                    Coords_move(&test, Direction_rotate(d, -1));
-                    test_height = State_height_at(state, &test);
-
-                    if (move_height >= test_height) {
-                        goto can_move_on_top;
-                    }
-
-                    continue;
-
-                can_move_on_top:
-                    State_add_action(state, &piece->coords, &c);
-                }
-
-                break;
-            }
-
-            for (int d = 0; d < NUM_DIRECTIONS; d++) {
-                // Look for adjacent pieces
-                struct Coords c = *coords;
-                Coords_move(&c, d);
-                if (!state->grid[c.q][c.r]) {
-                    continue;
-                }
-
-                // Climb on top of adjacent piece
-                int move_height = State_height_at(state, &c);
-
-                struct Coords test = *coords;
-                int test_height;
-                Coords_move(&test, Direction_rotate(d, 1));
-                test_height = State_height_at(state, &test);
-
-                if (move_height >= test_height) {
-                    goto can_move_climb;
-                }
-
-                test = *coords;
-                Coords_move(&test, Direction_rotate(d, -1));
-                test_height = State_height_at(state, &test);
-
-                if (move_height >= test_height) {
-                    goto can_move_climb;
-                }
-
-                continue;
-
-            can_move_climb:
-                // TODO what is this doing?
-                State_add_action(state, &piece->coords, &c);
-
-                // For every adjacent piece, try to move to the
-                // right and left of it, first checking for
-                // freedom to move
-                c = *coords;
-                Coords_move(&c, Direction_rotate(d, 2));
-                if (!state->grid[c.q][c.r]) {
-                    c = *coords;
-                    Coords_move(&c, Direction_rotate(d, 1));
-                    if (!state->grid[c.q][c.r]) {
-                        State_add_action(state, &piece->coords, &c);
-                    }
-                }
-                c = *coords;
-                Coords_move(&c, Direction_rotate(d, -2));
-                if (!state->grid[c.q][c.r]) {
-                    c = *coords;
-                    Coords_move(&c, Direction_rotate(d, -1));
-                    if (!state->grid[c.q][c.r]) {
-                        State_add_action(state, &piece->coords, &c);
-                    }
-                }
-            }
-            break;
-
-        case GRASSHOPPER:
-            for (int d = 0; d < NUM_DIRECTIONS; d++) {
-                // Look for adjacent pieces
-                struct Coords c = *coords;
-                Coords_move(&c, d);
-                if (!state->grid[c.q][c.r]) {
-                    continue;
-                }
-
-                // Find an empty spot in the direction of the piece
-                do {
-                    Coords_move(&c, d);
-                } while (state->grid[c.q][c.r]);
-
-                State_add_action(state, &piece->coords, &c);
-            }
-            break;
-
-        case QUEEN_BEE:
-            for (int d = 0; d < NUM_DIRECTIONS; d++) {
-                // Look for adjacent pieces
-                struct Coords c = *coords;
-                Coords_move(&c, d);
-                if (!state->grid[c.q][c.r]) {
-                    continue;
-                }
-
-                // For every adjacent piece, try to move to the
-                // right and left of it, first checking for
-                // freedom to move
-                c = *coords;
-                Coords_move(&c, Direction_rotate(d, 2));
-                if (!state->grid[c.q][c.r]) {
-                    c = *coords;
-                    Coords_move(&c, Direction_rotate(d, 1));
-                    if (!state->grid[c.q][c.r]) {
-                        State_add_action(state, &piece->coords, &c);
-                        state->queen_moves[state->queen_move_count++] = &state->actions[state->action_count - 1];
-                    }
-                }
-                c = *coords;
-                Coords_move(&c, Direction_rotate(d, -2));
-                if (!state->grid[c.q][c.r]) {
-                    c = *coords;
-                    Coords_move(&c, Direction_rotate(d, -1));
-                    if (!state->grid[c.q][c.r]) {
-                        State_add_action(state, &piece->coords, &c);
-                        state->queen_moves[state->queen_move_count++] = &state->actions[state->action_count - 1];
-                    }
-                }
-            }
-            break;
-
-        case SPIDER:
-            memset(crumbs, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
-            bool tos[GRID_SIZE][GRID_SIZE];
-            memset(tos, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
-            State_spider_walk(state, piece, coords, crumbs, tos, 0);
-            break;
-        }
+        State_derive_piece_moves(state, i);
     }
 
     if (state->action_count == 0) {
