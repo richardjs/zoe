@@ -173,6 +173,8 @@ int main(int argc, char* argv[])
     struct timeval start;
     gettimeofday(&start, NULL);
 
+    fprintf(stderr, "MCTS options:\titerations=%ld uctc=%f max_sim_depth=%d\n",
+        options.iterations, options.uctc, options.max_sim_depth);
     mcts(&state, &results, &options);
 
     struct timeval end;
