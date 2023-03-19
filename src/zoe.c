@@ -192,7 +192,7 @@ int main(int argc, char* argv[])
             results.actioni = i;
         }
 
-        for (int j = 0; j < TOP_ACTIONS; j++) {
+        for (int j = 0; j < TOP_ACTIONS && j < state.action_count; j++) {
             if (top_actionis[j] < 0) {
                 top_actionis[j] = i;
                 break;
@@ -231,7 +231,7 @@ int main(int argc, char* argv[])
     fprintf(
         stderr, "tree size:\t%ld MiB\n", results.stats.tree_bytes / 1024 / 1024);
 
-    for (int i = 1; i < TOP_ACTIONS; i++) {
+    for (int i = 1; i < TOP_ACTIONS && i < state.action_count; i++) {
         Action_to_string(&state.actions[top_actionis[i]], action_string);
         float score = -1 * results.nodes[top_actionis[i]].value / results.nodes[top_actionis[i]].visits;
         fprintf(stderr, "alt:\t%.2f\t%s\t%d\n", score, action_string, results.nodes[top_actionis[i]].visits);
