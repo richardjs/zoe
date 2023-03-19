@@ -954,14 +954,17 @@ int main(int argc, char* argv[])
         }
     }
 
-    // TODO this should really MCTS to a game-theoretic value
-    // gbjaciBdiAeiBeiGejaekAfgqfhSfibgfGggAghghbghcbheGhfsicsidQjd2
 
-    // TODO this really should be -1.0
-    // QbggbigcfschbciAdeGdfgdgaedbefGfdsffGgcqgdBgdBgeahbAhcAhd2
+    // Queen adjacent action tracking
+    {
+        strcpy(state_string, "gbeqbfbcdbdcGecAedQfb1");
+        State_from_string(&state, state_string);
+        if (state.queen_adjacent_action_count != 5) {
+            printf("Wrong number of adjacent-to-queen actions: %ld\n",
+                state.queen_adjacent_action_count);
+        }
+    }
 
-    // and another one
-    // sbfAceAcgBcgSdeqdfAdgQecGeeGefbeggfbgfcGfdbfesgbggc2
 
     printf("Done\n");
     return 0;

@@ -107,7 +107,7 @@ struct State {
     uint_fast16_t piece_move_count[PLAYER_PIECES];
 
     struct Action* queen_adjacent_actions[MAX_ACTIONS];
-    struct Action* queen_adjacent_action_count;
+    uint_fast16_t queen_adjacent_action_count;
 
     uint_fast8_t hands[NUM_PLAYERS][NUM_PIECETYPES];
 

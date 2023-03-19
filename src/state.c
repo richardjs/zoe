@@ -64,6 +64,11 @@ void State_add_action(struct State* state, int piecei,
     if (from->q != PLACE_ACTION) {
         state->piece_moves[piecei][state->piece_move_count[piecei]++] = action;
     }
+
+    if (state->queens[!state->turn]
+        && Coords_adjacent(to, &state->queens[!state->turn]->coords)) {
+        state->queen_adjacent_actions[state->queen_adjacent_action_count++] = action;
+    }
 }
 
 void State_ant_walk(struct State* state, int piecei,
@@ -557,6 +562,7 @@ void State_derive_actions(struct State* state)
     for (int i = 0; i < state->piece_count[state->turn]; i++) {
         state->piece_move_count[i] = 0;
     }
+    state->queen_adjacent_action_count = 0;
 
     if (state->result != NO_RESULT) {
         return;
