@@ -54,15 +54,19 @@ void State_derive_grid(struct State* state)
     }
 }
 
-void State_add_action(struct State* state, const struct Coords* from, const struct Coords* to)
+void State_add_action(struct State* state, int piecei,
+    const struct Coords* from, const struct Coords* to)
 {
-    state->actions[state->action_count].from = *from;
-    state->actions[state->action_count].to = *to;
+    struct Action* action = &state->actions[state->action_count++];
+    action->from = *from;
+    action->to = *to;
 
-    state->action_count++;
+    if (from->q != PLACE_ACTION) {
+        state->piece_moves[piecei][state->piece_move_count[piecei]++] = action;
+    }
 }
 
-void State_ant_walk(struct State* state,
+void State_ant_walk(struct State* state, int piecei,
     const struct Piece* piece,
     const struct Coords* coords,
     bool crumbs[GRID_SIZE][GRID_SIZE])
@@ -77,7 +81,7 @@ void State_ant_walk(struct State* state,
     if (&piece->coords == coords) {
         state->grid[coords->q][coords->r] = NULL;
     } else {
-        State_add_action(state, &piece->coords, coords);
+        State_add_action(state, piecei, &piece->coords, coords);
     }
 
     crumbs[coords->q][coords->r] = true;
@@ -95,7 +99,7 @@ void State_ant_walk(struct State* state,
             c = *coords;
             Coords_move(&c, Direction_rotate(d, 1));
             if (!state->grid[c.q][c.r]) {
-                State_ant_walk(state, piece, &c, crumbs);
+                State_ant_walk(state, piecei, piece, &c, crumbs);
             }
         }
 
@@ -105,7 +109,7 @@ void State_ant_walk(struct State* state,
             c = *coords;
             Coords_move(&c, Direction_rotate(d, -1));
             if (!state->grid[c.q][c.r]) {
-                State_ant_walk(state, piece, &c, crumbs);
+                State_ant_walk(state, piecei, piece, &c, crumbs);
             }
         }
     }
@@ -116,7 +120,7 @@ void State_ant_walk(struct State* state,
     }
 }
 
-void State_spider_walk(struct State* state,
+void State_spider_walk(struct State* state, int piecei,
     const struct Piece* piece,
     const struct Coords* coords,
     bool crumbs[GRID_SIZE][GRID_SIZE],
@@ -135,7 +139,7 @@ void State_spider_walk(struct State* state,
 
     if (depth == SPIDER_MOVES) {
         if (!tos[coords->q][coords->r]) {
-            State_add_action(state, &piece->coords, coords);
+            State_add_action(state, piecei, &piece->coords, coords);
             tos[coords->q][coords->r] = true;
         }
         return;
@@ -158,7 +162,7 @@ void State_spider_walk(struct State* state,
             c = *coords;
             Coords_move(&c, Direction_rotate(d, 1));
             if (!state->grid[c.q][c.r]) {
-                State_spider_walk(state, piece, &c, crumbs, tos, depth + 1);
+                State_spider_walk(state, piecei, piece, &c, crumbs, tos, depth + 1);
             }
         }
 
@@ -168,7 +172,7 @@ void State_spider_walk(struct State* state,
             c = *coords;
             Coords_move(&c, Direction_rotate(d, -1));
             if (!state->grid[c.q][c.r]) {
-                State_spider_walk(state, piece, &c, crumbs, tos, depth + 1);
+                State_spider_walk(state, piecei, piece, &c, crumbs, tos, depth + 1);
             }
         }
     }
@@ -385,7 +389,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
     switch (piece->type) {
     case ANT:
         memset(crumbs, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
-        State_ant_walk(state, piece, coords, crumbs);
+        State_ant_walk(state, piecei, piece, coords, crumbs);
         break;
 
     case BEETLE:
@@ -421,7 +425,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
                 continue;
 
             can_move_on_top:
-                State_add_action(state, &piece->coords, &c);
+                State_add_action(state, piecei, &piece->coords, &c);
             }
 
             break;
@@ -459,7 +463,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
 
         can_move_climb:
             // TODO what is this doing?
-            State_add_action(state, &piece->coords, &c);
+            State_add_action(state, piecei, &piece->coords, &c);
 
             // For every adjacent piece, try to move to the
             // right and left of it, first checking for
@@ -470,7 +474,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
                 c = *coords;
                 Coords_move(&c, Direction_rotate(d, 1));
                 if (!state->grid[c.q][c.r]) {
-                    State_add_action(state, &piece->coords, &c);
+                    State_add_action(state, piecei, &piece->coords, &c);
                 }
             }
             c = *coords;
@@ -479,7 +483,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
                 c = *coords;
                 Coords_move(&c, Direction_rotate(d, -1));
                 if (!state->grid[c.q][c.r]) {
-                    State_add_action(state, &piece->coords, &c);
+                    State_add_action(state, piecei, &piece->coords, &c);
                 }
             }
         }
@@ -499,7 +503,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
                 Coords_move(&c, d);
             } while (state->grid[c.q][c.r]);
 
-            State_add_action(state, &piece->coords, &c);
+            State_add_action(state, piecei, &piece->coords, &c);
         }
         break;
 
@@ -521,7 +525,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
                 c = *coords;
                 Coords_move(&c, Direction_rotate(d, 1));
                 if (!state->grid[c.q][c.r]) {
-                    State_add_action(state, &piece->coords, &c);
+                    State_add_action(state, piecei, &piece->coords, &c);
                     state->queen_moves[state->queen_move_count++] = &state->actions[state->action_count - 1];
                 }
             }
@@ -531,7 +535,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
                 c = *coords;
                 Coords_move(&c, Direction_rotate(d, -1));
                 if (!state->grid[c.q][c.r]) {
-                    State_add_action(state, &piece->coords, &c);
+                    State_add_action(state, piecei, &piece->coords, &c);
                     state->queen_moves[state->queen_move_count++] = &state->actions[state->action_count - 1];
                 }
             }
@@ -542,7 +546,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
         memset(crumbs, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
         bool tos[GRID_SIZE][GRID_SIZE];
         memset(tos, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
-        State_spider_walk(state, piece, coords, crumbs, tos, 0);
+        State_spider_walk(state, piecei, piece, coords, crumbs, tos, 0);
         break;
     }
 }
@@ -551,6 +555,9 @@ void State_derive_actions(struct State* state)
 {
     state->action_count = 0;
     state->queen_move_count = 0;
+    for (int i = 0; i < state->piece_count[state->turn]; i++) {
+        state->piece_move_count[i] = 0;
+    }
 
     if (state->result != NO_RESULT) {
         return;
@@ -625,7 +632,7 @@ void State_derive_actions(struct State* state)
                 struct Coords from;
                 from.q = PLACE_ACTION;
                 from.r = t;
-                State_add_action(state, &from, &place_coords[i]);
+                State_add_action(state, 0, &from, &place_coords[i]);
             }
         }
     }
@@ -712,7 +719,6 @@ void State_act(struct State* state, const struct Action* action)
         }
     }
     if (!valid_action) {
-        fprintf(stderr, "Illegal action!\n");
         exit(ERROR_ILLEGAL_ACTION);
     }
 #endif
