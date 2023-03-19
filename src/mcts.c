@@ -117,6 +117,8 @@ float simulate(struct State* state)
         puts("error! we shouldnt be here");
     }
 
+    results->stats.mean_sim_depth += (depth - results->stats.mean_sim_depth) / results->stats.simulations;
+
     if (state->result == DRAW) {
         return 0.0;
     }

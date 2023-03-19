@@ -221,6 +221,7 @@ int main(int argc, char* argv[])
         results.stats.duration
             ? 1000 * results.stats.iterations / results.stats.duration
             : 0);
+    fprintf(stderr, "mean sim depth:\t%.2f\n", results.stats.mean_sim_depth);
     fprintf(stderr,
         "depth outs:\t%.2f%%\n",
         100 * (float)results.stats.depth_outs / results.stats.simulations);

@@ -4,7 +4,7 @@
 #include "state.h"
 
 #define DEFAULT_ITERATIONS 50000
-#define DEFAULT_MAX_SIM_DEPTH 500
+#define DEFAULT_MAX_SIM_DEPTH 300
 #define DEFAULT_UCTC 0.3
 #define DEFAULT_SAVE_TREE false
 
@@ -34,6 +34,7 @@ struct MCTSStats {
     uint64_t tree_bytes;
     uint16_t tree_depth;
     uint32_t simulations;
+    float mean_sim_depth;
     uint32_t depth_outs;
     uint64_t duration;
 };
