@@ -820,14 +820,20 @@ int State_find_win(const struct State* state)
     }
 
     // Check to see if it's already a win
-    if (state->neighbor_count[P1][queen->coords.q][queen->coords.r] + state->neighbor_count[P2][queen->coords.q][queen->coords.r] == NUM_DIRECTIONS) {
+    if (state->neighbor_count[P1][queen->coords.q][queen->coords.r]
+            + state->neighbor_count[P2][queen->coords.q][queen->coords.r]
+        == NUM_DIRECTIONS) {
         return 0;
     }
 
-    if (state->neighbor_count[P1][queen->coords.q][queen->coords.r] + state->neighbor_count[P2][queen->coords.q][queen->coords.r] != NUM_DIRECTIONS - 1) {
+    // Only bother searching further if the queen has 5 neighbors
+    if (state->neighbor_count[P1][queen->coords.q][queen->coords.r]
+            + state->neighbor_count[P2][queen->coords.q][queen->coords.r]
+        != NUM_DIRECTIONS - 1) {
         return -1;
     }
 
+    // Find which hex neighboring queen is empty
     struct Coords empty;
     for (int d = 0; d < NUM_DIRECTIONS; d++) {
         empty = queen->coords;
@@ -837,16 +843,29 @@ int State_find_win(const struct State* state)
         }
     }
 
+    // Search through actions looking for wins
     for (int i = 0; i < state->action_count; i++) {
         const struct Action* action = &state->actions[i];
-        if (action->to.q != empty.q || action->to.r != empty.r)
-            continue;
 
+        // If this action isn't putting a piece on the empty square,
+        // we have no business with it here
+        if (action->to.q != empty.q || action->to.r != empty.r) {
+            continue;
+        }
+
+        // Placing a piece to win requires no further checks
+        if (action->from.q == PLACE_ACTION) {
+            return i;
+        }
+
+        // Moving from another queen-neighboring square wouldln't be a
+        // win unless it's a beetle moving down
         if (Coords_adjacent(&action->from, &queen->coords) && !state->grid[action->from.q][action->from.r]->on_top) {
             continue;
         }
 
         // TODO Make sure not a draw
+
         return i;
     }
 
