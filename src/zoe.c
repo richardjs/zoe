@@ -221,6 +221,7 @@ int main(int argc, char* argv[])
         results.stats.duration
             ? 1000 * results.stats.iterations / results.stats.duration
             : 0);
+    fprintf(stderr, "action iters:\t%d\n", results.nodes[results.actioni].visits);
     fprintf(stderr, "mean sim depth:\t%.2f\n", results.stats.mean_sim_depth);
     fprintf(stderr,
         "depth outs:\t%.2f%%\n",
@@ -231,7 +232,7 @@ int main(int argc, char* argv[])
     for (int i = 1; i < TOP_ACTIONS; i++) {
         Action_to_string(&state.actions[top_actionis[i]], action_string);
         float score = -1 * results.nodes[top_actionis[i]].value / results.nodes[top_actionis[i]].visits;
-        fprintf(stderr, "alt:\t%.2f\t%s\n", score, action_string);
+        fprintf(stderr, "alt:\t%.2f\t%s\t%d\n", score, action_string, results.nodes[top_actionis[i]].visits);
     }
 
     struct State after;
