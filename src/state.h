@@ -36,6 +36,7 @@
  * TOTAL =                      313
  */
 #define MAX_ACTIONS 313
+#define MAX_PIECE_MOVES 135
 
 // It's actually lower than this; 26 is if you have all your pieces in
 // a line with no opposite color pieces anywhere
@@ -103,6 +104,9 @@ struct State {
 
     struct Action* queen_moves[4];
     uint_fast8_t queen_move_count;
+
+    struct Action* piece_moves[PLAYER_PIECES][MAX_PIECE_MOVES];
+    uint_fast16_t piece_move_count[PLAYER_PIECES];
 
     struct Action* queen_adjacent_actions[MAX_ACTIONS];
     struct Action* queen_adjacent_action_count;
