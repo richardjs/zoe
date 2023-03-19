@@ -5,10 +5,11 @@
 
 #define DEFAULT_ITERATIONS 50000
 #define DEFAULT_MAX_SIM_DEPTH 300
-#define DEFAULT_UCTC 0.3
+#define DEFAULT_UCTC 100
 #define DEFAULT_SAVE_TREE false
 
-#define QUEEN_MOVE_BIAS 0
+#define DEFAULT_QUEEN_MOVE_BIAS 0
+#define DEFAULT_QUEEN_ADJACENT_ACTION_BIAS 0
 
 struct Node {
     bool expanded;
@@ -26,6 +27,9 @@ struct MCTSOptions {
     float uctc;
     uint16_t max_sim_depth;
     bool save_tree;
+
+    float queen_move_bias;
+    float queen_adjacent_action_bias;
 };
 
 struct MCTSStats {

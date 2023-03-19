@@ -32,6 +32,9 @@ void MCTSOptions_default(struct MCTSOptions* o)
     o->uctc = DEFAULT_UCTC;
     o->max_sim_depth = DEFAULT_MAX_SIM_DEPTH;
     o->save_tree = DEFAULT_SAVE_TREE;
+
+    o->queen_move_bias = DEFAULT_QUEEN_MOVE_BIAS;
+    o->queen_adjacent_action_bias = DEFAULT_QUEEN_ADJACENT_ACTION_BIAS;
 }
 
 void Node_init(struct Node* node, uint8_t depth)
@@ -105,11 +108,23 @@ float simulate(struct State* state)
             continue;
         }
 
-        // if (state->queen_move_count && (rand() / (float)RAND_MAX) < QUEEN_MOVE_BIAS) {
-        //     State_act(state, state->queen_moves[rand() % state->queen_move_count]);
-        // } else {
+        if (state->queens[state->turn]) {
+            int queen_move_count = state->piece_move_count[state->queeni[state->turn]];
+            if (queen_move_count
+                && (rand() / (float)RAND_MAX) < options.queen_move_bias) {
+                struct Action** queen_moves = state->piece_moves[state->queeni[state->turn]];
+                State_act(state, queen_moves[rand() % queen_move_count]);
+                continue;
+            }
+        }
+
+        if (state->queen_adjacent_action_count
+            && (rand() / (float)RAND_MAX) < options.queen_adjacent_action_bias) {
+            State_act(state, state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count]);
+            continue;
+        }
+
         State_act(state, &state->actions[rand() % state->action_count]);
-        //}
     }
 
     // TODO

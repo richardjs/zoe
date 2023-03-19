@@ -51,7 +51,7 @@ async def state_actions(state: str = Path(regex=STATE_REGEX)) -> ActionsResponse
 
 @app.get("/state/{state}/think", response_model=ThinkResponse)
 async def state_think(state: str = Path(regex=STATE_REGEX)) -> ThinkResponse:
-    action, stderr = zoe("-t", "-i", "10000", state)
+    action, stderr = zoe("-t", state)
     new_state, _ = zoe("-a", action, state)
     actions, _ = get_actions(new_state)
     action_states = {

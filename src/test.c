@@ -954,7 +954,6 @@ int main(int argc, char* argv[])
         }
     }
 
-
     // Queen adjacent action tracking
     {
         strcpy(state_string, "gbeqbfbcdbdcGecAedQfb1");
@@ -964,7 +963,6 @@ int main(int argc, char* argv[])
                 state.queen_adjacent_action_count);
         }
     }
-
 
     printf("Done\n");
     return 0;
