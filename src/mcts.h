@@ -3,13 +3,14 @@
 
 #include "state.h"
 
-#define DEFAULT_ITERATIONS 100000
+#define DEFAULT_ITERATIONS 50000
 #define DEFAULT_MAX_SIM_DEPTH 300
 #define DEFAULT_UCTC 1
 #define DEFAULT_SAVE_TREE false
 
-#define DEFAULT_QUEEN_MOVE_BIAS 1.0
-#define DEFAULT_QUEEN_ADJACENT_ACTION_BIAS 1.0
+#define DEFAULT_QUEEN_MOVE_SMART_BIAS 1.0
+#define DEFAULT_QUEEN_MOVE_BIAS 0.1
+#define DEFAULT_QUEEN_ADJACENT_ACTION_BIAS 0.5
 
 struct Node {
     bool expanded;
@@ -29,6 +30,7 @@ struct MCTSOptions {
     bool save_tree;
 
     float queen_move_bias;
+    float queen_move_smart_bias;
     float queen_adjacent_action_bias;
 };
 

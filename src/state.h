@@ -125,6 +125,7 @@ void State_copy(const struct State* source, struct State* dest);
 
 void State_act(struct State* state, const struct Action* action);
 
+int State_hex_neighbor_count(const struct State* state, const struct Coords* coords);
 int State_find_win(const struct State* state);
 
 #endif

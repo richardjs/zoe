@@ -34,6 +34,7 @@ void MCTSOptions_default(struct MCTSOptions* o)
     o->save_tree = DEFAULT_SAVE_TREE;
 
     o->queen_move_bias = DEFAULT_QUEEN_MOVE_BIAS;
+    o->queen_move_smart_bias = DEFAULT_QUEEN_MOVE_SMART_BIAS;
     o->queen_adjacent_action_bias = DEFAULT_QUEEN_ADJACENT_ACTION_BIAS;
 }
 
@@ -110,6 +111,28 @@ float simulate(struct State* state)
 
         if (state->queens[state->turn]) {
             int queen_move_count = state->piece_move_count[state->queeni[state->turn]];
+            if (queen_move_count
+                && (rand() / (float)RAND_MAX) < options.queen_move_smart_bias) {
+                struct Piece* queen = state->queens[state->turn];
+                struct Action** queen_moves = state->piece_moves[state->queeni[state->turn]];
+
+                int neighbor_count = State_hex_neighbor_count(state, &queen->coords);
+                struct Action* better_actions[4];
+                int better_action_count = 0;
+
+                for (int i = 0; i < queen_move_count; i++) {
+                    struct Action* a = queen_moves[i];
+                    if (State_hex_neighbor_count(state, &a->to) < neighbor_count) {
+                        better_actions[better_action_count++] = a;
+                    }
+                }
+
+                if (better_action_count) {
+                    State_act(state, better_actions[rand() % better_action_count]);
+                    continue;
+                }
+            }
+
             if (queen_move_count
                 && (rand() / (float)RAND_MAX) < options.queen_move_bias) {
                 struct Action** queen_moves = state->piece_moves[state->queeni[state->turn]];

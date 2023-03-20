@@ -811,9 +811,10 @@ void State_act(struct State* state, const struct Action* action)
     State_derive_actions(state);
 }
 
-int State_hex_neighbor_count(const struct State *state, const struct Coords *coords) {
+int State_hex_neighbor_count(const struct State* state, const struct Coords* coords)
+{
     return state->neighbor_count[P1][coords->q][coords->r]
-            + state->neighbor_count[P2][coords->q][coords->r];
+        + state->neighbor_count[P2][coords->q][coords->r];
 }
 
 int State_find_win(const struct State* state)
