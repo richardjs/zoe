@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:q:j:")) != -1) {
+    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:q:j:m:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -85,6 +85,10 @@ int main(int argc, char* argv[])
 
         case 'q':
             options.queen_move_bias = atof(optarg);
+            break;
+
+        case 'm':
+            options.queen_move_smart_bias = atof(optarg);
             break;
 
         case 'j':
