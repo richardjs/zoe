@@ -811,6 +811,11 @@ void State_act(struct State* state, const struct Action* action)
     State_derive_actions(state);
 }
 
+int State_hex_neighbor_count(const struct State *state, const struct Coords *coords) {
+    return state->neighbor_count[P1][coords->q][coords->r]
+            + state->neighbor_count[P2][coords->q][coords->r];
+}
+
 int State_find_win(const struct State* state)
 {
     enum Player other = !state->turn;
@@ -821,16 +826,12 @@ int State_find_win(const struct State* state)
     }
 
     // Check to see if it's already a win
-    if (state->neighbor_count[P1][queen->coords.q][queen->coords.r]
-            + state->neighbor_count[P2][queen->coords.q][queen->coords.r]
-        == NUM_DIRECTIONS) {
+    if (State_hex_neighbor_count(state, &queen->coords) == NUM_DIRECTIONS) {
         return 0;
     }
 
     // Only bother searching further if the queen has 5 neighbors
-    if (state->neighbor_count[P1][queen->coords.q][queen->coords.r]
-            + state->neighbor_count[P2][queen->coords.q][queen->coords.r]
-        != NUM_DIRECTIONS - 1) {
+    if (State_hex_neighbor_count(state, &queen->coords) != NUM_DIRECTIONS - 1) {
         return -1;
     }
 
