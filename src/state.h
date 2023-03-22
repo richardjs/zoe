@@ -114,6 +114,7 @@ struct State {
     uint_fast8_t neighbor_count[NUM_PLAYERS][GRID_SIZE][GRID_SIZE];
 
     bool cut_points[GRID_SIZE][GRID_SIZE];
+    uint_fast8_t cut_point_count[NUM_PLAYERS];
 
     enum Result result;
 };
@@ -127,5 +128,10 @@ void State_act(struct State* state, const struct Action* action);
 
 int State_hex_neighbor_count(const struct State* state, const struct Coords* coords);
 int State_find_win(const struct State* state);
+
+void State_count_cut_points(
+    const struct State* state,
+    const struct Coords* start_coords,
+    unsigned int cut_points[NUM_PLAYERS]);
 
 #endif

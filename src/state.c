@@ -200,6 +200,7 @@ void State_spider_walk(struct State* state, int piecei,
 void State_derive_cut_points(struct State* state)
 {
     memset(state->cut_points, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
+    memset(state->cut_point_count, 0, sizeof(uint_fast8_t) * NUM_PLAYERS);
 
     if (state->piece_count[P1] <= 1 && state->piece_count[P2] <= 1) {
         return;
@@ -271,6 +272,7 @@ void State_derive_cut_points(struct State* state)
             if (sp != 0) {
                 if (lowpoint[sp] == depth[sp - 1] && (sp - 1 != 0)) {
                     state->cut_points[stack[sp - 1].q][stack[sp - 1].r] = true;
+                    state->cut_point_count[state->grid[stack[sp - 1].q][stack[sp - 1].r]->player]++;
                 } else {
                     if (lowpoint[sp] < lowpoint[sp - 1]) {
                         lowpoint[sp - 1] = lowpoint[sp];
@@ -283,6 +285,100 @@ void State_derive_cut_points(struct State* state)
 
     if (root_children > 1) {
         state->cut_points[stack[0].q][stack[0].r] = true;
+        state->cut_point_count[state->grid[stack[0].q][stack[0].r]->player]++;
+    }
+}
+
+// Counts the number of cut points each player has, without modifying the state
+void State_count_cut_points(
+    const struct State* state,
+    const struct Coords* start_coords,
+    unsigned int cut_points[NUM_PLAYERS])
+{
+    memset(cut_points, 0, sizeof(int) * NUM_PLAYERS);
+
+    if (state->piece_count[P1] <= 1 && state->piece_count[P2] <= 1) {
+        return;
+    }
+
+    struct Coords stack[MAX_PIECES];
+    int_fast8_t sp = 0;
+    stack[sp] = *start_coords;
+
+    uint_fast8_t depth[MAX_PIECES];
+    depth[sp] = 0;
+
+    uint_fast8_t lowpoint[MAX_PIECES];
+    lowpoint[sp] = 0;
+
+    // crumbs[q][r] is the same as depth[sp] for a particular Coords
+    int_fast8_t crumbs[GRID_SIZE][GRID_SIZE];
+    memset(&crumbs, -1, sizeof(int_fast8_t) * GRID_SIZE * GRID_SIZE);
+    crumbs[stack[sp].q][stack[sp].r] = 0;
+
+    uint_fast8_t next_direction[MAX_PIECES];
+    next_direction[sp] = 0;
+
+    uint_fast8_t parent_direction[MAX_PIECES];
+    parent_direction[sp] = -1;
+
+    // If the root (i.e. sp=0) has more than one child, it is an
+    // articulation point, because otherwise the DFS would have worked
+    // its away around to root's other children
+    uint_fast8_t root_children = 0;
+
+    while (sp >= 0) {
+        struct Coords head;
+        bool found_head = false;
+        // Try each direction looking for an edge
+        while (!found_head && next_direction[sp] != NUM_DIRECTIONS) {
+            // Don't search back to the parent
+            if (next_direction[sp] == parent_direction[sp]) {
+                next_direction[sp]++;
+                continue;
+            }
+            head = stack[sp];
+            Coords_move(&head, next_direction[sp]);
+            if (state->grid[head.q][head.r]) {
+                found_head = true;
+            }
+            next_direction[sp]++;
+        }
+
+        if (found_head) {
+            if (crumbs[head.q][head.r] >= 0) {
+                if (crumbs[head.q][head.r] < lowpoint[sp]) {
+                    lowpoint[sp] = crumbs[head.q][head.r];
+                }
+            } else {
+                if (sp == 0) {
+                    root_children++;
+                }
+
+                depth[sp + 1] = depth[sp] + 1;
+                crumbs[head.q][head.r] = depth[sp] + 1;
+                lowpoint[sp + 1] = depth[sp];
+                next_direction[sp + 1] = 0;
+                parent_direction[sp + 1] = OPPOSITE[next_direction[sp] - 1];
+                stack[sp + 1] = head;
+                sp++;
+            }
+        } else {
+            if (sp != 0) {
+                if (lowpoint[sp] == depth[sp - 1] && (sp - 1 != 0)) {
+                    cut_points[state->grid[stack[sp - 1].q][stack[sp - 1].r]->player]++;
+                } else {
+                    if (lowpoint[sp] < lowpoint[sp - 1]) {
+                        lowpoint[sp - 1] = lowpoint[sp];
+                    }
+                }
+            }
+            sp--;
+        }
+    }
+
+    if (root_children > 1) {
+        cut_points[state->grid[stack[0].q][stack[0].r]->player]++;
     }
 }
 

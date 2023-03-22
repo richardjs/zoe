@@ -141,13 +141,74 @@ float simulate(struct State* state)
             }
         }
 
+        // if (state->queen_adjacent_action_count
+        //     && (rand() / (float)RAND_MAX) < options.queen_adjacent_action_bias) {
+        //     State_act(state, state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count]);
+        //     continue;
+        // }
+
+        struct Action* action;
         if (state->queen_adjacent_action_count
             && (rand() / (float)RAND_MAX) < options.queen_adjacent_action_bias) {
-            State_act(state, state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count]);
-            continue;
+            action = state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count];
+        } else {
+            action = &state->actions[rand() % state->action_count];
         }
+        for (int i = 0; i < 10; i++) {
+            if (action->from.q == PLACE_ACTION || action->from.q == PASS_ACTION) {
+                break;
+            }
 
-        State_act(state, &state->actions[rand() % state->action_count]);
+            struct Piece* piece = state->grid[action->from.q][action->from.r];
+            struct Piece* from_under = NULL;
+            while (piece->on_top) {
+                from_under = piece;
+                piece = piece->on_top;
+            }
+            if (from_under) {
+                from_under->on_top = NULL;
+            } else {
+                state->grid[action->from.q][action->from.r] = NULL;
+            }
+
+            struct Piece* to_under = NULL;
+            if (state->grid[action->to.q][action->to.r]) {
+                struct Piece* p = state->grid[action->to.q][action->to.r];
+                while (p->on_top) {
+                    p = p->on_top;
+                }
+                p->on_top = piece;
+                to_under = p;
+            } else {
+                state->grid[action->to.q][action->to.r] = piece;
+            }
+
+            unsigned int new_cut_points[NUM_PLAYERS];
+            State_count_cut_points(state, &action->to, new_cut_points);
+
+            if (to_under) {
+                to_under->on_top = NULL;
+            } else {
+                state->grid[action->to.q][action->to.r] = NULL;
+            }
+            if (from_under) {
+                from_under->on_top = piece;
+            } else {
+                state->grid[action->from.q][action->from.r] = piece;
+            }
+            if ((new_cut_points[state->turn] - new_cut_points[!state->turn])
+                <= (state->cut_points[state->turn] - state->cut_points[!state->turn])) {
+                break;
+            }
+
+            if (state->queen_adjacent_action_count
+                && (rand() / (float)RAND_MAX) < options.queen_adjacent_action_bias) {
+                action = state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count];
+            } else {
+                action = &state->actions[rand() % state->action_count];
+            }
+        }
+        State_act(state, action);
     }
 
     // TODO
