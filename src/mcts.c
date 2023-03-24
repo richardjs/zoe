@@ -33,8 +33,6 @@ void MCTSOptions_default(struct MCTSOptions* o)
     o->max_sim_depth = DEFAULT_MAX_SIM_DEPTH;
     o->save_tree = DEFAULT_SAVE_TREE;
 
-    o->queen_move_bias = DEFAULT_QUEEN_MOVE_BIAS;
-    o->queen_move_smart_bias = DEFAULT_QUEEN_MOVE_SMART_BIAS;
     o->queen_adjacent_action_bias = DEFAULT_QUEEN_ADJACENT_ACTION_BIAS;
 }
 
@@ -109,111 +107,13 @@ float simulate(struct State* state)
             continue;
         }
 
-        if (state->queens[state->turn]) {
-            int queen_move_count = state->piece_move_count[state->queeni[state->turn]];
-            if (queen_move_count
-                && (rand() / (float)RAND_MAX) < options.queen_move_smart_bias) {
-                struct Piece* queen = state->queens[state->turn];
-                struct Action** queen_moves = state->piece_moves[state->queeni[state->turn]];
-
-                int neighbor_count = State_hex_neighbor_count(state, &queen->coords);
-                struct Action* better_actions[4];
-                int better_action_count = 0;
-
-                for (int i = 0; i < queen_move_count; i++) {
-                    struct Action* a = queen_moves[i];
-                    if (State_hex_neighbor_count(state, &a->to) < neighbor_count) {
-                        better_actions[better_action_count++] = a;
-                    }
-                }
-
-                if (better_action_count) {
-                    State_act(state, better_actions[rand() % better_action_count]);
-                    continue;
-                }
-            }
-
-            if (queen_move_count
-                && (rand() / (float)RAND_MAX) < options.queen_move_bias) {
-                struct Action** queen_moves = state->piece_moves[state->queeni[state->turn]];
-                State_act(state, queen_moves[rand() % queen_move_count]);
-                continue;
-            }
-        }
-
-        // if (state->queen_adjacent_action_count
-        //     && (rand() / (float)RAND_MAX) < options.queen_adjacent_action_bias) {
-        //     State_act(state, state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count]);
-        //     continue;
-        // }
-
-        struct Action* action;
         if (state->queen_adjacent_action_count
             && (rand() / (float)RAND_MAX) < options.queen_adjacent_action_bias) {
-            action = state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count];
-        } else {
-            action = &state->actions[rand() % state->action_count];
+            State_act(state, state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count]);
+            continue;
         }
-        for (int i = 0; i < 10; i++) {
-            if (action->from.q == PLACE_ACTION || action->from.q == PASS_ACTION) {
-                break;
-            }
 
-            struct Piece* piece = state->grid[action->from.q][action->from.r];
-            struct Piece* from_under = NULL;
-            while (piece->on_top) {
-                from_under = piece;
-                piece = piece->on_top;
-            }
-            if (from_under) {
-                from_under->on_top = NULL;
-            } else {
-                state->grid[action->from.q][action->from.r] = NULL;
-            }
-
-            struct Piece* to_under = NULL;
-            if (state->grid[action->to.q][action->to.r]) {
-                struct Piece* p = state->grid[action->to.q][action->to.r];
-                while (p->on_top) {
-                    p = p->on_top;
-                }
-                p->on_top = piece;
-                to_under = p;
-            } else {
-                state->grid[action->to.q][action->to.r] = piece;
-            }
-
-            unsigned int new_cut_points[NUM_PLAYERS];
-            State_count_cut_points(state, &action->to, new_cut_points);
-
-            if (to_under) {
-                to_under->on_top = NULL;
-            } else {
-                state->grid[action->to.q][action->to.r] = NULL;
-            }
-            if (from_under) {
-                from_under->on_top = piece;
-            } else {
-                state->grid[action->from.q][action->from.r] = piece;
-            }
-            if ((new_cut_points[state->turn] - new_cut_points[!state->turn])
-                <= (state->cut_points[state->turn] - state->cut_points[!state->turn])) {
-                break;
-            }
-
-            if (state->queen_adjacent_action_count
-                && (rand() / (float)RAND_MAX) < options.queen_adjacent_action_bias) {
-                action = state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count];
-            } else {
-                action = &state->actions[rand() % state->action_count];
-            }
-        }
-        State_act(state, action);
-    }
-
-    // TODO
-    if (state->result == NO_RESULT) {
-        puts("error! we shouldnt be here");
+        State_act(state, &state->actions[rand() % state->action_count]);
     }
 
     results->stats.mean_sim_depth += (depth - results->stats.mean_sim_depth) / results->stats.simulations;

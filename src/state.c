@@ -69,6 +69,8 @@ void State_add_action(struct State* state, int piecei,
         && Coords_adjacent(to, &state->queens[!state->turn]->coords)
         && (from->q == PLACE_ACTION || !Coords_adjacent(from, &state->queens[!state->turn]->coords))) {
         state->queen_adjacent_actions[state->queen_adjacent_action_count++] = action;
+
+        // TODO we've done almost all the calcs to see if this is a win here
     }
 }
 
