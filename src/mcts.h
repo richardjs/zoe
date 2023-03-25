@@ -8,6 +8,7 @@
 #define DEFAULT_UCTC .3
 #define DEFAULT_SAVE_TREE false
 
+#define DEFAULT_QUEEN_SIDESTEP_BIAS .9
 #define DEFAULT_QUEEN_ADJACENT_ACTION_BIAS 0.65
 
 struct Node {
@@ -27,6 +28,7 @@ struct MCTSOptions {
     uint16_t max_sim_depth;
     bool save_tree;
 
+    float queen_sidestep_bias;
     float queen_adjacent_action_bias;
 };
 

@@ -33,6 +33,7 @@ void MCTSOptions_default(struct MCTSOptions* o)
     o->max_sim_depth = DEFAULT_MAX_SIM_DEPTH;
     o->save_tree = DEFAULT_SAVE_TREE;
 
+    o->queen_sidestep_bias = DEFAULT_QUEEN_SIDESTEP_BIAS;
     o->queen_adjacent_action_bias = DEFAULT_QUEEN_ADJACENT_ACTION_BIAS;
 }
 
@@ -105,6 +106,23 @@ float simulate(struct State* state)
         if (win >= 0) {
             State_act(state, &state->actions[win]);
             continue;
+        }
+
+        enum Player t = state->turn;
+        if (state->queen_move_count) {
+            struct Action* actions[4];
+            int action_count = 0;
+            for (int i = 0; i < state->queen_move_count; i++) {
+                struct Action* action = state->queen_moves[i];
+                if (state->neighbor_count[!t][action->to.q][action->to.r] == 1 && state->neighbor_count[t][action->to.q][action->to.r] == 1) {
+                    actions[action_count++] = action;
+                }
+            }
+
+            if (action_count && (rand() / (float)RAND_MAX) < options.queen_sidestep_bias) {
+                State_act(state, actions[rand() % action_count]);
+                continue;
+            }
         }
 
         if (state->queen_adjacent_action_count

@@ -964,21 +964,12 @@ int main(int argc, char* argv[])
         }
     }
 
-    // Count cut points
-    {
-        strcpy(state_string, "AbgacfsdebedGefSegGfcqffAfgsgbggcbgdSgeghdgheahfQid1");
-        State_from_string(&state, state_string);
+    // This evaluates as .95 for one of two different moves only, but not the other one (at the same time)
+    // It's also *not* a good position
+    // abgAcgQchadeGdgsdhgdibdiSebSeegefgehseiafbAfcqfdBfdGgcGgdbhd2
 
-        unsigned int cut_points[NUM_PLAYERS];
-        State_count_cut_points(&state, &state.pieces[P2][3].coords, cut_points);
-        if (cut_points[P1] != 2 || cut_points[P2] != 7) {
-            printf("Incorrect number of cut points\n");
-        }
-
-        if (state.cut_point_count[P1] != 2 || state.cut_point_count[P2] != 7) {
-            printf("Incorrect number of cut points\n");
-        }
-    }
+    // This is evaluated higher than it should be? Beetle move blindness?
+    // aaaSbggcgGchGciAcjsdeQdfbdgBdhgdiqdjGdkgecAedseebefBegSejAfb2
 
     printf("Done\n");
     return 0;

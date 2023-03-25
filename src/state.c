@@ -62,6 +62,9 @@ void State_add_action(struct State* state, int piecei,
     action->to = *to;
 
     if (from->q != PLACE_ACTION) {
+        if (state->pieces[piecei]->type == QUEEN_BEE) {
+            state->queen_moves[state->queen_move_count++] = action;
+        }
         state->piece_moves[piecei][state->piece_move_count[piecei]++] = action;
     }
 
@@ -388,11 +391,9 @@ void State_derive_queens(struct State* state)
 {
     for (int p = 0; p < NUM_PLAYERS; p++) {
         state->queens[p] = NULL;
-        state->queeni[p] = -1;
         for (int i = 0; i < state->piece_count[p]; i++) {
             if (state->pieces[p][i].type == QUEEN_BEE) {
                 state->queens[p] = &state->pieces[p][i];
-                state->queeni[p] = i;
                 break;
             }
         }
@@ -661,6 +662,7 @@ void State_derive_actions(struct State* state)
     for (int i = 0; i < state->piece_count[state->turn]; i++) {
         state->piece_move_count[i] = 0;
     }
+    state->queen_move_count = 0;
     state->queen_adjacent_action_count = 0;
 
     if (state->result != NO_RESULT) {
@@ -847,7 +849,6 @@ void State_act(struct State* state, const struct Action* action)
         state->grid[action->to.q][action->to.r] = piece;
         if (piece->type == QUEEN_BEE) {
             state->queens[state->turn] = piece;
-            state->queeni[state->turn] = state->piece_count[state->turn];
         }
 
         state->piece_count[state->turn]++;

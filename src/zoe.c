@@ -25,7 +25,7 @@ enum Command {
 
 int main(int argc, char* argv[])
 {
-    fprintf(stderr, "Zo\u00e9 v.2a-1 (built %s %s)\n", __DATE__, __TIME__);
+    fprintf(stderr, "Zo\u00e9 v.2a-2 (built %s %s)\n", __DATE__, __TIME__);
 
     time_t seed = time(NULL);
     srand(seed);
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:j:")) != -1) {
+    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:j:z:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -86,6 +86,10 @@ int main(int argc, char* argv[])
 
         case 'j':
             options.queen_adjacent_action_bias = atof(optarg);
+            break;
+
+        case 'z':
+            options.queen_sidestep_bias = atof(optarg);
             break;
 
         case 'w':
@@ -180,9 +184,9 @@ int main(int argc, char* argv[])
 
     fprintf(stderr, "MCTS options:\titerations=%ld uctc=%.2f\n",
         options.iterations, options.uctc);
-    fprintf(stderr, "sim options:\tmax_depth=%d queen_adjacent_action_bias=%.2f\n",
+    fprintf(stderr, "sim options:\tmax_depth=%d queen_adjacent_action_bias=%.2f queen_sidestep_bias=%.2f\n",
         options.max_sim_depth,
-        options.queen_adjacent_action_bias);
+        options.queen_adjacent_action_bias, options.queen_sidestep_bias);
     mcts(&state, &results, &options);
 
     struct timeval end;
