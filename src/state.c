@@ -40,6 +40,9 @@ void State_derive_grid(struct State* state)
     for (int p = 0; p < NUM_PLAYERS; p++) {
         for (int i = 0; i < state->piece_count[p]; i++) {
             struct Piece* piece = &state->pieces[p][i];
+
+            // Check to see if this piece is under another piece
+            // that's already on the grid
             struct Piece* p = state->grid[piece->coords.q][piece->coords.r];
             while (p && p->on_top) {
                 if (p->on_top == piece) {
@@ -70,7 +73,11 @@ void State_add_action(struct State* state, int piecei,
 
     if (state->queens[!state->turn]
         && Coords_adjacent(to, &state->queens[!state->turn]->coords)
-        && (from->q == PLACE_ACTION || !Coords_adjacent(from, &state->queens[!state->turn]->coords))) {
+        && (from->q == PLACE_ACTION
+            // Don't count it if it's just moving from another hex next to the queen
+            || (!Coords_adjacent(from, &state->queens[!state->turn]->coords)
+                // ...unless it's on top of a piece and moving down
+                || (&state->pieces[state->turn][piecei] != state->grid[from->q][from->r] && !state->grid[to->q][to->r])))) {
         state->queen_adjacent_actions[state->queen_adjacent_action_count++] = action;
 
         // TODO we've done almost all the calcs to see if this is a win here

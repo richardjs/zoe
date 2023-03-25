@@ -964,6 +964,27 @@ int main(int argc, char* argv[])
         }
     }
 
+    // Coords are not adjacent to themselves
+    {
+        struct Coords coords;
+        coords.q = 3;
+        coords.r = 5;
+
+        if (Coords_adjacent(&coords, &coords)) {
+            printf("Coords adjacent to itself\n");
+        }
+    }
+
+    // Beetle moving down from an adjacent quare counts as a queen adjacent
+    // action, but not moving on top of another adjacent piece
+    {
+        strcpy(state_string, "QbbAbcBbcqbdgccacd1");
+        State_from_string(&state, state_string);
+        if (state.queen_adjacent_action_count != 1) {
+            printf("Incorrect queen adjacent actions\n");
+        }
+    }
+
     // This evaluates as .95 for one of two different moves only, but not the other one (at the same time)
     // It's also *not* a good position
     // abgAcgQchadeGdgsdhgdibdiSebSeegefgehseiafbAfcqfdBfdGgcGgdbhd2
