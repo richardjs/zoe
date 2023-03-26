@@ -25,7 +25,7 @@ enum Command {
 
 int main(int argc, char* argv[])
 {
-    fprintf(stderr, "Zo\u00e9 v.2.1a (built %s %s)\n", __DATE__, __TIME__);
+    fprintf(stderr, "Zo\u00e9 v.2.1a-1 (built %s %s)\n", __DATE__, __TIME__);
 
     time_t seed = time(NULL);
     srand(seed);
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:j:z:")) != -1) {
+    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:j:z:b:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -89,6 +89,10 @@ int main(int argc, char* argv[])
             break;
 
         case 'z':
+            options.queen_sidestep_bias = atof(optarg);
+            break;
+
+        case 'b':
             options.queen_sidestep_bias = atof(optarg);
             break;
 

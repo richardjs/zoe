@@ -35,6 +35,7 @@ void MCTSOptions_default(struct MCTSOptions* o)
 
     o->queen_sidestep_bias = DEFAULT_QUEEN_SIDESTEP_BIAS;
     o->queen_adjacent_action_bias = DEFAULT_QUEEN_ADJACENT_ACTION_BIAS;
+    o->beetle_move_bias = DEFAULT_BEETLE_MOVE_BIAS;
 }
 
 void Node_init(struct Node* node, uint8_t depth)
@@ -127,6 +128,12 @@ float simulate(struct State* state)
         if (state->queen_adjacent_action_count
             && (rand() / (float)RAND_MAX) < options.queen_adjacent_action_bias) {
             State_act(state, state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count]);
+            continue;
+        }
+
+        if (state->beetle_move_count
+            && (rand() / (float)RAND_MAX) < options.beetle_move_bias) {
+            State_act(state, state->beetle_moves[rand() % state->beetle_move_count]);
             continue;
         }
 

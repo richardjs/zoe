@@ -10,6 +10,7 @@
 
 #define DEFAULT_QUEEN_SIDESTEP_BIAS 0
 #define DEFAULT_QUEEN_ADJACENT_ACTION_BIAS 0.65
+#define DEFAULT_BEETLE_MOVE_BIAS 0.3
 
 struct Node {
     bool expanded;
@@ -30,6 +31,7 @@ struct MCTSOptions {
 
     float queen_sidestep_bias;
     float queen_adjacent_action_bias;
+    float beetle_move_bias;
 };
 
 struct MCTSStats {
