@@ -121,8 +121,13 @@ void State_add_action(struct State* state, int piecei,
     }
 
     if (from->q != PLACE_ACTION) {
-        if (state->pieces[piecei]->type == QUEEN_BEE) {
+        if (piece->type == QUEEN_BEE) {
             state->queen_moves[state->queen_move_count++] = action;
+        } else if (piece->type == BEETLE) {
+            if(state->beetle_move_count > 12) {
+                printf("%d\n", state->beetle_move_count);
+            }
+            state->beetle_moves[state->beetle_move_count++] = action;
         }
         state->piece_moves[piecei][state->piece_move_count[piecei]++] = action;
     }
@@ -715,6 +720,7 @@ void State_derive_actions(struct State* state)
     }
     state->queen_move_count = 0;
     state->queen_adjacent_action_count = 0;
+    state->beetle_move_count = 0;
 
     state->winning_action = NULL;
 

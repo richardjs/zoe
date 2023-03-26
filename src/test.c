@@ -983,6 +983,15 @@ int main(int argc, char* argv[])
         }
     }
 
+    // Beetle move count
+    {
+        strcpy(state_string, "SbhachAdggdhGefAegBegsfdqffBffbfhSgcggdGgeagfAggshbGhcbhcgheQidajd1");
+        State_from_string(&state, state_string);
+        if (state.beetle_move_count != 12) {
+            printf("Incorrect number of beetle moves\n");
+        }
+    }
+
     // This evaluates as .95 for one of two different moves only, but not the other one (at the same time)
     // It's also *not* a good position
     // abgAcgQchadeGdgsdhgdibdiSebSeegefgehseiafbAfcqfdBfdGgcGgdbhd2

@@ -38,6 +38,7 @@
 #define MAX_ACTIONS 313
 #define MAX_PIECE_MOVES 135
 #define MAX_QUEEN_MOVES 4
+#define MAX_BEETLE_MOVES (NUM_DIRECTIONS * 2)
 
 // It's actually lower than this; 26 is if you have all your pieces in
 // a line with no opposite color pieces anywhere
@@ -112,6 +113,9 @@ struct State {
 
     struct Action* queen_adjacent_actions[MAX_ACTIONS];
     uint_fast16_t queen_adjacent_action_count;
+
+    struct Action* beetle_moves[MAX_BEETLE_MOVES];
+    uint_fast8_t beetle_move_count;
 
     uint_fast8_t hands[NUM_PLAYERS][NUM_PIECETYPES];
 
