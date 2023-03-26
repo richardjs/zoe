@@ -111,3 +111,13 @@ bool State_compare(const struct State* state,
 
     return false;
 }
+
+int State_actioni(const struct State* state, const struct Action* action)
+{
+    for (int i = 0; i < state->action_count; i++) {
+        if (&state->actions[i] == action) {
+            return i;
+        }
+    }
+    return -1;
+}

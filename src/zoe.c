@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
         struct MinimaxResults minimax_results;
         minimax(&state, &minimax_results, &minimax_options);
         fprintf(stderr, "action:\t");
-        Action_print(&state.actions[minimax_results.actioni], stderr);
+        Action_print(state.winning_action, stderr);
         fprintf(stderr, "score:\t%.2f\n", minimax_results.score);
         return 0;
 
@@ -150,12 +150,11 @@ int main(int argc, char* argv[])
 
     char action_string[ACTION_STRING_SIZE];
 
-    int win = State_find_win(&state);
-    if (win >= 0) {
+    if (state.winning_action) {
         fprintf(stderr, "Taking win\n");
         fprintf(stderr, "result: win\n");
 
-        Action_to_string(&state.actions[win], action_string);
+        Action_to_string(state.winning_action, action_string);
         printf("%s\n", action_string);
         return 0;
     }

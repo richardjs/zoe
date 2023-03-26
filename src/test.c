@@ -749,13 +749,11 @@ int main(int argc, char* argv[])
             "sbigcgQchbciAcjsdggdhgeeBeeqefGegAehaeiGfcGfdAfgagbBgdbgdSgeaggShb2");
         State_from_string(&state, state_string);
 
-        int win = State_find_win(&state);
-        if (win < 0) {
+        if (!state.winning_action) {
             printf("No win found\n");
         }
 
-        struct Action action = state.actions[win];
-        State_act(&state, &action);
+        State_act(&state, state.winning_action);
 
         if (state.result != P2_WIN) {
             printf("Winning move gives unexpected result: %d\n", state.result);
@@ -776,10 +774,8 @@ int main(int argc, char* argv[])
         // State_from_string(&state, state_string);
         struct Action action;
         while (state.result == NO_RESULT) {
-            int win = State_find_win(&state);
-
-            if (win >= 0) {
-                State_act(&state, &state.actions[win]);
+            if (state.winning_action) {
+                State_act(&state, state.winning_action);
                 continue;
             }
 
@@ -796,10 +792,8 @@ int main(int argc, char* argv[])
         State_from_string(&state, state_string);
         struct Action action;
         while (state.result == NO_RESULT) {
-            int win = State_find_win(&state);
-
-            if (win >= 0) {
-                State_act(&state, &state.actions[win]);
+            if (state.winning_action) {
+                State_act(&state, state.winning_action);
                 continue;
             }
 
@@ -981,7 +975,11 @@ int main(int argc, char* argv[])
         strcpy(state_string, "QbbAbcBbcqbdgccacd1");
         State_from_string(&state, state_string);
         if (state.queen_adjacent_action_count != 1) {
-            printf("Incorrect queen adjacent actions\n");
+            State_print(&state, stdout);
+            printf("Incorrect queen adjacent actions: %ld\n", state.queen_adjacent_action_count);
+            for (int i = 0; i < state.queen_adjacent_action_count; i++) {
+                Action_print(state.queen_adjacent_actions[i], stdout);
+            }
         }
     }
 

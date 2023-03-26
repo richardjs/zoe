@@ -23,4 +23,6 @@ bool State_compare(const struct State* state,
     const struct State* other,
     bool debug_print);
 
+int State_actioni(const struct State* state, const struct Action* action);
+
 #endif

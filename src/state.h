@@ -101,6 +101,8 @@ struct State {
     struct Action actions[MAX_ACTIONS];
     uint_fast16_t action_count;
 
+    struct Action* winning_action;
+
     struct Piece* queens[NUM_PLAYERS];
     struct Action* queen_moves[MAX_QUEEN_MOVES];
     uint_fast8_t queen_move_count;
@@ -129,7 +131,6 @@ void State_copy(const struct State* source, struct State* dest);
 void State_act(struct State* state, const struct Action* action);
 
 int State_hex_neighbor_count(const struct State* state, const struct Coords* coords);
-int State_find_win(const struct State* state);
 
 void State_count_cut_points(
     const struct State* state,

@@ -64,23 +64,67 @@ void State_add_action(struct State* state, int piecei,
     action->from = *from;
     action->to = *to;
 
+    struct Piece* piece = &state->pieces[state->turn][piecei];
+    struct Piece* turn_queen = state->queens[state->turn];
+    struct Piece* other_queen = state->queens[!state->turn];
+
+    bool draw_action = false;
+
+    // Don't allow actions that result in a loss for current player
+    if (turn_queen
+        && State_hex_neighbor_count(state, &turn_queen->coords) == NUM_DIRECTIONS - 1
+        && Coords_adjacent(&turn_queen->coords, to)
+        && (!Coords_adjacent(&turn_queen->coords, from)
+            || from->q == PLACE_ACTION
+            || (piece->type == BEETLE
+                && state->grid[from->q][from->r]->on_top))
+        && !state->grid[to->q][to->r]) {
+
+        // ..but allow draws
+        if (other_queen
+            && State_hex_neighbor_count(state, &other_queen->coords) == NUM_DIRECTIONS - 1
+            && Coords_adjacent(&other_queen->coords, to)
+            && !(Coords_adjacent(&other_queen->coords, from)
+                || (from->q == PLACE_ACTION
+                    || (piece->type == BEETLE
+                        && state->grid[from->q][from->r]->on_top)))) {
+
+            draw_action = true;
+
+        } else {
+            // Remove the action from the stack and stop adding it
+            state->action_count--;
+            return;
+        }
+    }
+
+    // Check for queen adjacent action
+    if (other_queen
+        && Coords_adjacent(to, &other_queen->coords)
+        // Don't count it if it's just moving from another hex next to the queen
+        && (!Coords_adjacent(&other_queen->coords, from)
+            || from->q == PLACE_ACTION
+            // ...unless it's on top of a piece and moving down
+            || (piece->type == BEETLE
+                && state->grid[from->q][from->r]->on_top))
+        && !state->grid[to->q][to->r]) {
+
+        state->queen_adjacent_actions[state->queen_adjacent_action_count++] = action;
+
+        // Check for winning action
+        if (!state->winning_action
+            && State_hex_neighbor_count(state, &other_queen->coords) == NUM_DIRECTIONS - 1
+            && !draw_action) {
+
+            state->winning_action = action;
+        }
+    }
+
     if (from->q != PLACE_ACTION) {
         if (state->pieces[piecei]->type == QUEEN_BEE) {
             state->queen_moves[state->queen_move_count++] = action;
         }
         state->piece_moves[piecei][state->piece_move_count[piecei]++] = action;
-    }
-
-    if (state->queens[!state->turn]
-        && Coords_adjacent(to, &state->queens[!state->turn]->coords)
-        && (from->q == PLACE_ACTION
-            // Don't count it if it's just moving from another hex next to the queen
-            || (!Coords_adjacent(from, &state->queens[!state->turn]->coords)
-                // ...unless it's on top of a piece and moving down
-                || (&state->pieces[state->turn][piecei] != state->grid[from->q][from->r] && !state->grid[to->q][to->r])))) {
-        state->queen_adjacent_actions[state->queen_adjacent_action_count++] = action;
-
-        // TODO we've done almost all the calcs to see if this is a win here
     }
 }
 
@@ -462,7 +506,7 @@ void State_derive_result(struct State* state)
         }
         struct Piece* queen = state->queens[p];
 
-        int neighbors = state->neighbor_count[P1][queen->coords.q][queen->coords.r] + state->neighbor_count[P2][queen->coords.q][queen->coords.r];
+        int neighbors = State_hex_neighbor_count(state, &queen->coords);
         if (neighbors == 6) {
             switch (state->result) {
             case P1_WIN:
@@ -672,6 +716,8 @@ void State_derive_actions(struct State* state)
     state->queen_move_count = 0;
     state->queen_adjacent_action_count = 0;
 
+    state->winning_action = NULL;
+
     if (state->result != NO_RESULT) {
         return;
     }
@@ -783,14 +829,12 @@ void State_derive(struct State* state)
     State_derive_neighbor_count(state);
     State_derive_result(state);
     State_derive_actions(state);
-    // State_derive_winning_action(state);
 }
 
 void State_copy(const struct State* source, struct State* dest)
 {
-    // TODO In theory, we don't need to copy grid; we could put it on
-    // the end of the struct and leave it off the memcpy. Before doing
-    // that, let's get benchmarks going.
+    // TODO If we're deriving everything we can, we only need to copy
+    // core information
     memcpy(dest, source, sizeof(struct State));
 
     // Transfer on_top pointers
@@ -812,7 +856,8 @@ void State_copy(const struct State* source, struct State* dest)
         }
     }
 
-    State_derive_grid(dest);
+    // TODO We can optimize this by only deriving what we need to
+    State_derive(dest);
 }
 
 void State_new(struct State* state)
@@ -921,62 +966,4 @@ int State_hex_neighbor_count(const struct State* state, const struct Coords* coo
 {
     return state->neighbor_count[P1][coords->q][coords->r]
         + state->neighbor_count[P2][coords->q][coords->r];
-}
-
-int State_find_win(const struct State* state)
-{
-    enum Player other = !state->turn;
-    const struct Piece* queen = state->queens[other];
-
-    if (queen == NULL) {
-        return -1;
-    }
-
-    // Check to see if it's already a win
-    if (State_hex_neighbor_count(state, &queen->coords) == NUM_DIRECTIONS) {
-        return 0;
-    }
-
-    // Only bother searching further if the queen has 5 neighbors
-    if (State_hex_neighbor_count(state, &queen->coords) != NUM_DIRECTIONS - 1) {
-        return -1;
-    }
-
-    // Find which hex neighboring queen is empty
-    struct Coords empty;
-    for (int d = 0; d < NUM_DIRECTIONS; d++) {
-        empty = queen->coords;
-        Coords_move(&empty, d);
-        if (!state->grid[empty.q][empty.r]) {
-            break;
-        }
-    }
-
-    // Search through actions looking for wins
-    for (int i = 0; i < state->action_count; i++) {
-        const struct Action* action = &state->actions[i];
-
-        // If this action isn't putting a piece on the empty square,
-        // we have no business with it here
-        if (action->to.q != empty.q || action->to.r != empty.r) {
-            continue;
-        }
-
-        // Placing a piece to win requires no further checks
-        if (action->from.q == PLACE_ACTION) {
-            return i;
-        }
-
-        // Moving from another queen-neighboring square wouldln't be a
-        // win unless it's a beetle moving down
-        if (Coords_adjacent(&action->from, &queen->coords) && !state->grid[action->from.q][action->from.r]->on_top) {
-            continue;
-        }
-
-        // TODO Make sure not a draw
-
-        return i;
-    }
-
-    return -1;
 }

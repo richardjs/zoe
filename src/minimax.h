@@ -17,7 +17,7 @@ struct MinimaxStats {
 };
 
 struct MinimaxResults {
-    uint16_t actioni;
+    struct Action action;
     float score;
     struct MinimaxStats stats;
 };

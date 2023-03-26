@@ -102,9 +102,8 @@ float simulate(struct State* state)
             return 0.0;
         }
 
-        int win = State_find_win(state);
-        if (win >= 0) {
-            State_act(state, &state->actions[win]);
+        if (state->winning_action) {
+            State_act(state, state->winning_action);
             continue;
         }
 
@@ -176,7 +175,7 @@ float iterate(struct Node* root, struct State* state)
     }
 
     // Treat a state that has a winning moves a game-terminal
-    if (State_find_win(state) >= 0) {
+    if (state->winning_action) {
         root->visits++;
         root->value += 1.0;
         return 1.0;

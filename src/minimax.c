@@ -22,7 +22,7 @@ float search(const struct State* state, int depth)
 {
     results->stats.nodes++;
 
-    if (State_find_win(state) >= 0) {
+    if (state->winning_action) {
         return depth + 1;
     }
 
@@ -60,9 +60,8 @@ void minimax(const struct State* state,
 
     results->stats.nodes++;
 
-    int win = State_find_win(state);
-    if (win >= 0) {
-        results->actioni = win;
+    if (state->winning_action) {
+        results->action = *state->winning_action;
         results->score = INFINITY;
         results->stats.leaves++;
         return;
@@ -79,10 +78,11 @@ void minimax(const struct State* state,
         struct State child;
         State_copy(state, &child);
         State_act(&child, &state->actions[i]);
+
         float child_score = -search(&child, options.depth - 1);
         if (child_score > results->score) {
             results->score = child_score;
-            results->actioni = i;
+            results->action = state->actions[i];
         }
     }
 }
