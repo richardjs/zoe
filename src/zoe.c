@@ -234,6 +234,8 @@ int main(int argc, char* argv[])
         results.stats.duration
             ? 1000 * results.stats.iterations / results.stats.duration
             : 0);
+    fprintf(stderr, "actions:\t%ld\n", state.action_count);
+    fprintf(stderr, "q.a. actions:\t%ld\n", state.queen_adjacent_action_count);
     fprintf(stderr, "action iters:\t%d\n", results.nodes[results.actioni].visits);
     fprintf(stderr, "mean sim depth:\t%.2f\n", results.stats.mean_sim_depth);
     fprintf(stderr,
@@ -242,10 +244,10 @@ int main(int argc, char* argv[])
     fprintf(
         stderr, "tree size:\t%ld MiB\n", results.stats.tree_bytes / 1024 / 1024);
 
-    for (int i = 1; i < TOP_ACTIONS && i < state.action_count; i++) {
+    for (int i = 0; i < TOP_ACTIONS && i < state.action_count; i++) {
         Action_to_string(&state.actions[top_actionis[i]], action_string);
         float score = -1 * results.nodes[top_actionis[i]].value / results.nodes[top_actionis[i]].visits;
-        fprintf(stderr, "alt:\t%.2f\t%s\t%d\n", score, action_string, results.nodes[top_actionis[i]].visits);
+        fprintf(stderr, "%.2f\t%s\t%d\n", score, action_string, results.nodes[top_actionis[i]].visits);
     }
 
     struct State after;
