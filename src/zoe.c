@@ -25,7 +25,7 @@ enum Command {
 
 int main(int argc, char* argv[])
 {
-    fprintf(stderr, "Zo\u00e9 v.2.1a-1 (built %s %s)\n", __DATE__, __TIME__);
+    fprintf(stderr, "Zo\u00e9 v.2.2a (built %s %s)\n", __DATE__, __TIME__);
 
     time_t seed = time(NULL);
     srand(seed);
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
             break;
 
         case 'b':
-            options.queen_sidestep_bias = atof(optarg);
+            options.beetle_move_bias = atof(optarg);
             break;
 
         case 'w':
@@ -187,9 +187,9 @@ int main(int argc, char* argv[])
 
     fprintf(stderr, "MCTS options:\titerations=%ld uctc=%.2f\n",
         options.iterations, options.uctc);
-    fprintf(stderr, "sim options:\tmax_depth=%d queen_adjacent_action_bias=%.2f queen_sidestep_bias=%.2f\n",
+    fprintf(stderr, "sim options:\tmax_depth=%d queen_adjacent_action_bias=%.2f queen_sidestep_bias=%.2f beetle_move_bias=%.2f\n",
         options.max_sim_depth,
-        options.queen_adjacent_action_bias, options.queen_sidestep_bias);
+        options.queen_adjacent_action_bias, options.queen_sidestep_bias, options.beetle_move_bias);
     mcts(&state, &results, &options);
 
     struct timeval end;
