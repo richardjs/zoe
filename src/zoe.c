@@ -144,8 +144,10 @@ int main(int argc, char* argv[])
         struct MinimaxResults minimax_results;
         minimax(&state, &minimax_results, &minimax_options);
         fprintf(stderr, "action:\t");
-        Action_print(state.winning_action, stderr);
+        Action_print(&minimax_results.action, stderr);
         fprintf(stderr, "score:\t%.2f\n", minimax_results.score);
+        fprintf(stderr, "nodes:\t%ld\n", minimax_results.stats.nodes);
+        fprintf(stderr, "leaves:\t%ld\n", minimax_results.stats.leaves);
         return 0;
 
     case RANDOM:
@@ -232,6 +234,7 @@ int main(int argc, char* argv[])
 
     fprintf(stderr, "iterations:\t%ld\n", results.stats.iterations);
     // fprintf(stderr, "workers:\t%d\n", workers);
+    fprintf(stderr, "change iters:\t%d\n", results.stats.change_iterations);
     fprintf(stderr, "time:\t\t%ld ms\n", results.stats.duration);
     fprintf(stderr,
         "iters/s:\t%ld\n",

@@ -251,26 +251,32 @@ void mcts(const struct State* state,
     struct timeval start;
     gettimeofday(&start, NULL);
 
+    int last_actioni = -1;
     for (int i = 0; i < options.iterations; i++) {
         struct State s;
         State_copy(state, &s);
         iterate(root, &s);
         results->stats.iterations++;
+
+        results->score = -INFINITY;
+        for (int a = 0; a < state->action_count; a++) {
+            float score = -1 * root->children[a]->value / root->children[a]->visits;
+
+            if (score >= results->score) {
+                results->score = score;
+                results->actioni = a;
+            }
+        }
+
+        if (last_actioni != results->actioni) {
+            results->stats.change_iterations = i+1;
+        }
+        last_actioni = results->actioni;
     }
 
     struct timeval end;
     gettimeofday(&end, NULL);
     results->stats.duration = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
-
-    results->score = -INFINITY;
-    for (int i = 0; i < state->action_count; i++) {
-        float score = -1 * root->children[i]->value / root->children[i]->visits;
-
-        if (score >= results->score) {
-            results->score = score;
-            results->actioni = i;
-        }
-    }
 
     for (int i = 0; i < state->action_count; i++) {
         results->nodes[i] = *root->children[i];

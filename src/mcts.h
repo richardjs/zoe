@@ -8,7 +8,7 @@
 #define DEFAULT_UCTC .3
 #define DEFAULT_SAVE_TREE false
 
-#define DEFAULT_QUEEN_SIDESTEP_BIAS 0.1
+#define DEFAULT_QUEEN_SIDESTEP_BIAS 0.5
 #define DEFAULT_QUEEN_ADJACENT_ACTION_BIAS 0.65
 #define DEFAULT_BEETLE_MOVE_BIAS 0.5
 
@@ -43,6 +43,7 @@ struct MCTSStats {
     float mean_sim_depth;
     uint32_t depth_outs;
     uint64_t duration;
+    uint32_t change_iterations;
 };
 
 struct MCTSResults {
