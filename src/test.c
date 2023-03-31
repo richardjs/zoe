@@ -992,6 +992,23 @@ int main(int argc, char* argv[])
         }
     }
 
+    // Cut point count
+    {
+        strcpy(state_string, "QbdGcdsdcgeb1");
+        State_from_string(&state, state_string);
+        if (state.cut_point_count[P1] != 1 || state.cut_point_count[P2] != 1) {
+            printf("Incorrect cut point count (case 1)\n");
+        }
+
+        strcpy(state_string, "AbdacdgceacfsddQdebdeadfbecGeeAfbsfdAfgggcggdBgdqgeSgfShdGhe1");
+        State_from_string(&state, state_string);
+        if (state.cut_point_count[P1] != 2 || state.cut_point_count[P2] != 5) {
+            printf("Incorrect cut point count (case 2): %d %d\n",
+                state.cut_point_count[P1], state.cut_point_count[P2]
+            );
+        }
+    }
+
     // This evaluates as .95 for one of two different moves only, but not the other one (at the same time)
     // It's also *not* a good position
     // abgAcgQchadeGdgsdhgdibdiSebSeegefgehseiafbAfcqfdBfdGgcGgdbhd2
