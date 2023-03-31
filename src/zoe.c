@@ -5,6 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "book.h"
 #include "errorcodes.h"
 #include "mcts.h"
 #include "minimax.h"
@@ -25,7 +26,7 @@ enum Command {
 
 int main(int argc, char* argv[])
 {
-    fprintf(stderr, "Zo\u00e9 v.2.2a (built %s %s)\n", __DATE__, __TIME__);
+    fprintf(stderr, "Zo\u00e9 v.3a (built %s %s)\n", __DATE__, __TIME__);
 
     time_t seed = time(NULL);
     srand(seed);
@@ -114,6 +115,7 @@ int main(int argc, char* argv[])
     State_print(&state, stderr);
 
     char state_string[STATE_STRING_SIZE];
+    char action_string[ACTION_STRING_SIZE];
 
     switch (command) {
     case NONE:
@@ -151,21 +153,6 @@ int main(int argc, char* argv[])
         return 0;
 
     case RANDOM:
-    case THINK:
-    }
-
-    char action_string[ACTION_STRING_SIZE];
-
-    if (state.winning_action) {
-        fprintf(stderr, "Taking win\n");
-        fprintf(stderr, "result: win\n");
-
-        Action_to_string(state.winning_action, action_string);
-        printf("%s\n", action_string);
-        return 0;
-    }
-
-    if (command == RANDOM) {
         struct Action* action = &state.actions[rand() % state.action_count];
 
         Action_to_string(action, action_string);
@@ -177,7 +164,25 @@ int main(int argc, char* argv[])
         State_normalize(&after);
         State_to_string(&after, state_string);
         fprintf(stderr, "next:\t%s\n", state_string);
-        return 0.0;
+        return 0;
+
+    case THINK:
+    }
+
+    if (state.winning_action) {
+        fprintf(stderr, "Taking win\n");
+        fprintf(stderr, "result: win\n");
+        Action_to_string(state.winning_action, action_string);
+        printf("%s\n", action_string);
+        return 0;
+    }
+
+    const struct Action* book_action = opening_move(&state);
+    if (book_action) {
+        fprintf(stderr, "Book action\n");
+        Action_to_string(book_action, action_string);
+        printf("%s\n", action_string);
+        return 0;
     }
 
     struct MCTSResults results;

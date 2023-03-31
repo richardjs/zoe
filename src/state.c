@@ -124,9 +124,6 @@ void State_add_action(struct State* state, int piecei,
         if (piece->type == QUEEN_BEE) {
             state->queen_moves[state->queen_move_count++] = action;
         } else if (piece->type == BEETLE) {
-            if(state->beetle_move_count > 12) {
-                printf("%d\n", state->beetle_move_count);
-            }
             state->beetle_moves[state->beetle_move_count++] = action;
         }
         state->piece_moves[piecei][state->piece_move_count[piecei]++] = action;

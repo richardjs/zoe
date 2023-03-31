@@ -269,7 +269,7 @@ void mcts(const struct State* state,
         }
 
         if (last_actioni != results->actioni) {
-            results->stats.change_iterations = i+1;
+            results->stats.change_iterations = i + 1;
         }
         last_actioni = results->actioni;
     }
