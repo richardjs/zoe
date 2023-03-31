@@ -94,7 +94,7 @@ float simulate(struct State* state)
 {
     results->stats.simulations++;
 
-    enum Player turn = state->turn;
+    enum Player original_turn = state->turn;
 
     int depth = 0;
     while (state->result == NO_RESULT) {
@@ -108,36 +108,48 @@ float simulate(struct State* state)
             continue;
         }
 
-        enum Player t = state->turn;
-        if (state->queen_move_count) {
-            struct Action* actions[4];
-            int action_count = 0;
-            for (int i = 0; i < state->queen_move_count; i++) {
-                struct Action* action = state->queen_moves[i];
-                if (state->neighbor_count[!t][action->to.q][action->to.r] == 1 && state->neighbor_count[t][action->to.q][action->to.r] == 1) {
-                    actions[action_count++] = action;
+        enum Player turn = state->turn;
+
+        struct Action* action = NULL;
+        while (1) {
+            if (options.queen_sidestep_bias && state->queen_move_count) {
+                struct Action* actions[4];
+                int action_count = 0;
+                for (int i = 0; i < state->queen_move_count; i++) {
+                    struct Action* action = state->queen_moves[i];
+                    if (state->neighbor_count[!turn][action->to.q][action->to.r] == 1
+                        && state->neighbor_count[turn][action->to.q][action->to.r] == 1) {
+                        actions[action_count++] = action;
+                    }
+                }
+
+                if (action_count
+                    && (rand() / (float)RAND_MAX) < options.queen_sidestep_bias) {
+                    action = actions[rand() % action_count];
+                    goto action_chosen;
                 }
             }
 
-            if (action_count && (rand() / (float)RAND_MAX) < options.queen_sidestep_bias) {
-                State_act(state, actions[rand() % action_count]);
-                continue;
+            if (state->queen_adjacent_action_count
+                && (rand() / (float)RAND_MAX) < options.queen_adjacent_action_bias) {
+                action = state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count];
+                goto action_chosen;
             }
-        }
 
-        if (state->queen_adjacent_action_count
-            && (rand() / (float)RAND_MAX) < options.queen_adjacent_action_bias) {
-            State_act(state, state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count]);
-            continue;
-        }
+            if (state->beetle_move_count
+                && (rand() / (float)RAND_MAX) < options.beetle_move_bias) {
+                action = state->beetle_moves[rand() % state->beetle_move_count];
+                goto action_chosen;
+            }
 
-        if (state->beetle_move_count
-            && (rand() / (float)RAND_MAX) < options.beetle_move_bias) {
-            State_act(state, state->beetle_moves[rand() % state->beetle_move_count]);
-            continue;
-        }
+            action = &state->actions[rand() % state->action_count];
 
-        State_act(state, &state->actions[rand() % state->action_count]);
+        action_chosen:
+
+            State_act(state, action);
+
+            break;
+        }
     }
 
     results->stats.mean_sim_depth += (depth - results->stats.mean_sim_depth) / results->stats.simulations;
@@ -146,7 +158,8 @@ float simulate(struct State* state)
         return 0.0;
     }
 
-    if ((state->result == P1_WIN && turn == P1) || (state->result == P2_WIN && turn == P2)) {
+    if ((state->result == P1_WIN && original_turn == P1)
+        || (state->result == P2_WIN && original_turn == P2)) {
         return 1.0;
     }
 
