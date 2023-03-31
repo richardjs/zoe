@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -26,7 +27,7 @@ enum Command {
 
 int main(int argc, char* argv[])
 {
-    fprintf(stderr, "Zo\u00e9 v.3a (built %s %s)\n", __DATE__, __TIME__);
+    fprintf(stderr, "Zo\u00e9 v.3.1a (built %s %s)\n", __DATE__, __TIME__);
 
     time_t seed = time(NULL);
     srand(seed);
@@ -34,7 +35,7 @@ int main(int argc, char* argv[])
     init_coords();
 
     enum Command command = NONE;
-    // int workers = 1;
+    int workers = 1;
 
     struct MCTSOptions options;
     MCTSOptions_default(&options);
@@ -98,8 +99,8 @@ int main(int argc, char* argv[])
             break;
 
         case 'w':
-            //    workers = atoi(optarg);
-            //    break;
+            workers = atoi(optarg);
+            break;
         }
     }
 
@@ -199,6 +200,30 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+    fprintf(stderr, "MCTS options:\titerations=%ld workers=%d uctc=%.2f\n",
+        options.iterations,
+        workers,
+        options.uctc);
+    fprintf(stderr, "sim options:\tmax_depth=%d queen_adjacent_action_bias=%.2f queen_sidestep_bias=%.2f beetle_move_bias=%.2f\n",
+        options.max_sim_depth,
+        options.queen_adjacent_action_bias,
+        options.queen_sidestep_bias,
+        options.beetle_move_bias);
+
+    int pipefd[2];
+    pipe(pipefd);
+
+    for (int i = 0; i < workers; i++) {
+        srand(rand());
+        if (fork() > 0) {
+            continue;
+        }
+        struct MCTSResults results;
+        mcts(&state, &results, &options);
+        write(pipefd[1], &results, sizeof(struct MCTSResults));
+        exit(0);
+    }
+
     struct MCTSResults results;
     memset(&results, 0, sizeof(struct MCTSResults));
 
@@ -206,12 +231,25 @@ int main(int argc, char* argv[])
     struct timeval start;
     gettimeofday(&start, NULL);
 
-    fprintf(stderr, "MCTS options:\titerations=%ld uctc=%.2f\n",
-        options.iterations, options.uctc);
-    fprintf(stderr, "sim options:\tmax_depth=%d queen_adjacent_action_bias=%.2f queen_sidestep_bias=%.2f beetle_move_bias=%.2f\n",
-        options.max_sim_depth,
-        options.queen_adjacent_action_bias, options.queen_sidestep_bias, options.beetle_move_bias);
-    mcts(&state, &results, &options);
+    for (int i = 0; i < workers; i++) {
+        wait(NULL);
+
+        struct MCTSResults worker_results;
+        read(pipefd[0], &worker_results, sizeof(struct MCTSResults));
+
+        for (int j = 0; j < state.action_count; j++) {
+            results.nodes[j].visits += worker_results.nodes[j].visits;
+            results.nodes[j].value += worker_results.nodes[j].value;
+        }
+
+        results.stats.iterations += worker_results.stats.iterations;
+        results.stats.nodes += worker_results.stats.nodes;
+        results.stats.tree_bytes += worker_results.stats.tree_bytes;
+        results.stats.simulations += worker_results.stats.simulations;
+        results.stats.mean_sim_depth += worker_results.stats.mean_sim_depth/workers;
+        results.stats.depth_outs += worker_results.stats.depth_outs;
+        results.stats.change_iterations = results.stats.change_iterations > worker_results.stats.change_iterations ? results.stats.change_iterations : worker_results.stats.change_iterations;
+    }
 
     struct timeval end;
     gettimeofday(&end, NULL);
