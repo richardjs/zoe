@@ -1004,8 +1004,7 @@ int main(int argc, char* argv[])
         State_from_string(&state, state_string);
         if (state.cut_point_count[P1] != 2 || state.cut_point_count[P2] != 5) {
             printf("Incorrect cut point count (case 2): %d %d\n",
-                state.cut_point_count[P1], state.cut_point_count[P2]
-            );
+                state.cut_point_count[P1], state.cut_point_count[P2]);
         }
     }
 

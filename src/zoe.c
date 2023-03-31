@@ -174,6 +174,13 @@ int main(int argc, char* argv[])
         fprintf(stderr, "result: win\n");
         Action_to_string(state.winning_action, action_string);
         printf("%s\n", action_string);
+
+        struct State after;
+        State_copy(&state, &after);
+        State_act(&after, state.winning_action);
+        State_normalize(&after);
+        State_to_string(&after, state_string);
+        fprintf(stderr, "next:\t%s\n", state_string);
         return 0;
     }
 
@@ -182,6 +189,13 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Book action\n");
         Action_to_string(book_action, action_string);
         printf("%s\n", action_string);
+
+        struct State after;
+        State_copy(&state, &after);
+        State_act(&after, book_action);
+        State_normalize(&after);
+        State_to_string(&after, state_string);
+        fprintf(stderr, "next:\t%s\n", state_string);
         return 0;
     }
 
