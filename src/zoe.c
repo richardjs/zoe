@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:j:z:b:")) != -1) {
+    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:j:z:b:d:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -96,6 +96,10 @@ int main(int argc, char* argv[])
 
         case 'b':
             options.beetle_move_bias = atof(optarg);
+            break;
+
+        case 'd':
+            options.cut_point_diff_terminate = atof(optarg);
             break;
 
         case 'w':
@@ -185,6 +189,20 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+    if (state.action_count == 1) {
+        fprintf(stderr, "Single action\n");
+        Action_to_string(&state.actions[0], action_string);
+        printf("%s\n", action_string);
+
+        struct State after;
+        State_copy(&state, &after);
+        State_act(&after, &state.actions[0]);
+        State_normalize(&after);
+        State_to_string(&after, state_string);
+        fprintf(stderr, "next:\t%s\n", state_string);
+        return 0;
+    }
+
     const struct Action* book_action = opening_move(&state);
     if (book_action) {
         fprintf(stderr, "Book action\n");
@@ -204,11 +222,12 @@ int main(int argc, char* argv[])
         options.iterations,
         workers,
         options.uctc);
-    fprintf(stderr, "sim options:\tmax_depth=%d queen_adjacent_action_bias=%.2f queen_sidestep_bias=%.2f beetle_move_bias=%.2f\n",
+    fprintf(stderr, "sim options:\tmax_depth=%d queen_adjacent_action_bias=%.2f queen_sidestep_bias=%.2f beetle_move_bias=%.2f cut_point_diff_terminate=%d\n",
         options.max_sim_depth,
         options.queen_adjacent_action_bias,
         options.queen_sidestep_bias,
-        options.beetle_move_bias);
+        options.beetle_move_bias,
+        options.cut_point_diff_terminate);
 
     int pipefd[2];
     pipe(pipefd);
@@ -246,8 +265,9 @@ int main(int argc, char* argv[])
         results.stats.nodes += worker_results.stats.nodes;
         results.stats.tree_bytes += worker_results.stats.tree_bytes;
         results.stats.simulations += worker_results.stats.simulations;
-        results.stats.mean_sim_depth += worker_results.stats.mean_sim_depth/workers;
+        results.stats.mean_sim_depth += worker_results.stats.mean_sim_depth / workers;
         results.stats.depth_outs += worker_results.stats.depth_outs;
+        results.stats.cut_point_terminations += worker_results.stats.cut_point_terminations;
         results.stats.change_iterations = results.stats.change_iterations > worker_results.stats.change_iterations ? results.stats.change_iterations : worker_results.stats.change_iterations;
     }
 
@@ -286,11 +306,14 @@ int main(int argc, char* argv[])
     Action_to_string(&state.actions[results.actioni], action_string);
     printf("%s\n", action_string);
 
+    struct State after;
+    State_copy(&state, &after);
+    State_act(&after, &state.actions[results.actioni]);
+
     fprintf(stderr, "action:\t\t%s\n", action_string);
     fprintf(stderr, "score:\t\t%.2f\n", results.score);
 
     fprintf(stderr, "iterations:\t%ld\n", results.stats.iterations);
-    // fprintf(stderr, "workers:\t%d\n", workers);
     fprintf(stderr, "change iters:\t%d\n", results.stats.change_iterations);
     fprintf(stderr, "time:\t\t%ld ms\n", results.stats.duration);
     fprintf(stderr,
@@ -299,9 +322,13 @@ int main(int argc, char* argv[])
             ? 1000 * results.stats.iterations / results.stats.duration
             : 0);
     fprintf(stderr, "actions:\t%ld\n", state.action_count);
+    fprintf(stderr, "cut point diff:\t%d\n", after.cut_point_count[P2] - after.cut_point_count[P1]);
     fprintf(stderr, "q.a. actions:\t%ld\n", state.queen_adjacent_action_count);
     fprintf(stderr, "action iters:\t%d\n", results.nodes[results.actioni].visits);
     fprintf(stderr, "mean sim depth:\t%.2f\n", results.stats.mean_sim_depth);
+    fprintf(stderr,
+        "cut point outs:\t%.2f%%\n",
+        100 * (float)results.stats.cut_point_terminations / results.stats.simulations);
     fprintf(stderr,
         "depth outs:\t%.2f%%\n",
         100 * (float)results.stats.depth_outs / results.stats.simulations);
@@ -314,9 +341,6 @@ int main(int argc, char* argv[])
         fprintf(stderr, "%.2f\t%s\t%d\n", score, action_string, results.nodes[top_actionis[i]].visits);
     }
 
-    struct State after;
-    State_copy(&state, &after);
-    State_act(&after, &state.actions[results.actioni]);
     State_print(&after, stderr);
 
     State_normalize(&after);

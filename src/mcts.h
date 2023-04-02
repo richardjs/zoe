@@ -11,6 +11,7 @@
 #define DEFAULT_QUEEN_SIDESTEP_BIAS 0.5
 #define DEFAULT_QUEEN_ADJACENT_ACTION_BIAS 0.65
 #define DEFAULT_BEETLE_MOVE_BIAS 0.5
+#define DEFAULT_CUT_POINT_DIFF_TERM 5
 
 struct Node {
     bool expanded;
@@ -32,6 +33,7 @@ struct MCTSOptions {
     float queen_sidestep_bias;
     float queen_adjacent_action_bias;
     float beetle_move_bias;
+    int cut_point_diff_terminate;
 };
 
 struct MCTSStats {
@@ -41,6 +43,7 @@ struct MCTSStats {
     uint16_t tree_depth;
     uint32_t simulations;
     float mean_sim_depth;
+    uint32_t cut_point_terminations;
     uint32_t depth_outs;
     uint64_t duration;
     uint32_t change_iterations;

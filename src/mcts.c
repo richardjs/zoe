@@ -36,6 +36,7 @@ void MCTSOptions_default(struct MCTSOptions* o)
     o->queen_sidestep_bias = DEFAULT_QUEEN_SIDESTEP_BIAS;
     o->queen_adjacent_action_bias = DEFAULT_QUEEN_ADJACENT_ACTION_BIAS;
     o->beetle_move_bias = DEFAULT_BEETLE_MOVE_BIAS;
+    o->cut_point_diff_terminate = DEFAULT_CUT_POINT_DIFF_TERM;
 }
 
 void Node_init(struct Node* node, uint8_t depth)
@@ -95,17 +96,30 @@ float simulate(struct State* state)
     results->stats.simulations++;
 
     enum Player original_turn = state->turn;
+    int original_cut_point_diff = state->cut_point_count[!original_turn] - state->cut_point_count[original_turn];
 
     int depth = 0;
     while (state->result == NO_RESULT) {
-        if (depth++ > options.max_sim_depth) {
-            results->stats.depth_outs++;
-            return 0.0;
-        }
-
         if (state->winning_action) {
             State_act(state, state->winning_action);
             continue;
+        }
+
+        int cut_point_diff = state->cut_point_count[!original_turn] - state->cut_point_count[original_turn];
+        int cut_point_diff_change = cut_point_diff - original_cut_point_diff;
+        if (cut_point_diff_change >= options.cut_point_diff_terminate) {
+            results->stats.cut_point_terminations++;
+            // TODO correct sign?
+            return -1.0;
+        } else if (cut_point_diff_change <= -options.cut_point_diff_terminate) {
+            results->stats.cut_point_terminations++;
+            // TODO correct sign?
+            return 1.0;
+        }
+
+        if (depth++ > options.max_sim_depth) {
+            results->stats.depth_outs++;
+            return 0.0;
         }
 
         enum Player turn = state->turn;
