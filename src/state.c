@@ -329,8 +329,10 @@ void State_derive_cut_points(struct State* state)
         } else {
             if (sp != 0) {
                 if (lowpoint[sp] == depth[sp - 1] && (sp - 1 != 0)) {
-                    state->cut_points[stack[sp - 1].q][stack[sp - 1].r] = true;
-                    state->cut_point_count[state->grid[stack[sp - 1].q][stack[sp - 1].r]->player]++;
+                    if (!state->cut_points[stack[sp - 1].q][stack[sp - 1].r]) {
+                        state->cut_points[stack[sp - 1].q][stack[sp - 1].r] = true;
+                        state->cut_point_count[state->grid[stack[sp - 1].q][stack[sp - 1].r]->player]++;
+                    }
                 } else {
                     if (lowpoint[sp] < lowpoint[sp - 1]) {
                         lowpoint[sp - 1] = lowpoint[sp];
@@ -342,8 +344,10 @@ void State_derive_cut_points(struct State* state)
     }
 
     if (root_children > 1) {
-        state->cut_points[stack[0].q][stack[0].r] = true;
-        state->cut_point_count[state->grid[stack[0].q][stack[0].r]->player]++;
+        if (!state->cut_points[stack[0].q][stack[0].r]) {
+            state->cut_points[stack[0].q][stack[0].r] = true;
+            state->cut_point_count[state->grid[stack[0].q][stack[0].r]->player]++;
+        }
     }
 }
 
