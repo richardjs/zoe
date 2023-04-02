@@ -27,7 +27,7 @@ enum Command {
 
 int main(int argc, char* argv[])
 {
-    fprintf(stderr, "Zo\u00e9 v.3.1a (built %s %s)\n", __DATE__, __TIME__);
+    fprintf(stderr, "Zo\u00e9 v.4 (built %s %s)\n", __DATE__, __TIME__);
 
     time_t seed = time(NULL);
     srand(seed);
