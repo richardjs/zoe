@@ -110,11 +110,11 @@ float simulate(struct State* state)
         if (cut_point_diff_change >= options.cut_point_diff_terminate) {
             results->stats.cut_point_terminations++;
             // TODO correct sign?
-            return -1.0;
+            return 1.0;
         } else if (cut_point_diff_change <= -options.cut_point_diff_terminate) {
             results->stats.cut_point_terminations++;
             // TODO correct sign?
-            return 1.0;
+            return -1.0;
         }
 
         if (depth++ > options.max_sim_depth) {
