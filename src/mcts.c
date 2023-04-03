@@ -1,11 +1,11 @@
-#include "mcts.h"
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 
+#include "mcts.h"
+#include "simulate.h"
 #include "state.h"
 
 // store these globally so we don't have to pass them around
@@ -87,100 +87,6 @@ void Node_free(struct Node* node)
 }
 
 /**
- * simulates play (in place) on a state, stopping at game end or
- * MAX_SIM_DEPTH, and returns 1.0 if the initial state won, -1.0 if it
- * lost, and 0.0 on a draw or depth out
- */
-float simulate(struct State* state)
-{
-    results->stats.simulations++;
-
-    enum Player original_turn = state->turn;
-    int original_cut_point_diff = state->cut_point_count[!original_turn] - state->cut_point_count[original_turn];
-
-    int depth = 0;
-    while (state->result == NO_RESULT) {
-        if (state->winning_action) {
-            State_act(state, state->winning_action);
-            continue;
-        }
-
-        int cut_point_diff = state->cut_point_count[!original_turn] - state->cut_point_count[original_turn];
-        int cut_point_diff_change = cut_point_diff - original_cut_point_diff;
-        if (cut_point_diff_change >= options.cut_point_diff_terminate) {
-            results->stats.cut_point_terminations++;
-            // TODO correct sign?
-            return -1.0;
-        } else if (cut_point_diff_change <= -options.cut_point_diff_terminate) {
-            results->stats.cut_point_terminations++;
-            // TODO correct sign?
-            return 1.0;
-        }
-
-        if (depth++ > options.max_sim_depth) {
-            results->stats.depth_outs++;
-            return 0.0;
-        }
-
-        enum Player turn = state->turn;
-
-        struct Action* action = NULL;
-        while (1) {
-            if (options.queen_sidestep_bias && state->queen_move_count) {
-                struct Action* actions[4];
-                int action_count = 0;
-                for (int i = 0; i < state->queen_move_count; i++) {
-                    struct Action* action = state->queen_moves[i];
-                    if (state->neighbor_count[!turn][action->to.q][action->to.r] == 1
-                        && state->neighbor_count[turn][action->to.q][action->to.r] == 1) {
-                        actions[action_count++] = action;
-                    }
-                }
-
-                if (action_count
-                    && (rand() / (float)RAND_MAX) < options.queen_sidestep_bias) {
-                    action = actions[rand() % action_count];
-                    goto action_chosen;
-                }
-            }
-
-            if (state->queen_adjacent_action_count
-                && (rand() / (float)RAND_MAX) < options.queen_adjacent_action_bias) {
-                action = state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count];
-                goto action_chosen;
-            }
-
-            if (state->beetle_move_count
-                && (rand() / (float)RAND_MAX) < options.beetle_move_bias) {
-                action = state->beetle_moves[rand() % state->beetle_move_count];
-                goto action_chosen;
-            }
-
-            action = &state->actions[rand() % state->action_count];
-
-        action_chosen:
-
-            State_act(state, action);
-
-            break;
-        }
-    }
-
-    results->stats.mean_sim_depth += (depth - results->stats.mean_sim_depth) / results->stats.simulations;
-
-    if (state->result == DRAW) {
-        return 0.0;
-    }
-
-    if ((state->result == P1_WIN && original_turn == P1)
-        || (state->result == P2_WIN && original_turn == P2)) {
-        return 1.0;
-    }
-
-    return -1.0;
-}
-
-/**
  * single MCTS iteration: recursively walk down tree with state
  * (choosing promising children), simulate when we get to the end of the
  * tree, and update visited nodes with the results
@@ -220,7 +126,7 @@ float iterate(struct Node* root, struct State* state)
     }
 
     if (root->visits == 0) {
-        float score = simulate(state);
+        float score = State_simulate(state, &options, &results->stats);
 
         root->visits++;
         root->value += score;

@@ -1,7 +1,7 @@
 CFLAGS=-std=gnu17 -Wall -O3
 LDFLAGS=-lm
 
-objects=book.o coords.o mcts.o minimax.o state.o stateio.o stateutil.o
+objects=book.o coords.o mcts.o minimax.o simulate.o state.o stateio.o stateutil.o
 
 
 ZOE_PORT ?= 8000
@@ -42,8 +42,9 @@ slow: CFLAGS+=-O0
 bench.o: bench.h coords.h
 book.o: state.h
 coords.o: coords.h state.h
-mcts.o: mcts.h state.h
+mcts.o: mcts.h simulate.h state.h
 minimax.o: minimax.h state.h
+simulate.o: simulate.h state.h
 state.o: coords.h errorcodes.h state.h
 stateio.o: coords.h errorcodes.h state.h stateio.h stateutil.h
 stateutil.o: state.h
