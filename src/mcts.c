@@ -93,32 +93,15 @@ void Node_free(struct Node* node)
  */
 float iterate(struct Node* root, struct State* state)
 {
-    // game-terminal node
-    if (state->result != NO_RESULT) {
-        if (state->result == DRAW) {
-            root->visits++;
-            root->value += 0.0; // heh
-            return 0.0;
-        }
-
-        if ((state->result == P1_WIN && state->turn == P1) || (state->result == P2_WIN && state->turn == P2)) {
-            // TODO How often do we hit this block? We won after an opponent move
-            // ~24/1000 times; may want to prevent it from happening
-            root->visits++;
-            root->value += 1.0;
-            return 1.0;
-        }
-
-        root->visits++;
-        root->value += -1.0;
-        return -1.0;
-    }
-
-    // Treat a state that has a winning moves a game-terminal
+    // Treat a state that has a winning moves as game-terminal
     if (state->winning_action) {
         root->visits++;
         root->value += 1.0;
         return 1.0;
+    }
+
+    if (state->result == DRAW) {
+        return 0.0;
     }
 
     if (!root->expanded) {
