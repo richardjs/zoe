@@ -105,7 +105,7 @@ bool Coords_map_adjacent(const struct Coords* coords, const struct Coords* other
 
 bool Coords_adjacent(const struct Coords* coords, const struct Coords* other)
 {
-    return Coords_calc_adjacent(coords, other);
+    return Coords_map_adjacent(coords, other);
 }
 
 void init_coords()
