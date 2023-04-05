@@ -1,6 +1,7 @@
 #include "coords.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "state.h"
 
@@ -73,6 +74,15 @@ void Coords_map_move(struct Coords* coords, enum Direction direction)
 void Coords_move(struct Coords* coords, enum Direction direction)
 {
     Coords_map_move(coords, direction);
+}
+
+// https://www.redblobgames.com/grids/hexagons/#distances-axial
+unsigned int Coords_distance(const struct Coords* coords, const struct Coords* other)
+{
+    return (abs(coords->q - other->q)
+               + abs(coords->q + coords->r - other->q - other->r)
+               + abs(coords->r - other->r))
+        / 2;
 }
 
 bool Coords_calc_adjacent(const struct Coords* coords, const struct Coords* other)

@@ -1015,6 +1015,28 @@ int main(int argc, char* argv[])
         }
     }
 
+    // Coords_distance
+    {
+        struct Coords c;
+        c.q = 3;
+        c.r = 5;
+
+        struct Coords o;
+        for (int d = 0; d < NUM_DIRECTIONS; d++) {
+            o = c;
+            Coords_move(&o, d);
+            if (Coords_distance(&c, &o) != 1) {
+                printf("Wrong distance between adjacent coords\n");
+            }
+        }
+
+        o.q = 5;
+        o.r = 4;
+        if (Coords_distance(&c, &o) != 2) {
+            printf("Wrong distance between coords\n");
+        }
+    }
+
     // This evaluates as .95 for one of two different moves only, but not the other one (at the same time)
     // It's also *not* a good position
     // abgAcgQchadeGdgsdhgdibdiSebSeegefgehseiafbAfcqfdBfdGgcGgdbhd2

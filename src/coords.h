@@ -27,6 +27,8 @@ void init_coords();
 void Coords_move(struct Coords* coords, enum Direction direction);
 void Coords_move_old(struct Coords* coords, enum Direction direction);
 
+unsigned int Coords_distance(const struct Coords* coords, const struct Coords* other);
+
 bool Coords_adjacent(const struct Coords* coords, const struct Coords* other);
 
 enum Direction
