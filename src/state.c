@@ -133,6 +133,16 @@ void State_add_action(struct State* state, int piecei,
         }
         state->piece_moves[piecei][state->piece_move_count[piecei]++] = action;
     }
+
+    // TODO technically, a piece pinning in the center could move left
+    // and right and keep the pin, but this won't detect that because the piece
+    // is also a neighbor to those spots
+    // TODO maybe only do this if it makes the point a cut point
+    if (state->neighbor_count[!state->turn][action->to.q][action->to.r] == 1
+        && state->neighbor_count[state->turn][action->to.q][action->to.r] == 0) {
+
+        state->pin_actions[state->pin_action_count++] = action;
+    }
 }
 
 void State_ant_walk(struct State* state, int piecei,
@@ -727,6 +737,7 @@ void State_derive_actions(struct State* state)
     state->queen_move_count = 0;
     state->queen_adjacent_action_count = 0;
     state->queen_nearby_action_count = 0;
+    state->pin_action_count = 0;
     state->beetle_move_count = 0;
 
     state->winning_action = NULL;

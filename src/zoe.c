@@ -330,6 +330,7 @@ int main(int argc, char* argv[])
     fprintf(stderr, "cut point diff:\t%d\n", after.cut_point_count[P2] - after.cut_point_count[P1]);
     fprintf(stderr, "q.a. actions:\t%ld\n", state.queen_adjacent_action_count);
     fprintf(stderr, "q.n. actions:\t%ld\n", state.queen_nearby_action_count);
+    fprintf(stderr, "pin actions:\t%ld\n", state.pin_action_count);
     fprintf(stderr, "action iters:\t%d\n", results.nodes[results.actioni].visits);
     fprintf(stderr, "mean sim depth:\t%.2f\n", results.stats.mean_sim_depth);
     fprintf(stderr,
