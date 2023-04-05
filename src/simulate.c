@@ -60,6 +60,12 @@ float State_simulate(struct State* state,
             goto action_selected;
         }
 
+        if (state->queen_nearby_action_count
+            && (rand() / (float)RAND_MAX) < options->queen_nearby_action_bias) {
+            action = state->queen_nearby_actions[rand() % state->queen_nearby_action_count];
+            goto action_selected;
+        }
+
         if (state->beetle_move_count
             && (rand() / (float)RAND_MAX) < options->beetle_move_bias) {
             action = state->beetle_moves[rand() % state->beetle_move_count];

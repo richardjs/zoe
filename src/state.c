@@ -98,25 +98,30 @@ void State_add_action(struct State* state, int piecei,
         }
     }
 
-    // Check for queen adjacent action
-    if (other_queen
-        && Coords_adjacent(to, &other_queen->coords)
-        // Don't count it if it's just moving from another hex next to the queen
-        && (!Coords_adjacent(&other_queen->coords, from)
-            || from->q == PLACE_ACTION
-            // ...unless it's on top of a piece and moving down
-            || (piece->type == BEETLE
-                && state->grid[from->q][from->r]->on_top))
-        && !state->grid[to->q][to->r]) {
-
-        state->queen_adjacent_actions[state->queen_adjacent_action_count++] = action;
-
-        // Check for winning action
+    if (other_queen) {
         if (!state->winning_action
             && State_hex_neighbor_count(state, &other_queen->coords) == NUM_DIRECTIONS - 1
+            && Coords_adjacent(to, &other_queen->coords)
+            && (from->q == PLACE_ACTION
+                || (!Coords_adjacent(&other_queen->coords, from)
+                    || (piece->type == BEETLE
+                        && state->grid[from->q][from->r]->on_top)))
+            && !state->grid[to->q][to->r]
             && !draw_action) {
 
             state->winning_action = action;
+        }
+
+        if (Coords_adjacent(to, &other_queen->coords)
+            && (from->q == PLACE_ACTION
+                || !Coords_adjacent(&other_queen->coords, from))) {
+
+            state->queen_adjacent_actions[state->queen_adjacent_action_count++] = action;
+        } else if (Coords_distance(to, &other_queen->coords) <= 2
+            && (from->q == PLACE_ACTION
+                || Coords_distance(from, &other_queen->coords) > 2)) {
+
+            state->queen_nearby_actions[state->queen_nearby_action_count++] = action;
         }
     }
 
@@ -721,6 +726,7 @@ void State_derive_actions(struct State* state)
     }
     state->queen_move_count = 0;
     state->queen_adjacent_action_count = 0;
+    state->queen_nearby_action_count = 0;
     state->beetle_move_count = 0;
 
     state->winning_action = NULL;

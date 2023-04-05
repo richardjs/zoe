@@ -10,6 +10,7 @@
 
 #define DEFAULT_QUEEN_SIDESTEP_BIAS 0.5
 #define DEFAULT_QUEEN_ADJACENT_ACTION_BIAS 0.65
+#define DEFAULT_QUEEN_NEARBY_ACTION_BIAS 0.5
 #define DEFAULT_BEETLE_MOVE_BIAS 0.5
 #define DEFAULT_CUT_POINT_DIFF_TERM 100
 
@@ -32,6 +33,7 @@ struct MCTSOptions {
 
     float queen_sidestep_bias;
     float queen_adjacent_action_bias;
+    float queen_nearby_action_bias;
     float beetle_move_bias;
     int cut_point_diff_terminate;
 };

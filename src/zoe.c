@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:j:z:b:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:j:k:z:b:d:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -88,6 +88,10 @@ int main(int argc, char* argv[])
 
         case 'j':
             options.queen_adjacent_action_bias = atof(optarg);
+            break;
+
+        case 'k':
+            options.queen_nearby_action_bias = atof(optarg);
             break;
 
         case 'z':
@@ -222,9 +226,10 @@ int main(int argc, char* argv[])
         options.iterations,
         workers,
         options.uctc);
-    fprintf(stderr, "sim options:\tmax_depth=%d queen_adjacent_action_bias=%.2f queen_sidestep_bias=%.2f beetle_move_bias=%.2f cut_point_diff_terminate=%d\n",
+    fprintf(stderr, "sim options:\tmax_depth=%d queen_adjacent_action_bias=%.2f queen_nearby_action_bias=%.2f queen_sidestep_bias=%.2f beetle_move_bias=%.2f cut_point_diff_terminate=%d\n",
         options.max_sim_depth,
         options.queen_adjacent_action_bias,
+        options.queen_nearby_action_bias,
         options.queen_sidestep_bias,
         options.beetle_move_bias,
         options.cut_point_diff_terminate);
@@ -324,6 +329,7 @@ int main(int argc, char* argv[])
     fprintf(stderr, "actions:\t%ld\n", state.action_count);
     fprintf(stderr, "cut point diff:\t%d\n", after.cut_point_count[P2] - after.cut_point_count[P1]);
     fprintf(stderr, "q.a. actions:\t%ld\n", state.queen_adjacent_action_count);
+    fprintf(stderr, "q.n. actions:\t%ld\n", state.queen_nearby_action_count);
     fprintf(stderr, "action iters:\t%d\n", results.nodes[results.actioni].visits);
     fprintf(stderr, "mean sim depth:\t%.2f\n", results.stats.mean_sim_depth);
     fprintf(stderr,

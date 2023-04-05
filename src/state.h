@@ -114,6 +114,9 @@ struct State {
     struct Action* queen_adjacent_actions[MAX_ACTIONS];
     uint_fast16_t queen_adjacent_action_count;
 
+    struct Action* queen_nearby_actions[MAX_ACTIONS];
+    uint_fast16_t queen_nearby_action_count;
+
     struct Action* beetle_moves[MAX_BEETLE_MOVES];
     uint_fast8_t beetle_move_count;
 

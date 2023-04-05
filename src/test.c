@@ -969,20 +969,6 @@ int main(int argc, char* argv[])
         }
     }
 
-    // Beetle moving down from an adjacent quare counts as a queen adjacent
-    // action, but not moving on top of another adjacent piece
-    {
-        strcpy(state_string, "QbbAbcBbcqbdgccacd1");
-        State_from_string(&state, state_string);
-        if (state.queen_adjacent_action_count != 1) {
-            State_print(&state, stdout);
-            printf("Incorrect queen adjacent actions: %ld\n", state.queen_adjacent_action_count);
-            for (int i = 0; i < state.queen_adjacent_action_count; i++) {
-                Action_print(state.queen_adjacent_actions[i], stdout);
-            }
-        }
-    }
-
     // Beetle move count
     {
         strcpy(state_string, "SbhachAdggdhGefAegBegsfdqffBffbfhSgcggdGgeagfAggshbGhcbhcgheQidajd1");
