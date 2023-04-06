@@ -26,6 +26,22 @@ bool State_cut_point_neighbor(
     return false;
 }
 
+struct Piece* State_neighbor_piece(
+    const struct State* state,
+    const struct Coords* coords)
+{
+    struct Coords c;
+    for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
+        c = *coords;
+        Coords_move(&c, d);
+        if (state->grid[c.q][c.r]) {
+            return state->grid[c.q][c.r];
+        }
+    }
+
+    return NULL;
+}
+
 int State_height_at(const struct State* state, const struct Coords* coords)
 {
     struct Piece* piece = state->grid[coords->q][coords->r];
@@ -162,6 +178,10 @@ void State_add_action(struct State* state, int piecei,
             && !State_cut_point_neighbor(state, &action->from))) {
 
         state->pin_moves[state->pin_move_count++] = action;
+
+        if (State_neighbor_piece(state, &action->to)->type == QUEEN_BEE) {
+            state->queen_pin_moves[state->queen_pin_move_count++] = action;
+        }
     }
 }
 
@@ -758,6 +778,7 @@ void State_derive_actions(struct State* state)
     state->queen_adjacent_action_count = 0;
     state->queen_nearby_action_count = 0;
     state->pin_move_count = 0;
+    state->queen_pin_move_count = 0;
     state->beetle_move_count = 0;
 
     state->winning_action = NULL;

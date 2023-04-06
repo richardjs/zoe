@@ -1033,13 +1033,16 @@ int main(int argc, char* argv[])
             State_print(&state, stdout);
             printf("pin moves: %ld\n", state.pin_move_count);
         }
+    }
 
-        // struct State after;
-        // for (int i = 0; i < state.pin_move_count; i++) {
-        //     State_copy(&state, &after);
-        //     State_act(&after, state.pin_moves[i]);
-        //     State_print(&after, stdout);
-        // }
+    // Queen pin
+    {
+        strcpy(state_string, "qbbsbcgcbGdbQdcAeb1");
+        State_from_string(&state, state_string);
+
+        if (state.queen_pin_move_count != 2) {
+            printf("Incorrect number of queen pin moves\n");
+        }
     }
 
     // This evaluates as .95 for one of two different moves only, but not the other one (at the same time)
