@@ -37,6 +37,7 @@ void MCTSOptions_default(struct MCTSOptions* o)
     o->queen_adjacent_action_bias = DEFAULT_QUEEN_ADJACENT_ACTION_BIAS;
     o->queen_nearby_action_bias = DEFAULT_QUEEN_NEARBY_ACTION_BIAS;
     o->beetle_move_bias = DEFAULT_BEETLE_MOVE_BIAS;
+    o->pin_move_bias = DEFAULT_PIN_MOVE_BIAS;
     o->cut_point_diff_terminate = DEFAULT_CUT_POINT_DIFF_TERM;
 }
 

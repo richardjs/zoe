@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:j:k:z:b:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:j:k:z:b:d:p:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -100,6 +100,10 @@ int main(int argc, char* argv[])
 
         case 'b':
             options.beetle_move_bias = atof(optarg);
+            break;
+
+        case 'p':
+            options.pin_move_bias = atof(optarg);
             break;
 
         case 'd':
@@ -330,7 +334,7 @@ int main(int argc, char* argv[])
     fprintf(stderr, "cut point diff:\t%d\n", after.cut_point_count[P2] - after.cut_point_count[P1]);
     fprintf(stderr, "q.a. actions:\t%ld\n", state.queen_adjacent_action_count);
     fprintf(stderr, "q.n. actions:\t%ld\n", state.queen_nearby_action_count);
-    fprintf(stderr, "pin actions:\t%ld\n", state.pin_action_count);
+    fprintf(stderr, "pin moves:\t%ld\n", state.pin_move_count);
     fprintf(stderr, "action iters:\t%d\n", results.nodes[results.actioni].visits);
     fprintf(stderr, "mean sim depth:\t%.2f\n", results.stats.mean_sim_depth);
     fprintf(stderr,

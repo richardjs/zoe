@@ -10,6 +10,22 @@
 #include "errorcodes.h"
 #endif
 
+bool State_cut_point_neighbor(
+    const struct State* state,
+    const struct Coords* coords)
+{
+    struct Coords c;
+    for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
+        c = *coords;
+        Coords_move(&c, d);
+        if (state->cut_points[c.q][c.r]) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 int State_height_at(const struct State* state, const struct Coords* coords)
 {
     struct Piece* piece = state->grid[coords->q][coords->r];
@@ -137,11 +153,15 @@ void State_add_action(struct State* state, int piecei,
     // TODO technically, a piece pinning in the center could move left
     // and right and keep the pin, but this won't detect that because the piece
     // is also a neighbor to those spots
-    // TODO maybe only do this if it makes the point a cut point
     if (state->neighbor_count[!state->turn][action->to.q][action->to.r] == 1
-        && state->neighbor_count[state->turn][action->to.q][action->to.r] == 0) {
+        && state->neighbor_count[state->turn][action->to.q][action->to.r] == 0
+        && !State_cut_point_neighbor(state, &action->to)
+        // Don't bias moving an already-pinning piece
+        && !(state->neighbor_count[!state->turn][action->from.q][action->from.r] != 1
+            && state->neighbor_count[state->turn][action->from.q][action->from.r] != 0
+            && !State_cut_point_neighbor(state, &action->from))) {
 
-        state->pin_actions[state->pin_action_count++] = action;
+        state->pin_moves[state->pin_move_count++] = action;
     }
 }
 
@@ -737,7 +757,7 @@ void State_derive_actions(struct State* state)
     state->queen_move_count = 0;
     state->queen_adjacent_action_count = 0;
     state->queen_nearby_action_count = 0;
-    state->pin_action_count = 0;
+    state->pin_move_count = 0;
     state->beetle_move_count = 0;
 
     state->winning_action = NULL;
