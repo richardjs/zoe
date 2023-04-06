@@ -9,16 +9,16 @@
 #define DEFAULT_SAVE_TREE false
 
 // #define DEFAULT_PLACE_BIAS .9
-// #define DEFAULT_PIN_QUEEN_BIAS .9
+#define DEFAULT_QUEEN_PIN_BIAS .9
 #define DEFAULT_QUEEN_SIDESTEP_BIAS 0.8
 // #define DEFAULT_FROM_OWN_QUEEN_BIAS .9
-#define DEFAULT_PIN_MOVE_BIAS 0.3
+#define DEFAULT_PIN_BIAS 0.3
 #define DEFAULT_QUEEN_ADJACENT_ACTION_BIAS 0.65
-#define DEFAULT_QUEEN_NEARBY_ACTION_BIAS 0.9
+#define DEFAULT_QUEEN_NEARBY_ACTION_BIAS 0.0
 #define DEFAULT_BEETLE_MOVE_BIAS 0.5
 // #define DEFAULT_PIN_LEAVE_PASS 0.8
 // #define DEFAULT_OWN_PIN_PASS .9
-// #define DEFAULT_FROM_QUEEN_PASS .9
+#define DEFAULT_FROM_QUEEN_PASS .9
 
 #define DEFAULT_CUT_POINT_DIFF_TERM 100
 
@@ -40,11 +40,12 @@ struct MCTSOptions {
     bool save_tree;
 
     float queen_sidestep_bias;
+    float queen_pin_move_bias;
     float queen_adjacent_action_bias;
     float queen_nearby_action_bias;
     float beetle_move_bias;
     float pin_move_bias;
-    float pin_leave_pass;
+    float from_queen_pass;
     int cut_point_diff_terminate;
 };
 

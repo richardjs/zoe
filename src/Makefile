@@ -39,8 +39,8 @@ slow: zoe test bench
 slow: CFLAGS+=-O0
 
 
-watch-sim: zoe
-watch-sim: CFLAGS+=-D WATCH_SIMS
+watch-sims: zoe
+watch-sims: CFLAGS+=-D WATCH_SIMS
 
 
 bench.o: bench.h coords.h

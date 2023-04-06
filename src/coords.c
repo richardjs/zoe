@@ -73,7 +73,7 @@ void Coords_map_move(struct Coords* coords, enum Direction direction)
 
 void Coords_move(struct Coords* coords, enum Direction direction)
 {
-    Coords_map_move(coords, direction);
+    Coords_calc_move(coords, direction);
 }
 
 // https://www.redblobgames.com/grids/hexagons/#distances-axial

@@ -173,9 +173,8 @@ void State_add_action(struct State* state, int piecei,
         && state->neighbor_count[state->turn][action->to.q][action->to.r] == 0
         && !State_cut_point_neighbor(state, &action->to)
         // Don't bias moving an already-pinning piece
-        && !(state->neighbor_count[!state->turn][action->from.q][action->from.r] != 1
-            && state->neighbor_count[state->turn][action->from.q][action->from.r] != 0
-            && !State_cut_point_neighbor(state, &action->from))) {
+        && !(state->neighbor_count[!state->turn][action->from.q][action->from.r] == 1
+            && state->neighbor_count[state->turn][action->from.q][action->from.r] == 0)) {
 
         state->pin_moves[state->pin_move_count++] = action;
 

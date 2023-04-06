@@ -12,6 +12,7 @@ uint_fast8_t
 State_articulation_points(const struct State* state, struct Coords points[]);
 void State_derive_neighbor_count(struct State* state);
 int State_height_at(const struct State* state, const struct Coords* coords);
+bool State_is_queen_sidestep(const struct State* state, const struct Action* action);
 
 int main(int argc, char* argv[])
 {
@@ -1028,7 +1029,7 @@ int main(int argc, char* argv[])
         strcpy(state_string, "AbbqbcgbdGcdQcescf1");
         State_from_string(&state, state_string);
 
-        if (state.pin_move_count == 4) {
+        if (state.pin_move_count != 0) {
             printf("Incorrect number of pin moves\n");
             State_print(&state, stdout);
             printf("pin moves: %ld\n", state.pin_move_count);
@@ -1042,6 +1043,44 @@ int main(int argc, char* argv[])
 
         if (state.queen_pin_move_count != 2) {
             printf("Incorrect number of queen pin moves\n");
+        }
+    }
+
+    // Another pin moves bug
+    {
+        strcpy(state_string, "GabAbaqbbsbwsbxbcbGdbQdcaddAedBtfBufAvegwdgxcbxc1");
+        State_from_string(&state, state_string);
+
+        if (state.pin_move_count != 0) {
+            printf("Incorrect number of pin moves\n");
+            State_print(&state, stdout);
+            printf("pin moves: %ld\n", state.pin_move_count);
+
+            struct State after;
+            for (int i = 0; i < state.pin_move_count; i++) {
+                State_copy(&state, &after);
+                State_act(&after, state.pin_moves[i]);
+                State_print(&after, stdout);
+            }
+        }
+    }
+
+    // Queen sidestep bug
+    {
+        strcpy(state_string, "babAacqbbsbcbcbGdbQdc2");
+        State_from_string(&state, state_string);
+
+        bool found_sidestep = false;
+        for (int i = 0; i < state.action_count; i++) {
+            if (State_is_queen_sidestep(&state, &state.actions[i])) {
+                found_sidestep = true;
+                break;
+            }
+        }
+
+        if (!found_sidestep) {
+            printf("No sidestep found\n");
+            State_print(&state, stdout);
         }
     }
 

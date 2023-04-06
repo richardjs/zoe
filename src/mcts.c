@@ -34,11 +34,13 @@ void MCTSOptions_default(struct MCTSOptions* o)
     o->save_tree = DEFAULT_SAVE_TREE;
 
     o->queen_sidestep_bias = DEFAULT_QUEEN_SIDESTEP_BIAS;
+    o->queen_pin_move_bias = DEFAULT_QUEEN_PIN_BIAS;
+    o->pin_move_bias = DEFAULT_PIN_BIAS;
     o->queen_adjacent_action_bias = DEFAULT_QUEEN_ADJACENT_ACTION_BIAS;
     o->queen_nearby_action_bias = DEFAULT_QUEEN_NEARBY_ACTION_BIAS;
     o->beetle_move_bias = DEFAULT_BEETLE_MOVE_BIAS;
-    o->pin_move_bias = DEFAULT_PIN_MOVE_BIAS;
     o->cut_point_diff_terminate = DEFAULT_CUT_POINT_DIFF_TERM;
+    o->from_queen_pass = DEFAULT_FROM_QUEEN_PASS;
 }
 
 void Node_init(struct Node* node, uint8_t depth)

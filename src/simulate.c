@@ -11,7 +11,9 @@
 bool State_is_queen_sidestep(const struct State* state, const struct Action* action)
 {
     return state->neighbor_count[!state->turn][action->to.q][action->to.r] == 1
-        && state->neighbor_count[state->turn][action->to.q][action->to.r] == 1;
+        && state->neighbor_count[state->turn][action->to.q][action->to.r] == 1
+        // Not a sidestep if we're already in a similar position
+        && State_hex_neighbor_count(state, &action->from) > 1;
 }
 
 /**
@@ -38,7 +40,7 @@ float State_simulate(struct State* state,
             return 0.0;
         }
 
-        // select_action:
+    select_action:
 
         struct Action* action = NULL;
 
@@ -62,6 +64,15 @@ float State_simulate(struct State* state,
             }
         }
 
+        if (state->queen_pin_move_count
+            && (rand() / (float)RAND_MAX) < options->queen_pin_move_bias) {
+            action = state->queen_pin_moves[rand() % state->queen_pin_move_count];
+#ifdef WATCH_SIMS
+            printf("queen pin move\n");
+#endif
+            goto action_selected;
+        }
+
         if (state->pin_move_count
             && (rand() / (float)RAND_MAX) < options->pin_move_bias) {
             action = state->pin_moves[rand() % state->pin_move_count];
@@ -71,6 +82,7 @@ float State_simulate(struct State* state,
             goto action_selected;
         }
 
+        // TODO only do this if the queen is pinned?
         if (state->queen_adjacent_action_count
             && (rand() / (float)RAND_MAX) < options->queen_adjacent_action_bias) {
             action = state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count];
@@ -108,10 +120,24 @@ float State_simulate(struct State* state,
         Action_print(action, stderr);
 #endif
 
+        if (action->from.q != PLACE_ACTION
+            && action->from.q != PASS_ACTION
+            && state->queens[!state->turn]
+            && Coords_adjacent(&action->from, &state->queens[!state->turn]->coords)
+            && (rand() / (float)RAND_MAX) < options->from_queen_pass) {
+#ifdef WATCH_SIMS
+            printf("from queen pass\n");
+#endif
+            goto select_action;
+        }
+
         State_act(state, action);
 
 #ifdef WATCH_SIMS
         State_print(state, stderr);
+        char state_string[STATE_STRING_SIZE];
+        State_to_string(state, state_string);
+        printf("%s\n", state_string);
         getchar();
 #endif
     }
