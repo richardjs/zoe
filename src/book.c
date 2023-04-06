@@ -21,6 +21,7 @@ const struct Action* opening_move(const struct State* state)
         }
     }
 
+    /*
     if (state->piece_count[P2] == 1) {
         for (int i = 0; i < state->action_count; i++) {
             switch (state->actions[i].from.r) {
@@ -31,6 +32,7 @@ const struct Action* opening_move(const struct State* state)
             }
         }
     }
+    */
 
     if (action_count) {
         return actions[rand() % action_count];
