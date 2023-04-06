@@ -20,7 +20,7 @@
 // #define DEFAULT_OWN_PIN_PASS .9
 #define DEFAULT_FROM_QUEEN_PASS .9
 
-#define DEFAULT_CUT_POINT_DIFF_TERM 100
+#define DEFAULT_CUT_POINT_DIFF_TERM 7
 
 struct Node {
     bool expanded;

@@ -27,6 +27,7 @@ float State_simulate(struct State* state,
     stats->simulations++;
 
     enum Player original_turn = state->turn;
+    int original_cut_point_diff = state->cut_point_count[!original_turn] - state->cut_point_count[original_turn];
 
     int depth = 0;
     while (state->result == NO_RESULT) {
@@ -34,6 +35,19 @@ float State_simulate(struct State* state,
             State_act(state, state->winning_action);
             continue;
         }
+
+        int cut_point_diff = state->cut_point_count[!original_turn] - state->cut_point_count[original_turn];
+        int cut_point_diff_change = cut_point_diff - original_cut_point_diff;
+        if (cut_point_diff_change >= options->cut_point_diff_terminate) {
+            stats->cut_point_terminations++;
+            // TODO correct sign?
+            return -1.0;
+        } else if (cut_point_diff_change <= -options->cut_point_diff_terminate) {
+            stats->cut_point_terminations++;
+            // TODO correct sign?
+            return 1.0;
+        }
+
 
         if (depth++ > options->max_sim_depth) {
             stats->depth_outs++;
