@@ -3,6 +3,11 @@
 #include "mcts.h"
 #include "state.h"
 
+#ifdef WATCH_SIMS
+#include "stateio.h"
+#include <stdio.h>
+#endif
+
 bool State_is_queen_sidestep(const struct State* state, const struct Action* action)
 {
     return state->neighbor_count[!state->turn][action->to.q][action->to.r] == 1
@@ -50,32 +55,65 @@ float State_simulate(struct State* state,
             if (action_count
                 && (rand() / (float)RAND_MAX) < options->queen_sidestep_bias) {
                 action = actions[rand() % action_count];
+#ifdef WATCH_SIMS
+                printf("queen sidestep\n");
+#endif
                 goto action_selected;
             }
+        }
+
+        if (state->pin_move_count
+            && (rand() / (float)RAND_MAX) < options->pin_move_bias) {
+            action = state->pin_moves[rand() % state->pin_move_count];
+#ifdef WATCH_SIMS
+            printf("pin move\n");
+#endif
+            goto action_selected;
         }
 
         if (state->queen_adjacent_action_count
             && (rand() / (float)RAND_MAX) < options->queen_adjacent_action_bias) {
             action = state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count];
+#ifdef WATCH_SIMS
+            printf("queen adjacent action\n");
+#endif
             goto action_selected;
         }
 
         if (state->queen_nearby_action_count
             && (rand() / (float)RAND_MAX) < options->queen_nearby_action_bias) {
             action = state->queen_nearby_actions[rand() % state->queen_nearby_action_count];
+#ifdef WATCH_SIMS
+            printf("queen nearby action\n");
+#endif
             goto action_selected;
         }
 
         if (state->beetle_move_count
             && (rand() / (float)RAND_MAX) < options->beetle_move_bias) {
             action = state->beetle_moves[rand() % state->beetle_move_count];
+#ifdef WATCH_SIMS
+            printf("beetle move\n");
+#endif
             goto action_selected;
         }
 
+#ifdef WATCH_SIMS
+        printf("random\n");
+#endif
         action = &state->actions[rand() % state->action_count];
 
     action_selected:
+#ifdef WATCH_SIMS
+        Action_print(action, stderr);
+#endif
+
         State_act(state, action);
+
+#ifdef WATCH_SIMS
+        State_print(state, stderr);
+        getchar();
+#endif
     }
 
     stats->mean_sim_depth += (depth - stats->mean_sim_depth) / stats->simulations;
