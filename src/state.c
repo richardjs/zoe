@@ -149,12 +149,13 @@ void State_add_action(struct State* state, int piecei,
                 || !Coords_adjacent(&other_queen->coords, from))) {
 
             state->queen_adjacent_actions[state->queen_adjacent_action_count++] = action;
-        } else if (Coords_distance(to, &other_queen->coords) <= 2
-            && (from->q == PLACE_ACTION
-                || Coords_distance(from, &other_queen->coords) > 2)) {
-
-            state->queen_nearby_actions[state->queen_nearby_action_count++] = action;
         }
+        // else if (Coords_distance(to, &other_queen->coords) <= 2
+        //    && (from->q == PLACE_ACTION
+        //        || Coords_distance(from, &other_queen->coords) > 2)) {
+
+        //    state->queen_nearby_actions[state->queen_nearby_action_count++] = action;
+        //}
     }
 
     if (from->q != PLACE_ACTION) {
