@@ -17,7 +17,7 @@
 #define DEFAULT_QUEEN_NEARBY_ACTION_BIAS 0.0
 #define DEFAULT_BEETLE_MOVE_BIAS 0.1
 // #define DEFAULT_PIN_LEAVE_PASS 0.8
-// #define DEFAULT_OWN_PIN_PASS .9
+#define DEFAULT_OWN_PIN_PASS .1
 #define DEFAULT_FROM_QUEEN_PASS .9
 
 #define DEFAULT_CUT_POINT_DIFF_TERM 7
@@ -46,6 +46,7 @@ struct MCTSOptions {
     float beetle_move_bias;
     float pin_move_bias;
     float from_queen_pass;
+    float own_pin_pass;
     int cut_point_diff_terminate;
 };
 

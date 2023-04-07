@@ -8,6 +8,10 @@
 #include <stdio.h>
 #endif
 
+bool State_cut_point_neighbor(
+    const struct State* state,
+    const struct Coords* coords);
+
 bool State_is_queen_sidestep(const struct State* state, const struct Action* action)
 {
     return state->neighbor_count[!state->turn][action->to.q][action->to.r] == 1
@@ -141,6 +145,18 @@ float State_simulate(struct State* state,
             && (rand() / (float)RAND_MAX) < options->from_queen_pass) {
 #ifdef WATCH_SIMS
             printf("from queen pass\n");
+#endif
+            goto select_action;
+        }
+
+        if (state->neighbor_count[state->turn][action->to.q][action->to.r] == 1
+            && state->neighbor_count[!state->turn][action->to.q][action->to.r] == 0
+            && !State_cut_point_neighbor(state, &action->to)
+            // Make sure this isn't a beetle-on-hive move
+            && !state->grid[action->to.q][action->to.r]
+            && (rand() / (float)RAND_MAX) < options->own_pin_pass) {
+#ifdef WATCH_SIMS
+            printf("own pin pass\n");
 #endif
             goto select_action;
         }
