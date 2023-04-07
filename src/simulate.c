@@ -45,11 +45,11 @@ float State_simulate(struct State* state,
         if (cut_point_diff_change >= options->cut_point_diff_terminate) {
             stats->cut_point_terminations++;
             // TODO correct sign?
-            return -1.0;
+            return -DEFAULT_CUT_POINT_DIFF_TERM_VALUE;
         } else if (cut_point_diff_change <= -options->cut_point_diff_terminate) {
             stats->cut_point_terminations++;
             // TODO correct sign?
-            return 1.0;
+            return DEFAULT_CUT_POINT_DIFF_TERM_VALUE;
         }
 
 
