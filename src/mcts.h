@@ -21,7 +21,7 @@
 #define DEFAULT_FROM_QUEEN_PASS .9
 
 #define DEFAULT_CUT_POINT_DIFF_TERM 7
-#define DEFAULT_CUT_POINT_DIFF_TERM_VALUE 0.75
+#define DEFAULT_CUT_POINT_DIFF_TERM_VALUE 1
 
 struct Node {
     bool expanded;

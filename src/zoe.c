@@ -8,6 +8,7 @@
 
 #include "book.h"
 #include "errorcodes.h"
+#include "examine.h"
 #include "mcts.h"
 #include "minimax.h"
 #include "state.h"
@@ -22,6 +23,7 @@ enum Command {
     RANDOM,
     NORMALIZE,
     LIST_ACTIONS,
+    EXAMINE,
     ACT
 };
 
@@ -45,7 +47,7 @@ int main(int argc, char* argv[])
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vnltsra:i:c:w:j:k:z:b:d:p:o:")) != -1) {
+    while ((opt = getopt(argc, argv, "vnltsrxa:i:c:w:j:k:z:b:d:p:o:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -71,6 +73,10 @@ int main(int argc, char* argv[])
             command = RANDOM;
             break;
 
+        case 'x':
+            command = EXAMINE;
+            break;
+
         case 'a':
             command = ACT;
             Action_from_string(&action, optarg);
@@ -83,7 +89,6 @@ int main(int argc, char* argv[])
 
         case 'c':
             options.uctc = atof(optarg);
-            break;
             break;
 
         case 'j':
@@ -181,6 +186,10 @@ int main(int argc, char* argv[])
         State_normalize(&after);
         State_to_string(&after, state_string);
         fprintf(stderr, "next:\t%s\n", state_string);
+        return 0;
+
+    case EXAMINE:
+        State_examine(&state);
         return 0;
 
     case THINK:
