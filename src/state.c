@@ -183,6 +183,19 @@ void State_add_action(struct State* state, int piecei,
             state->queen_pin_moves[state->queen_pin_move_count++] = action;
         }
     }
+
+    if (state->neighbor_count[state->turn][action->from.q][action->from.r] == 1
+        && state->neighbor_count[!state->turn][action->from.q][action->from.r] == 0) {
+        // We can't use this normal test, because it will always be a cut point
+        //&& !State_cut_point_neighbor(state, &action->from)) {
+        // Don't move to a new location that pins us
+        // TODO
+        //&& !(state->neighbor_count[state->turn][action->to.q][action->to.r] == 1
+        //    && state->neighbor_count[!state->turn][action->to.q][action->to.r] == 0)
+        //    && !State_cut_point_neighbor(state, &action->to)) {
+
+        state->unpin_moves[state->unpin_move_count++] = action;
+    }
 }
 
 void State_ant_walk(struct State* state, int piecei,
@@ -778,6 +791,7 @@ void State_derive_actions(struct State* state)
     state->queen_adjacent_action_count = 0;
     state->queen_nearby_action_count = 0;
     state->pin_move_count = 0;
+    state->unpin_move_count = 0;
     state->queen_pin_move_count = 0;
     state->beetle_move_count = 0;
 

@@ -1084,6 +1084,22 @@ int main(int argc, char* argv[])
         }
     }
 
+    // Unpin move
+    {
+        strcpy(state_string, "qabAacaaeaafBagGbcgbdQbegcabcbBcesdbGdcSecAxb1");
+        State_from_string(&state, state_string);
+
+        State_print(&state, stdout);
+        printf("%d\n", state.unpin_move_count);
+
+        for (int i = 0; i < state.unpin_move_count; i++) {
+            struct State next;
+            State_copy(&state, &next);
+            State_act(&next, state.unpin_moves[i]);
+            State_print(&next, stdout);
+        }
+    }
+
     // This evaluates as .95 for one of two different moves only, but not the other one (at the same time)
     // It's also *not* a good position
     // abgAcgQchadeGdgsdhgdibdiSebSeegefgehseiafbAfcqfdBfdGgcGgdbhd2

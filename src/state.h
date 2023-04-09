@@ -120,6 +120,9 @@ struct State {
     struct Action* pin_moves[MAX_ACTIONS];
     uint_fast16_t pin_move_count;
 
+    struct Action* unpin_moves[MAX_ACTIONS];
+    uint_fast16_t unpin_move_count;
+
     struct Action* queen_pin_moves[MAX_ACTIONS];
     uint_fast16_t queen_pin_move_count;
 

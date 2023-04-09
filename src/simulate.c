@@ -52,7 +52,6 @@ float State_simulate(struct State* state,
             return DEFAULT_CUT_POINT_DIFF_TERM_VALUE;
         }
 
-
         if (depth++ > options->max_sim_depth) {
             stats->depth_outs++;
             return 0.0;
@@ -106,6 +105,15 @@ float State_simulate(struct State* state,
             action = state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count];
 #ifdef WATCH_SIMS
             printf("queen adjacent action\n");
+#endif
+            goto action_selected;
+        }
+
+        if (state->unpin_move_count
+            && (rand() / (float)RAND_MAX) < options->unpin_move_bias) {
+            action = state->unpin_moves[rand() % state->unpin_move_count];
+#ifdef WATCH_SIMS
+            printf("unpin move\n");
 #endif
             goto action_selected;
         }
