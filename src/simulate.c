@@ -81,6 +81,15 @@ float State_simulate(struct State* state,
             }
         }
 
+        if (state->queen_away_move_count
+            && (rand() / (float)RAND_MAX) < options->queen_away_move_bias) {
+            action = state->queen_away_moves[rand() % state->queen_away_move_count];
+#ifdef WATCH_SIMS
+            printf("queen away move\n");
+#endif
+            goto action_selected;
+        }
+
         if (state->queen_pin_move_count
             && (rand() / (float)RAND_MAX) < options->queen_pin_move_bias) {
             action = state->queen_pin_moves[rand() % state->queen_pin_move_count];

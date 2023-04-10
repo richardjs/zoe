@@ -34,6 +34,7 @@ void MCTSOptions_default(struct MCTSOptions* o)
     o->save_tree = DEFAULT_SAVE_TREE;
 
     o->queen_sidestep_bias = DEFAULT_QUEEN_SIDESTEP_BIAS;
+    o->queen_away_move_bias = DEFAULT_QUEEN_AWAY_MOVE_BIAS;
     o->queen_pin_move_bias = DEFAULT_QUEEN_PIN_BIAS;
     o->pin_move_bias = DEFAULT_PIN_BIAS;
     o->queen_adjacent_action_bias = DEFAULT_QUEEN_ADJACENT_ACTION_BIAS;

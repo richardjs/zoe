@@ -11,18 +11,19 @@
 // #define DEFAULT_PLACE_BIAS .9
 #define DEFAULT_QUEEN_PIN_BIAS .9
 #define DEFAULT_QUEEN_SIDESTEP_BIAS 0.9
+#define DEFAULT_QUEEN_AWAY_MOVE_BIAS -.9
 // #define DEFAULT_FROM_OWN_QUEEN_BIAS .9
 #define DEFAULT_PIN_BIAS 0.3
 #define DEFAULT_QUEEN_ADJACENT_ACTION_BIAS 0.65
-#define DEFAULT_UNPIN_MOVE_BIAS 0.7
+#define DEFAULT_UNPIN_MOVE_BIAS 0.1
 #define DEFAULT_QUEEN_NEARBY_ACTION_BIAS 0.0
 #define DEFAULT_BEETLE_MOVE_BIAS 0.1
 // #define DEFAULT_PIN_LEAVE_PASS 0.8
-#define DEFAULT_OWN_PIN_PASS 0
+#define DEFAULT_OWN_PIN_PASS 0.25
 #define DEFAULT_FROM_QUEEN_PASS .9
 
 #define DEFAULT_CUT_POINT_DIFF_TERM 7
-#define DEFAULT_CUT_POINT_DIFF_TERM_VALUE 1
+#define DEFAULT_CUT_POINT_DIFF_TERM_VALUE 1.0
 
 struct Node {
     bool expanded;
@@ -42,6 +43,7 @@ struct MCTSOptions {
     bool save_tree;
 
     float queen_sidestep_bias;
+    float queen_away_move_bias;
     float queen_pin_move_bias;
     float queen_adjacent_action_bias;
     float queen_nearby_action_bias;

@@ -196,6 +196,19 @@ void State_add_action(struct State* state, int piecei,
 
         state->unpin_moves[state->unpin_move_count++] = action;
     }
+
+    if (state->queens[state->turn]
+        && action->from.q != PLACE_ACTION
+        && action->from.q != PASS_ACTION
+        && State_hex_neighbor_count(state, &state->queens[state->turn]->coords) == NUM_DIRECTIONS - 1
+        && Coords_adjacent(&state->queens[state->turn]->coords, &action->from)
+        // TODO I think this is segfaulting; shouldn't any action from have a from on the grid (if not one of the above)?
+        //&& !state->grid[action->from.q][action->from.r]->on_top
+        && (!Coords_adjacent(&state->queens[state->turn]->coords, &action->to)
+            || state->grid[action->to.q][action->to.r])) {
+
+        state->queen_away_moves[state->queen_away_move_count++] = action;
+    }
 }
 
 void State_ant_walk(struct State* state, int piecei,
@@ -788,6 +801,7 @@ void State_derive_actions(struct State* state)
         state->piece_move_count[i] = 0;
     }
     state->queen_move_count = 0;
+    state->queen_away_move_count = 0;
     state->queen_adjacent_action_count = 0;
     state->queen_nearby_action_count = 0;
     state->pin_move_count = 0;
