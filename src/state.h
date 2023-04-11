@@ -108,6 +108,9 @@ struct State {
     struct Action* queen_moves[MAX_QUEEN_MOVES];
     uint_fast8_t queen_move_count;
 
+    struct Piece* beetles[NUM_PLAYERS][NUM_BEETLES];
+    uint_fast8_t beetle_count[NUM_PLAYERS];
+
     struct Action* piece_moves[PLAYER_PIECES][MAX_PIECE_MOVES];
     uint_fast16_t piece_move_count[PLAYER_PIECES];
 

@@ -589,14 +589,19 @@ void State_count_cut_points(
     }
 }
 
-void State_derive_queens(struct State* state)
+void State_derive_piece_pointers(struct State* state)
 {
     for (int p = 0; p < NUM_PLAYERS; p++) {
         state->queens[p] = NULL;
+        state->beetle_count[p] = 0;
         for (int i = 0; i < state->piece_count[p]; i++) {
             if (state->pieces[p][i].type == QUEEN_BEE) {
                 state->queens[p] = &state->pieces[p][i];
                 break;
+            }
+
+            if (state->pieces[p][i].type == BEETLE) {
+                state->beetles[p][state->beetle_count[p]++] = &state->pieces[p][i];
             }
         }
     }
@@ -981,7 +986,7 @@ void State_derive(struct State* state)
     State_derive_piece_players(state);
     State_derive_grid(state);
     State_derive_cut_points(state);
-    State_derive_queens(state);
+    State_derive_piece_pointers(state);
     State_derive_hands(state);
     State_derive_neighbor_count(state);
     State_derive_result(state);
