@@ -8,11 +8,11 @@
 #include "stateio.h"
 #include "stateutil.h"
 
-uint_fast8_t
-State_articulation_points(const struct State* state, struct Coords points[]);
+uint_fast8_t State_articulation_points(const struct State* state, struct Coords points[]);
 void State_derive_neighbor_count(struct State* state);
 int State_height_at(const struct State* state, const struct Coords* coords);
 bool State_is_queen_sidestep(const struct State* state, const struct Action* action);
+int State_beetle_seek_path(const struct State* state, const struct Piece* piece, struct Coords* path);
 
 int main(int argc, char* argv[])
 {
@@ -1085,18 +1085,39 @@ int main(int argc, char* argv[])
     }
 
     // Unpin move
+    //{
+    //    strcpy(state_string, "qabAacaaeaafBagGbcgbdQbegcabcbBcesdbGdcSecAxb1");
+    //    State_from_string(&state, state_string);
+
+    //    State_print(&state, stdout);
+    //    printf("%ld\n", state.unpin_move_count);
+
+    //    for (int i = 0; i < state.unpin_move_count; i++) {
+    //        struct State next;
+    //        State_copy(&state, &next);
+    //        State_act(&next, state.unpin_moves[i]);
+    //        State_print(&next, stdout);
+    //    }
+    //}
+
+    // Beetle seek
     {
-        strcpy(state_string, "qabAacaaeaafBagGbcgbdQbegcabcbBcesdbGdcSecAxb1");
+        strcpy(state_string, "QbdBbeGcdAcesdcsebgecqfc1");
         State_from_string(&state, state_string);
 
-        State_print(&state, stdout);
-        printf("%d\n", state.unpin_move_count);
+        struct Piece* piece = NULL;
+        for (int i = 0; i < state.piece_count[P1]; i++) {
+            piece = &state.pieces[P1][i];
+            if (piece->type == BEETLE) {
+                break;
+            }
+        }
 
-        for (int i = 0; i < state.unpin_move_count; i++) {
-            struct State next;
-            State_copy(&state, &next);
-            State_act(&next, state.unpin_moves[i]);
-            State_print(&next, stdout);
+        struct Coords path[MAX_PIECES];
+        int path_size = State_beetle_seek_path(&state, piece, path);
+
+        if (path_size != 4) {
+            printf("Incorrect length for beetle seek path\n");
         }
     }
 
