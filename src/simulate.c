@@ -163,25 +163,6 @@ float State_simulate(struct State* state,
             goto action_selected;
         }
 
-        if (state->pin_move_count
-            && (rand() / (float)RAND_MAX) < options->pin_move_bias) {
-            action = state->pin_moves[rand() % state->pin_move_count];
-#ifdef WATCH_SIMS
-            printf("pin move\n");
-#endif
-            goto action_selected;
-        }
-
-        // TODO only do this if the queen is pinned?
-        if (state->queen_adjacent_action_count
-            && (rand() / (float)RAND_MAX) < options->queen_adjacent_action_bias) {
-            action = state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count];
-#ifdef WATCH_SIMS
-            printf("queen adjacent action\n");
-#endif
-            goto action_selected;
-        }
-
         if (state->beetle_move_count
             && (rand() / (float)RAND_MAX) < options->beetle_seek_move_bias) {
             struct Piece* beetle = state->beetles[state->turn][rand() % state->beetle_count[state->turn]];
@@ -201,6 +182,25 @@ float State_simulate(struct State* state,
                     }
                 }
             }
+        }
+
+        if (state->pin_move_count
+            && (rand() / (float)RAND_MAX) < options->pin_move_bias) {
+            action = state->pin_moves[rand() % state->pin_move_count];
+#ifdef WATCH_SIMS
+            printf("pin move\n");
+#endif
+            goto action_selected;
+        }
+
+        // TODO only do this if the queen is pinned?
+        if (state->queen_adjacent_action_count
+            && (rand() / (float)RAND_MAX) < options->queen_adjacent_action_bias) {
+            action = state->queen_adjacent_actions[rand() % state->queen_adjacent_action_count];
+#ifdef WATCH_SIMS
+            printf("queen adjacent action\n");
+#endif
+            goto action_selected;
         }
 
         if (state->unpin_move_count
