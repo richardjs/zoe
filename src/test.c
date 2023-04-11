@@ -1120,6 +1120,25 @@ int main(int argc, char* argv[])
             printf("Incorrect length for beetle seek path\n");
         }
     }
+    {
+        strcpy(state_string, "QbdGcdAcesdcsebgecbfbqgbBgb1");
+        State_from_string(&state, state_string);
+
+        struct Piece* piece = NULL;
+        for (int i = 0; i < state.piece_count[P1]; i++) {
+            piece = &state.pieces[P1][i];
+            if (piece->type == BEETLE) {
+                break;
+            }
+        }
+
+        struct Coords path[MAX_PIECES];
+        int path_size = State_beetle_seek_path(&state, piece, path);
+
+        if (path_size != 0) {
+            printf("Incorrect length for beetle seek path\n");
+        }
+    }
 
     // This evaluates as .95 for one of two different moves only, but not the other one (at the same time)
     // It's also *not* a good position
