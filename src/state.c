@@ -533,7 +533,6 @@ void State_derive_piece_pointers(struct State* state)
         for (int i = 0; i < state->piece_count[p]; i++) {
             if (state->pieces[p][i].type == QUEEN_BEE) {
                 state->queens[p] = &state->pieces[p][i];
-                break;
             }
 
             if (state->pieces[p][i].type == BEETLE) {
