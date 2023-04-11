@@ -41,6 +41,7 @@ void MCTSOptions_default(struct MCTSOptions* o)
     o->unpin_move_bias = DEFAULT_UNPIN_MOVE_BIAS;
     o->queen_nearby_action_bias = DEFAULT_QUEEN_NEARBY_ACTION_BIAS;
     o->beetle_move_bias = DEFAULT_BEETLE_MOVE_BIAS;
+    o->beetle_seek_move_bias = DEFAULT_BEETLE_SEEK_MOVE_BIAS;
     o->from_queen_pass = DEFAULT_FROM_QUEEN_PASS;
     o->own_pin_pass = DEFAULT_OWN_PIN_PASS;
     o->cut_point_diff_terminate = DEFAULT_CUT_POINT_DIFF_TERM;

@@ -8,6 +8,70 @@
 #include <stdio.h>
 #endif
 
+int State_beetle_seek_path(
+    const struct State* state,
+    const struct Piece* piece,
+    struct Coords* path)
+{
+    if (!state->queens[!piece->player]) {
+        return -1;
+    }
+    struct Coords target = state->queens[!piece->player]->coords;
+
+    struct Coords queue[MAX_PIECES];
+    unsigned int queue_size = 0;
+    queue[queue_size++] = piece->coords;
+
+    struct Coords crumbs[GRID_SIZE][GRID_SIZE];
+    for (int q = 0; q < GRID_SIZE; q++) {
+        for (int r = 0; r < GRID_SIZE; r++) {
+            crumbs[q][r].q = GRID_SIZE + 1;
+        }
+    }
+
+    struct Coords coords;
+    bool found = false;
+    while (queue_size) {
+        coords = queue[--queue_size];
+
+        if (coords.q == target.q && coords.r == target.r) {
+            found = true;
+            break;
+        }
+
+        for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
+            struct Coords neighbor = coords;
+            Coords_move(&neighbor, d);
+
+            if (piece->coords.q == neighbor.q && piece->coords.r == neighbor.r) {
+                continue;
+            }
+
+            if (!state->grid[neighbor.q][neighbor.r]) {
+                continue;
+            }
+
+            if (crumbs[neighbor.q][neighbor.r].q != GRID_SIZE + 1) {
+                continue;
+            }
+            crumbs[neighbor.q][neighbor.r] = coords;
+            queue[queue_size++] = neighbor;
+        }
+    }
+
+    if (!found) {
+        return -1;
+    }
+
+    int path_size = 0;
+    while (coords.q != piece->coords.q && coords.r != piece->coords.r) {
+        path[path_size++] = coords;
+        coords = crumbs[coords.q][coords.r];
+    }
+
+    return path_size;
+}
+
 bool State_cut_point_neighbor(
     const struct State* state,
     const struct Coords* coords);
@@ -116,6 +180,27 @@ float State_simulate(struct State* state,
             printf("queen adjacent action\n");
 #endif
             goto action_selected;
+        }
+
+        if (state->beetle_move_count
+            && (rand() / (float)RAND_MAX) < options->beetle_seek_move_bias) {
+            struct Piece* beetle = state->beetles[state->turn][rand() % state->beetle_count[state->turn]];
+            struct Coords path[MAX_PIECES];
+            int path_size = State_beetle_seek_path(state, beetle, path);
+
+            if (path_size > 1) {
+                for (int i = 0; i < state->beetle_move_count; i++) {
+                    if (state->beetle_moves[i]->to.q == path[path_size - 1].q
+                        && state->beetle_moves[i]->to.r == path[path_size - 1].r) {
+
+                        action = state->beetle_moves[i];
+#ifdef WATCH_SIMS
+                        printf("beetle seek move\n");
+#endif
+                        goto action_selected;
+                    }
+                }
+            }
         }
 
         if (state->unpin_move_count

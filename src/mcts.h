@@ -17,6 +17,7 @@
 #define DEFAULT_QUEEN_ADJACENT_ACTION_BIAS 0.65
 #define DEFAULT_UNPIN_MOVE_BIAS 0.1
 #define DEFAULT_QUEEN_NEARBY_ACTION_BIAS 0.0
+#define DEFAULT_BEETLE_SEEK_MOVE_BIAS 0.9
 #define DEFAULT_BEETLE_MOVE_BIAS 0.1
 // #define DEFAULT_PIN_LEAVE_PASS 0.8
 #define DEFAULT_OWN_PIN_PASS 0.25
@@ -48,6 +49,7 @@ struct MCTSOptions {
     float queen_adjacent_action_bias;
     float queen_nearby_action_bias;
     float beetle_move_bias;
+    float beetle_seek_move_bias;
     float pin_move_bias;
     float unpin_move_bias;
     float from_queen_pass;

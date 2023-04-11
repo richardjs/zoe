@@ -10,70 +10,6 @@
 #include "errorcodes.h"
 #endif
 
-int State_beetle_seek_path(
-    const struct State* state,
-    const struct Piece* piece,
-    struct Coords* path)
-{
-    if (!state->queens[!piece->player]) {
-        return -1;
-    }
-    struct Coords target = state->queens[!piece->player]->coords;
-
-    struct Coords queue[MAX_PIECES];
-    unsigned int queue_size = 0;
-    queue[queue_size++] = piece->coords;
-
-    struct Coords crumbs[GRID_SIZE][GRID_SIZE];
-    for (int q = 0; q < GRID_SIZE; q++) {
-        for (int r = 0; r < GRID_SIZE; r++) {
-            crumbs[q][r].q = GRID_SIZE + 1;
-        }
-    }
-
-    struct Coords coords;
-    bool found = false;
-    while (queue_size) {
-        coords = queue[--queue_size];
-
-        if (coords.q == target.q && coords.r == target.r) {
-            found = true;
-            break;
-        }
-
-        for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
-            struct Coords neighbor = coords;
-            Coords_move(&neighbor, d);
-
-            if (piece->coords.q == neighbor.q && piece->coords.r == neighbor.r) {
-                continue;
-            }
-
-            if (!state->grid[neighbor.q][neighbor.r]) {
-                continue;
-            }
-
-            if (crumbs[neighbor.q][neighbor.r].q != GRID_SIZE + 1) {
-                continue;
-            }
-            crumbs[neighbor.q][neighbor.r] = coords;
-            queue[queue_size++] = neighbor;
-        }
-    }
-
-    if (!found) {
-        return -1;
-    }
-
-    int path_size = 0;
-    while (coords.q != piece->coords.q && coords.r != piece->coords.r) {
-        path[path_size++] = coords;
-        coords = crumbs[coords.q][coords.r];
-    }
-
-    return path_size;
-}
-
 bool State_cut_point_neighbor(
     const struct State* state,
     const struct Coords* coords)
@@ -1063,6 +999,8 @@ void State_act(struct State* state, const struct Action* action)
         state->grid[action->to.q][action->to.r] = piece;
         if (piece->type == QUEEN_BEE) {
             state->queens[state->turn] = piece;
+        } else if (piece->type == BEETLE) {
+            state->beetles[state->turn][state->beetle_count[state->turn]++] = piece;
         }
 
         state->piece_count[state->turn]++;
