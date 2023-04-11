@@ -14,7 +14,7 @@ all: zoe test bench
 
 
 server: zoe
-	uvicorn server:app --port $(ZOE_PORT) --reload
+	uvicorn server:app --host 0.0.0.0 --port $(ZOE_PORT) --reload
 
 
 test: $(objects)
