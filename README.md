@@ -17,20 +17,23 @@ docker build -t zoe .
 docker run -it -p 8000:8000 zoe
 ```
 
-The UI should then be accessible at [http://localhost:8000].
+The UI should then be accessible at
+[http://localhost:8000](http://localhost:8000).
 
 At present, the UI is hard-coded to have Zoé play black, and there is no
 indication that the algorithm is thinking (outside of the networking tab of the
-developer tools; look for a call to `/state/[state]/think`). (UI improvements
-are on the roadmap! Implementing UHP should also help, as that enables use with
+developer tools; look for a call to `/state/[state]/think`).
+
+(UI improvements are on the [roadmap](https://github.com/richardjs/zoe#roadmap)!
+Implementing UHP should also help, as that enables use with
 [MzingaViewer](https://github.com/jonthysell/Mzinga/wiki/MzingaViewer).)
 
 The UI is also hard-coded to run 4 workers with 10K iterations each. This
 provides a light amount of playing strength with an acceptable move time, but
 experients have shown playing strength improves steeply through at least 40K
 iterations, and likely continues to improve with higher iteration and worker
-counts. See this graph of Glicko ratings vs. iterations for different worker
-amounts:
+counts. This improvement come at the cost of slower move times. See this graph
+of Glicko ratings vs. iterations for different worker counts:
 
 <img src="https://github.com/richardjs/zoe/raw/master/img/v1.0-glicko.png" />
 
@@ -43,7 +46,8 @@ rebuild (and restart) the Docker image.
 
 - [ ] Implement [UHP](https://github.com/jonthysell/Mzinga/wiki/UniversalHiveProtocol)
 - [x] Calculate perft results and [compare with Mzinga](https://github.com/jonthysell/Mzinga/wiki/Perft)
-  - Compares favorably through at least depth 7
+  - Compares favorably through at least depth 7. Next step is to script the
+    perft calculations and publish results.
 - [ ] Refactor code and improve documentation
 - [ ] Implement [MCTS-Solver](https://dke.maastrichtuniversity.nl/m.winands/documents/uctloa.pdf)
 - [ ] Add expansion pieces
