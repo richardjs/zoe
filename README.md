@@ -53,3 +53,5 @@ rebuild (and restart) the Docker image.
 - [ ] Add expansion pieces
 - [ ] Improve UI (perhaps less of a priority with [MzingaViewer](https://github.com/jonthysell/Mzinga/wiki/MzingaViewer))
 - [ ] Improve play!
+
+Zoé was created 2023 by [Richard Schneider](https://schneiderbox.net).
