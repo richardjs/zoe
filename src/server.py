@@ -6,6 +6,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 
+WORKERS = 4
+ITERATIONS = 10000
+
+
 ZOE = environ.get("ZOE", "./zoe")
 
 
@@ -51,7 +55,7 @@ async def state_actions(state: str = Path(regex=STATE_REGEX)) -> ActionsResponse
 
 @app.get("/state/{state}/think", response_model=ThinkResponse)
 async def state_think(state: str = Path(regex=STATE_REGEX)) -> ThinkResponse:
-    action, stderr = zoe("-t", state)
+    action, stderr = zoe(f"-t", "-w", str(WORKERS), "-i", str(ITERATIONS), state)
     new_state, _ = zoe("-a", action, state)
     actions, _ = get_actions(new_state)
     action_states = {
