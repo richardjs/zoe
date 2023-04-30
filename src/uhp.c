@@ -38,9 +38,11 @@ void print_gamestring()
     }
 
     printf("%s[%d]", state.turn == P1 ? "White" : "Black", move_number);
+}
 
-    printf("\n");
-    printf("ok\n");
+void print_movestring(const struct Action *action)
+{
+    // TODO
 }
 
 void error(char message[])
@@ -59,9 +61,23 @@ void newgame(char* args)
     State_new(&state);
 
     if (args) {
+        // TODO
     }
 
     print_gamestring();
+    printf("\n");
+    printf("ok\n");
+}
+
+void play(char move[])
+{
+}
+
+void validmoves()
+{
+    for (int i = 0; i < state.action_count; i++) {
+        // TODO
+    }
 }
 
 void uhp_loop()
@@ -88,6 +104,10 @@ void uhp_loop()
             info();
         } else if (!strcmp(command, "newgame")) {
             newgame(args);
+        } else if (!strcmp(command, "play")) {
+            play(args);
+        } else if (!strcmp(command, "validmoves")) {
+            validmoves();
         } else if (!strcmp(command, "exit")) {
             free(line);
             free(command);
