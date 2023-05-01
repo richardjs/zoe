@@ -72,7 +72,7 @@ void State_derive_grid(struct State* state)
     for (int p = 0; p < NUM_PLAYERS; p++) {
         for (int i = 0; i < PLAYER_PIECES; i++) {
             struct Piece* piece = &state->pieces[p][i];
-            if (piece.coords.q = IN_HAND) {
+            if (piece->coords.q == IN_HAND) {
                 continue;
             }
 
@@ -98,11 +98,11 @@ void State_add_action(struct State* state, int piecei, const struct Coords* to)
     action->piecei = piecei;
     action->to = *to;
 
-    struct Coords *from = &state->pieces[state->turn][piece].coords;
+    struct Coords *from = &state->pieces[state->turn][piecei].coords;
 
     struct Piece* piece = &state->pieces[state->turn][piecei];
-    struct Piece* turn_queen = state->queens[state->turn];
-    struct Piece* other_queen = state->queens[!state->turn];
+    struct Piece* turn_queen = &state->pieces[state->turn][QUEEN_INDEX];
+    struct Piece* other_queen = &state->pieces[!state->turn][QUEEN_INDEX];
 
     bool draw_action = false;
 
@@ -201,14 +201,13 @@ void State_add_action(struct State* state, int piecei, const struct Coords* to)
         state->unpin_moves[state->unpin_move_count++] = action;
     }
 
-    if (state->queens[state->turn]
-        && from->q != PLACE_ACTION
+    if (from->q != PLACE_ACTION
         && piecei != PASS_ACTION
-        && State_hex_neighbor_count(state, &state->queens[state->turn]->coords) == NUM_DIRECTIONS - 1
-        && Coords_adjacent(&state->queens[state->turn]->coords, from)
+        && State_hex_neighbor_count(state, &state->pieces[state->turn][QUEEN_INDEX].coords) == NUM_DIRECTIONS - 1
+        && Coords_adjacent(&state->pieces[state->turn][QUEEN_INDEX].coords, from)
         // TODO I think this is segfaulting; shouldn't any action from have a from on the grid (if not one of the above)?
         //&& !state->grid[action->from.q][action->from.r]->on_top
-        && (!Coords_adjacent(&state->queens[state->turn]->coords, &action->to)
+        && (!Coords_adjacent(&state->pieces[state->turn][QUEEN_INDEX].coords, &action->to)
             || state->grid[action->to.q][action->to.r])) {
 
         state->queen_away_moves[state->queen_away_move_count++] = action;
@@ -348,12 +347,12 @@ void State_derive_cut_points(struct State* state)
     struct Piece *start_piece = NULL;
     for (int i = 0; i < PLAYER_PIECES; i++) {
         if (state->pieces[P1][i].coords.q != IN_HAND) {
-            state_piece = &state->pieces[P1][i];
+            start_piece = &state->pieces[P1][i];
             break;
         }
     }
 
-    if (!state_piece) {
+    if (!start_piece) {
         return;
     }
 
@@ -525,7 +524,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
     struct Piece* piece = &state->pieces[state->turn][piecei];
     struct Coords* coords = &piece->coords;
     
-    if (coords.q == IN_HAND) {
+    if (coords->q == IN_HAND) {
         return;
     }
 
@@ -660,7 +659,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
                 Coords_move(&c, d);
             } while (state->grid[c.q][c.r]);
 
-            State_add_action(state, piecei, &piece->coords, &c);
+            State_add_action(state, piecei, &c);
         }
         break;
 
@@ -775,7 +774,7 @@ void State_derive_actions(struct State* state)
         bool place_crumbs[GRID_SIZE][GRID_SIZE];
         memset(place_crumbs, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
         for (int i = 0; i < PLAYER_PIECES; i++) {
-            if (state->pieces[state->turn].coords.q == IN_HAND) {
+            if (state->pieces[state->turn][i].coords.q == IN_HAND) {
                 continue;
             }
             for (int d = 0; d < NUM_DIRECTIONS; d++) {
@@ -795,7 +794,7 @@ void State_derive_actions(struct State* state)
             }
 
             for (int piecei = TYPE_INDEX[t]; piecei < TYPE_END[t]; piecei++) {
-                if (state->pieces[state->turn].coords.q == IN_HAND) {
+                if (state->pieces[state->turn][piecei].coords.q == IN_HAND) {
                     continue;
                 }
 
@@ -910,7 +909,7 @@ void State_act(struct State* state, const struct Action* action)
         return;
     }
 
-    struct Piece* piece;
+    struct Piece* piece = &state->pieces[state->turn][action->piecei];
     struct Coords *from = &piece->coords;
 
     // Place action
@@ -921,11 +920,6 @@ void State_act(struct State* state, const struct Action* action)
         piece->player = state->turn;
 
         state->grid[action->to.q][action->to.r] = piece;
-        if (piece->type == QUEEN_BEE) {
-            state->queens[state->turn] = piece;
-        } else if (piece->type == BEETLE) {
-            state->beetles[state->turn][state->beetle_count[state->turn]++] = piece;
-        }
 
         state->piece_count[state->turn]++;
         state->hands[state->turn][piece->type]--;
