@@ -60,7 +60,7 @@
 #define IN_HAND (GRID_SIZE + 1)
 
 // TODO support passing when no moves are possible
-#define PASS_ACTION (PLAYER_PIECES + 1)
+#define PASS_ACTION (GRID_SIZE + 2)
 
 #define SPIDER_MOVES 3
 
@@ -78,29 +78,11 @@ enum PieceType {
 };
 
 // Index for state.pieces
-const uint_fast8_t TYPE_INDEX[NUM_PIECETYPES] = {
-    ANT_INDEX,
-    BEETLE_INDEX,
-    GRASSHOPPER_INDEX,
-    SPIDER_INDEX,
-    QUEEN_INDEX
-};
+extern const uint_fast8_t TYPE_INDEX[NUM_PIECETYPES];
 
-const uint_fast8_t TYPE_END[NUM_PIECETYPES] = {
-    ANT_INDEX + NUM_ANTS,
-    BEETLE_INDEX + NUM_BEETLES,
-    GRASSHOPPER_INDEX + NUM_GRASSHOPPERS,
-    SPIDER_INDEX + NUM_SPIDERS,
-    QUEEN_INDEX + NUM_QUEEN_BEES
-};
+extern const uint_fast8_t TYPE_END[NUM_PIECETYPES];
 
-const uint_fast8_t TYPE_COUNT[NUM_PIECETYPES] = {
-    NUM_ANTS,
-    NUM_BEETLES,
-    NUM_GRASSHOPPERS,
-    NUM_SPIDERS,
-    NUM_QUEEN_BEES
-};
+extern const uint_fast8_t TYPE_COUNT[NUM_PIECETYPES];
 
 enum Result {
     P1_WIN = 0,
@@ -110,7 +92,7 @@ enum Result {
 };
 
 struct Action {
-    uint_fast8_t piecei;
+    struct Coords from;
     struct Coords to;
 };
 
