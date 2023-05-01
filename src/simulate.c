@@ -13,10 +13,10 @@ int State_beetle_seek_path(
     const struct Piece* piece,
     struct Coords* path)
 {
-    if (!state->queens[!piece->player]) {
+    if (state->pieces[!piece->player][QUEEN_INDEX].coords.q == IN_HAND) {
         return -1;
     }
-    struct Coords target = state->queens[!piece->player]->coords;
+    struct Coords target = state->pieces[!piece->player][QUEEN_INDEX].coords;
 
     struct Coords queue[MAX_PIECES];
     unsigned int queue_size = 0;
@@ -81,7 +81,7 @@ bool State_is_queen_sidestep(const struct State* state, const struct Action* act
     return state->neighbor_count[!state->turn][action->to.q][action->to.r] == 1
         && state->neighbor_count[state->turn][action->to.q][action->to.r] == 1
         // Not a sidestep if we're already in a similar position
-        && State_hex_neighbor_count(state, &action->from) > 1;
+        && State_hex_neighbor_count(state, &state->pieces[state->turn][action->piecei].coords) > 1;
 }
 
 /**
@@ -165,7 +165,8 @@ float State_simulate(struct State* state,
 
         if (state->beetle_move_count
             && (rand() / (float)RAND_MAX) < options->beetle_seek_move_bias) {
-            struct Piece* beetle = state->beetles[state->turn][rand() % state->beetle_count[state->turn]];
+
+            struct Piece* beetle = &state->pieces[state->turn][BEETLE_INDEX + rand() % (NUM_BEETLES - state->hands[state->turn][BEETLE])];
             struct Coords path[MAX_PIECES];
             int path_size = State_beetle_seek_path(state, beetle, path);
 
@@ -240,10 +241,11 @@ float State_simulate(struct State* state,
         Action_print(action, stderr);
 #endif
 
-        if (action->from.q != PLACE_ACTION
-            && action->from.q != PASS_ACTION
-            && state->queens[!state->turn]
-            && Coords_adjacent(&action->from, &state->queens[!state->turn]->coords)
+        struct Coords *from = &state->pieces[state->turn][action->piecei].coords;
+
+        if (from->q != PLACE_ACTION
+            && action->piecei != PASS_ACTION
+            && Coords_adjacent(from, &state->pieces[!state->turn][QUEEN_INDEX].coords)
             && (rand() / (float)RAND_MAX) < options->from_queen_pass) {
 #ifdef WATCH_SIMS
             printf("from queen pass\n");

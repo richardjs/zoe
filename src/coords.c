@@ -105,6 +105,9 @@ bool Coords_map_adjacent(const struct Coords* coords, const struct Coords* other
 
 bool Coords_adjacent(const struct Coords* coords, const struct Coords* other)
 {
+    if (coords->q == IN_HAND || other->q == IN_HAND) {
+        return false;
+    }
     return Coords_map_adjacent(coords, other);
 }
 
