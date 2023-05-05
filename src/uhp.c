@@ -143,11 +143,11 @@ void action_to_movestring(const struct Action* action, char movestring[])
     movestring[size++] = '\0';
 }
 
-int parse_movestring(const char movestring[], struct Action *action)
+int parse_movestring(const char movestring[], struct Action* action)
 {
     char test_movestring[MOVESTRING_SIZE];
     for (int i = 0; i < state.action_count; i++) {
-        struct Action *action = &state.actions[i];
+        struct Action* action = &state.actions[i];
         action_to_movestring(action, test_movestring);
 
         if (strcmp(movestring, test_movestring) == 0) {
