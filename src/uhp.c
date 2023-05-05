@@ -165,6 +165,7 @@ void validmoves()
         printf(";");
         print_movestring(&state.actions[i]);
     }
+    printf("\n");
 }
 
 // Input loop
