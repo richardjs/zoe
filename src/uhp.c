@@ -5,6 +5,8 @@
 #include "state.h"
 #include "uhp.h"
 
+#define MOVESTRING_SIZE 9
+
 const char IDENTIFIER[] = "Zo\u00e9 v1.0";
 
 const char UHP_PLAYER_CHAR[NUM_PLAYERS] = { 'w', 'b' };
@@ -24,7 +26,7 @@ void error(char message[])
     printf("err %s\n", message);
 }
 
-void print_piece_string(const struct Coords* coords)
+int coords_to_piecestring(const struct Coords* coords, char piecestring[])
 {
     char player_char = 'x';
     char piece_char = 'x';
@@ -34,9 +36,6 @@ void print_piece_string(const struct Coords* coords)
         piece_char = UHP_PIECE_CHAR[coords->r];
     } else {
         struct Piece* piece = state.grid[coords->q][coords->r];
-        if (!piece) {
-            return;
-        }
 
         player_char = UHP_PLAYER_CHAR[piece->player];
         piece_char = UHP_PIECE_CHAR[piece->type];
@@ -51,10 +50,15 @@ void print_piece_string(const struct Coords* coords)
         }
     }
 
-    printf("%c%c", player_char, piece_char);
+    size_t size = 0;
+    piecestring[size++] = player_char;
+    piecestring[size++] = piece_char;
+
     if (piece_char != 'Q') {
-        printf("%d", piece_num);
+        piecestring[size++] = piece_num + '0';
     }
+
+    return size;
 }
 
 void print_gamestring()
@@ -86,24 +90,28 @@ void print_gamestring()
     printf("%s[%d]", state.turn == P1 ? "White" : "Black", move_number);
 }
 
-void print_movestring(const struct Action* action)
+void action_to_movestring(const struct Action* action, char movestring[])
 {
     if (action->from.q == PASS_ACTION) {
-        printf("pass");
+        strcpy(movestring, "pass");
         return;
     }
 
-    print_piece_string(&action->from);
+    size_t size = 0;
+
+    size += coords_to_piecestring(&action->from, movestring);
 
     if (move_number == 1 && state.turn == P1) {
+        movestring[size++] = '\0';
         return;
     }
 
-    printf(" ");
+    movestring[size++] = ' ';
 
     // Move on top of the hive
     if (state.grid[action->to.q][action->to.r]) {
-        print_piece_string(&action->to);
+        size += coords_to_piecestring(&action->from, movestring);
+        movestring[size++] = '\0';
         return;
     }
 
@@ -121,16 +129,22 @@ void print_movestring(const struct Action* action)
     case NORTH:
     case NORTHEAST:
     case SOUTHEAST:
-        print_piece_string(&reference);
-        printf("%c", UHP_DIRECTION_CHAR[reference_dir]);
+        size += coords_to_piecestring(&reference, movestring);
+        movestring[size++] = UHP_DIRECTION_CHAR[reference_dir];
         break;
     case SOUTH:
     case SOUTHWEST:
     case NORTHWEST:
-        printf("%c", UHP_DIRECTION_CHAR[reference_dir]);
-        print_piece_string(&reference);
+        movestring[size++] = UHP_DIRECTION_CHAR[reference_dir];
+        size += coords_to_piecestring(&reference, movestring);
         break;
     }
+
+    movestring[size++] = '\0';
+}
+
+void parse_movestring(const char move[], struct Action *action)
+{
 }
 
 // Commands
@@ -156,14 +170,20 @@ void newgame(char* args)
 
 void play(char move[])
 {
+    printf("playing %s\n", move);
+    struct Action action;
+    parse_movestring(move, &action);
 }
 
 void validmoves()
 {
-    print_movestring(&state.actions[0]);
+    char movestring[MOVESTRING_SIZE];
+    action_to_movestring(&state.actions[0], movestring);
+    printf("%s", movestring);
     for (int i = 1; i < state.action_count; i++) {
         printf(";");
-        print_movestring(&state.actions[i]);
+        action_to_movestring(&state.actions[i], movestring);
+        printf("%s", movestring);
     }
     printf("\n");
 }
