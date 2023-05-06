@@ -296,6 +296,7 @@ void uhp_loop()
             error("invalid command");
         }
 
+        free(line);
         free(command);
         free(args);
     }
