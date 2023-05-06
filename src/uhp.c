@@ -5,7 +5,9 @@
 #include "state.h"
 #include "uhp.h"
 
-#define MOVESTRING_SIZE 9
+#define PIECESTRING_SIZE 3
+#define DESTSTRING_SIZE (PIECESTRING_SIZE + 2)
+#define MOVESTRING_SIZE (PIECESTRING_SIZE + 1 + DESTSTRING_SIZE)
 
 #define HISTORY_CHUNK_SIZE 3
 
@@ -105,13 +107,17 @@ void print_gamestring()
     }
 }
 
-void action_to_movestring(const struct Action* action, char movestring[])
+enum Direction action_to_movestring(
+    const struct Action* action,
+    char movestring[],
+    enum Direction starting_dir)
 {
     // TODO add a variable for a starting value for reference_dir, so
     // we can continue searching for other possible move strings
     if (action->from.q == PASS_ACTION) {
         strcpy(movestring, "pass");
-        return;
+        // Meaningless return value
+        return NORTHWEST;
     }
 
     size_t size = 0;
@@ -120,7 +126,8 @@ void action_to_movestring(const struct Action* action, char movestring[])
 
     if (move_number == 0) {
         movestring[size++] = '\0';
-        return;
+        // Meaningless return value
+        return NORTHWEST;
     }
 
     movestring[size++] = ' ';
@@ -129,12 +136,13 @@ void action_to_movestring(const struct Action* action, char movestring[])
     if (state.grid[action->to.q][action->to.r]) {
         size += coords_to_piecestring(&action->from, movestring);
         movestring[size++] = '\0';
-        return;
+        // Meaningless return value
+        return NORTHWEST;
     }
 
     struct Coords reference;
     enum Direction reference_dir;
-    for (reference_dir = 0; reference_dir < NUM_DIRECTIONS; reference_dir++) {
+    for (reference_dir = starting_dir; reference_dir < NUM_DIRECTIONS; reference_dir++) {
         reference = action->to;
         Coords_move(&reference, reference_dir);
         if (state.grid[reference.q][reference.r]) {
@@ -158,6 +166,7 @@ void action_to_movestring(const struct Action* action, char movestring[])
     }
 
     movestring[size++] = '\0';
+    return reference_dir;
 }
 
 int parse_movestring(const char movestring[])
@@ -166,10 +175,14 @@ int parse_movestring(const char movestring[])
     char test_movestring[MOVESTRING_SIZE];
     for (int i = 0; i < state.action_count; i++) {
         struct Action* action = &state.actions[i];
-        action_to_movestring(action, test_movestring);
+        enum Direction dir = NORTH;
+        while (dir < NORTHWEST) {
+            dir = action_to_movestring(action, test_movestring, dir) + 1;
 
-        if (strcmp(movestring, test_movestring) == 0) {
-            return i;
+            if (strcmp(movestring, test_movestring) == 0) {
+                return i;
+            } else {
+            }
         }
     }
 
@@ -220,19 +233,21 @@ void play(char movestring[])
 
     print_gamestring();
     printf("\n");
+    printf("ok\n");
 }
 
 void validmoves()
 {
     char movestring[MOVESTRING_SIZE];
-    action_to_movestring(&state.actions[0], movestring);
+    action_to_movestring(&state.actions[0], movestring, NORTH);
     printf("%s", movestring);
     for (int i = 1; i < state.action_count; i++) {
         printf(";");
-        action_to_movestring(&state.actions[i], movestring);
+        action_to_movestring(&state.actions[i], movestring, NORTH);
         printf("%s", movestring);
     }
     printf("\n");
+    printf("ok\n");
 }
 
 // Input loop
@@ -259,7 +274,7 @@ void uhp_loop()
 
         char* command;
         char* args;
-        sscanf(line, "%ms %ms", &command, &args);
+        sscanf(line, "%ms %m[^\n]", &command, &args);
 
         if (!strcmp(command, "info")) {
             info();
