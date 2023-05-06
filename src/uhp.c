@@ -12,7 +12,7 @@
 #define DESTSTRING_SIZE (PIECESTRING_SIZE + 2)
 #define MOVESTRING_SIZE (PIECESTRING_SIZE + 1 + DESTSTRING_SIZE)
 
-#define HISTORY_CHUNK_SIZE 3
+#define HISTORY_CHUNK_SIZE 1
 
 const char IDENTIFIER[] = "Zo\u00e9 v1.0";
 
@@ -29,14 +29,16 @@ struct HistoryMove {
 };
 
 struct State state;
-struct HistoryMove* history;
+struct HistoryMove* history = NULL;
 int move_number;
+int allocated_size;
 
 void reset_game_data()
 {
     State_new(&state);
     free(history);
     history = malloc(sizeof(struct HistoryMove) * HISTORY_CHUNK_SIZE);
+    allocated_size = HISTORY_CHUNK_SIZE;
     move_number = 0;
 }
 
@@ -197,7 +199,7 @@ int parse_movestring(const char movestring[])
 void info()
 {
     printf("id %s\n", IDENTIFIER);
-    puts("ok");
+    printf("ok\n");
 }
 
 void newgame(char* args)
@@ -226,12 +228,8 @@ void play(char movestring[])
 
     strcpy(history[move_number].movestring, movestring);
     move_number++;
-    if (move_number % HISTORY_CHUNK_SIZE == 0) {
-        struct HistoryMove* old_history = history;
-        struct HistoryMove* history = malloc(
-            (move_number / HISTORY_CHUNK_SIZE + 1) * sizeof(struct HistoryMove));
-        memcpy(history, old_history, sizeof(struct HistoryMove) * move_number);
-        free(old_history);
+    if (move_number == allocated_size) {
+        history = realloc(history, allocated_size * sizeof(struct HistoryMove));
     }
 
     print_gamestring();
@@ -287,6 +285,9 @@ void uhp_loop()
             play(args);
         } else if (!strcmp(command, "validmoves")) {
             validmoves();
+        } else if (!strcmp(command, "position")) {
+            print_gamestring();
+            printf("\n");
         } else if (!strcmp(command, "exit")) {
             free(line);
             free(command);
