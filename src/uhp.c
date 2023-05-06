@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <readline/history.h>
+#include <readline/readline.h>
+
 #include "state.h"
 #include "uhp.h"
 
@@ -261,14 +264,14 @@ void uhp_loop()
     char* line;
 
     while (1) {
-        int n = scanf("%m[^\n]", &line);
+        line = readline(NULL);
 
-        if (n == EOF) {
+        if (line == NULL) {
             break;
         }
 
-        if (n == 0) {
-            getchar();
+        if (strlen(line) == 0) {
+            printf("\n");
             continue;
         }
 
@@ -288,15 +291,12 @@ void uhp_loop()
             free(line);
             free(command);
             free(args);
-            getchar();
             break;
         } else {
             error("invalid command");
         }
 
-        free(line);
         free(command);
         free(args);
-        getchar();
     }
 }
