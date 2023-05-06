@@ -12,7 +12,7 @@
 #define DESTSTRING_SIZE (PIECESTRING_SIZE + 2)
 #define MOVESTRING_SIZE (PIECESTRING_SIZE + 1 + DESTSTRING_SIZE)
 
-#define HISTORY_CHUNK_SIZE 1
+#define HISTORY_CHUNK_SIZE 100
 
 const char IDENTIFIER[] = "Zo\u00e9 v1.0";
 
@@ -229,6 +229,7 @@ void play(char movestring[])
     strcpy(history[move_number].movestring, movestring);
     move_number++;
     if (move_number == allocated_size) {
+        allocated_size += HISTORY_CHUNK_SIZE;
         history = realloc(history, allocated_size * sizeof(struct HistoryMove));
     }
 
