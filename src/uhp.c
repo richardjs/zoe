@@ -7,6 +7,8 @@
 
 #define MOVESTRING_SIZE 9
 
+#define HISTORY_CHUNK_SIZE 3
+
 const char IDENTIFIER[] = "Zo\u00e9 v1.0";
 
 const char UHP_PLAYER_CHAR[NUM_PLAYERS] = { 'w', 'b' };
@@ -17,9 +19,21 @@ const char UHP_PIECE_CHAR[NUM_PIECETYPES] = { 'A', 'B', 'G', 'S', 'Q' };
 // becomes / and NORTHEAST becomes -.
 const char UHP_DIRECTION_CHAR[NUM_DIRECTIONS] = { '/', '-', '\\', '/', '-', '\\' };
 
-struct State state;
+struct HistoryMove {
+    char movestring[MOVESTRING_SIZE];
+};
 
-int move_number = 1;
+struct State state;
+struct HistoryMove* history;
+int move_number;
+
+void reset_game_data()
+{
+    State_new(&state);
+    free(history);
+    history = malloc(sizeof(struct HistoryMove) * HISTORY_CHUNK_SIZE);
+    move_number = 0;
+}
 
 void error(char message[])
 {
@@ -63,14 +77,11 @@ int coords_to_piecestring(const struct Coords* coords, char piecestring[])
 
 void print_gamestring()
 {
-    State_new(&state);
-    move_number = 1;
-
     printf("Base;");
 
     switch (state.result) {
     case NO_RESULT:
-        if (move_number == 1 && state.turn == P1) {
+        if (move_number == 0) {
             printf("NotStarted;");
         } else {
             printf("InProgress;");
@@ -87,11 +98,17 @@ void print_gamestring()
         break;
     }
 
-    printf("%s[%d]", state.turn == P1 ? "White" : "Black", move_number);
+    printf("%s[%d]", state.turn == P1 ? "White" : "Black", move_number / 2 + 1);
+
+    for (int i = 0; i < move_number; i++) {
+        printf(";%s", history[i].movestring);
+    }
 }
 
 void action_to_movestring(const struct Action* action, char movestring[])
 {
+    // TODO add a variable for a starting value for reference_dir, so
+    // we can continue searching for other possible move strings
     if (action->from.q == PASS_ACTION) {
         strcpy(movestring, "pass");
         return;
@@ -101,7 +118,7 @@ void action_to_movestring(const struct Action* action, char movestring[])
 
     size += coords_to_piecestring(&action->from, movestring);
 
-    if (move_number == 1 && state.turn == P1) {
+    if (move_number == 0) {
         movestring[size++] = '\0';
         return;
     }
@@ -129,22 +146,23 @@ void action_to_movestring(const struct Action* action, char movestring[])
     case NORTH:
     case NORTHEAST:
     case SOUTHEAST:
-        size += coords_to_piecestring(&reference, movestring);
+        size += coords_to_piecestring(&reference, &movestring[size]);
         movestring[size++] = UHP_DIRECTION_CHAR[reference_dir];
         break;
     case SOUTH:
     case SOUTHWEST:
     case NORTHWEST:
         movestring[size++] = UHP_DIRECTION_CHAR[reference_dir];
-        size += coords_to_piecestring(&reference, movestring);
+        size += coords_to_piecestring(&reference, &movestring[size]);
         break;
     }
 
     movestring[size++] = '\0';
 }
 
-int parse_movestring(const char movestring[], struct Action* action)
+int parse_movestring(const char movestring[])
 {
+    // TODO this only works for one representation of a move
     char test_movestring[MOVESTRING_SIZE];
     for (int i = 0; i < state.action_count; i++) {
         struct Action* action = &state.actions[i];
@@ -168,7 +186,7 @@ void info()
 
 void newgame(char* args)
 {
-    State_new(&state);
+    reset_game_data();
 
     if (args) {
         // TODO
@@ -181,8 +199,27 @@ void newgame(char* args)
 
 void play(char movestring[])
 {
-    struct Action action;
-    int i = parse_movestring(movestring, &action);
+    int actioni = parse_movestring(movestring);
+
+    if (actioni < 0) {
+        error("invalid move");
+        return;
+    }
+
+    State_act(&state, &state.actions[actioni]);
+
+    strcpy(history[move_number].movestring, movestring);
+    move_number++;
+    if (move_number % HISTORY_CHUNK_SIZE == 0) {
+        struct HistoryMove* old_history = history;
+        struct HistoryMove* history = malloc(
+            (move_number / HISTORY_CHUNK_SIZE + 1) * sizeof(struct HistoryMove));
+        memcpy(history, old_history, sizeof(struct HistoryMove) * move_number);
+        free(old_history);
+    }
+
+    print_gamestring();
+    printf("\n");
 }
 
 void validmoves()
@@ -202,7 +239,7 @@ void validmoves()
 
 void uhp_loop()
 {
-    State_new(&state);
+    reset_game_data();
 
     info();
 
