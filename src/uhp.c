@@ -281,6 +281,8 @@ void uhp_loop()
             newgame(args);
         } else if (!strcmp(command, "play")) {
             play(args);
+        } else if (!strcmp(command, "pass")) {
+            play("pass");
         } else if (!strcmp(command, "validmoves")) {
             validmoves();
         } else if (!strcmp(command, "exit")) {
