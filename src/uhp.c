@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <readline/history.h>
-#include <readline/readline.h>
-
 #include "state.h"
 #include "uhp.h"
 
@@ -260,17 +257,17 @@ void uhp_loop()
 
     info();
 
-    char* line;
+    char* line = NULL;
+    size_t line_size = 0;
 
     while (1) {
-        line = readline(NULL);
+        ssize_t read = getline(&line, &line_size, stdin);
 
-        if (line == NULL) {
+        if (read == -1) {
             break;
         }
 
-        if (strlen(line) == 0) {
-            printf("\n");
+        if (strlen(line) == 1) {
             continue;
         }
 
@@ -290,7 +287,6 @@ void uhp_loop()
             print_gamestring();
             printf("\n");
         } else if (!strcmp(command, "exit")) {
-            free(line);
             free(command);
             free(args);
             break;
@@ -298,8 +294,9 @@ void uhp_loop()
             error("invalid command");
         }
 
-        free(line);
         free(command);
         free(args);
     }
+
+    free(line);
 }

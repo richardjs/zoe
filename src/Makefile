@@ -1,5 +1,5 @@
 CFLAGS=-std=gnu17 -Wall -O3
-LDFLAGS=-lm -lreadline
+LDFLAGS=-lm
 
 objects=book.o coords.o examine.o mcts.o minimax.o simulate.o state.o stateio.o stateutil.o uhp.o
 
