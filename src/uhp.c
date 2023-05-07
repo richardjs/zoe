@@ -192,16 +192,17 @@ int parse_movestring(const char movestring[])
 }
 
 // Note that this doesn't update history
-void act_movestring(const char movestring[])
+bool act_movestring(const char movestring[])
 {
     int actioni = parse_movestring(movestring);
 
     if (actioni < 0) {
         error("invalid move");
-        return;
+        return false;
     }
 
     State_act(&state, &state.actions[actioni]);
+    return true;
 }
 
 // Commands
@@ -232,7 +233,9 @@ void play(const char movestring[])
         return;
     }
 
-    act_movestring(movestring);
+    if (!act_movestring(movestring)) {
+        return;
+    }
 
     strcpy(history[move_number].movestring, movestring);
     move_number++;
