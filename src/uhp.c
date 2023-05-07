@@ -191,6 +191,19 @@ int parse_movestring(const char movestring[])
     return -1;
 }
 
+// Note that this doesn't update history
+void act_movestring(const char movestring[])
+{
+    int actioni = parse_movestring(movestring);
+
+    if (actioni < 0) {
+        error("invalid move");
+        return;
+    }
+
+    State_act(&state, &state.actions[actioni]);
+}
+
 // Commands
 
 void info()
@@ -199,7 +212,7 @@ void info()
     printf("ok\n");
 }
 
-void newgame(char* args)
+void newgame(const char* args)
 {
     reset_game_data();
 
@@ -212,21 +225,14 @@ void newgame(char* args)
     printf("ok\n");
 }
 
-void play(char movestring[])
+void play(const char movestring[])
 {
     if (movestring == NULL) {
         error("no movestring");
         return;
     }
 
-    int actioni = parse_movestring(movestring);
-
-    if (actioni < 0) {
-        error("invalid move");
-        return;
-    }
-
-    State_act(&state, &state.actions[actioni]);
+    act_movestring(movestring);
 
     strcpy(history[move_number].movestring, movestring);
     move_number++;
@@ -250,6 +256,29 @@ void validmoves()
         action_to_movestring(&state.actions[i], movestring, NORTH);
         printf("%s", movestring);
     }
+    printf("\n");
+    printf("ok\n");
+}
+
+void undo(const char args[])
+{
+    int to_undo = 1;
+    if (args != NULL) {
+        to_undo = atoi(args);
+    }
+
+    if (to_undo == 0 || to_undo > move_number) {
+        error("invalid number to undo");
+        return;
+    }
+
+    move_number -= to_undo;
+    State_new(&state);
+    for (int i = 0; i < move_number; i++) {
+        act_movestring(history[i].movestring);
+    }
+
+    print_gamestring();
     printf("\n");
     printf("ok\n");
 }
@@ -290,6 +319,12 @@ void uhp_loop()
             play("pass");
         } else if (!strcmp(command, "validmoves")) {
             validmoves();
+        } else if (!strcmp(command, "bestmove")) {
+            // TODO
+        } else if (!strcmp(command, "undo")) {
+            undo(args);
+        } else if (!strcmp(command, "options")) {
+            // TODO
         } else if (!strcmp(command, "exit")) {
             free(command);
             free(args);
