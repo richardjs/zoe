@@ -283,9 +283,6 @@ void uhp_loop()
             play(args);
         } else if (!strcmp(command, "validmoves")) {
             validmoves();
-        } else if (!strcmp(command, "position")) {
-            print_gamestring();
-            printf("\n");
         } else if (!strcmp(command, "exit")) {
             free(command);
             free(args);
