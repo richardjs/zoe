@@ -214,6 +214,11 @@ void newgame(char* args)
 
 void play(char movestring[])
 {
+    if (movestring == NULL) {
+        error("no movestring");
+        return;
+    }
+
     int actioni = parse_movestring(movestring);
 
     if (actioni < 0) {
