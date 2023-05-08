@@ -1,6 +1,7 @@
 #include "uhp.h"
 
-int main() {
+int main()
+{
     uhp_loop();
 
     return 0;

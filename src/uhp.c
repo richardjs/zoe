@@ -319,7 +319,8 @@ void undo(const char args[])
     printf("ok\n");
 }
 
-void options(const char args[]) {
+void options(const char args[])
+{
     printf("ok\n");
 }
 
