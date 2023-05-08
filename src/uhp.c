@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "mcts.h"
 #include "state.h"
 #include "uhp.h"
 
@@ -11,7 +12,7 @@
 
 #define HISTORY_CHUNK_SIZE 100
 
-const char IDENTIFIER[] = "Zo\u00e9 v1.0";
+const char IDENTIFIER[] = "Zo\u00e9 v1.1a";
 
 const char UHP_PLAYER_CHAR[NUM_PLAYERS] = { 'w', 'b' };
 const char UHP_PIECE_CHAR[NUM_PIECETYPES] = { 'A', 'B', 'G', 'S', 'Q' };
@@ -192,16 +193,17 @@ int parse_movestring(const char movestring[])
 }
 
 // Note that this doesn't update history
-void act_movestring(const char movestring[])
+bool act_movestring(const char movestring[])
 {
     int actioni = parse_movestring(movestring);
 
     if (actioni < 0) {
         error("invalid move");
-        return;
+        return false;
     }
 
     State_act(&state, &state.actions[actioni]);
+    return true;
 }
 
 // Commands
@@ -232,7 +234,9 @@ void play(const char movestring[])
         return;
     }
 
-    act_movestring(movestring);
+    if (!act_movestring(movestring)) {
+        return;
+    }
 
     strcpy(history[move_number].movestring, movestring);
     move_number++;
@@ -260,6 +264,37 @@ void validmoves()
     printf("ok\n");
 }
 
+void bestmove(const char args[])
+{
+    if (args == NULL) {
+        error("no limit specified");
+        return;
+    }
+
+    char* limit_type;
+    char* limit_value;
+    int n = sscanf(args, "%ms %ms", &limit_type, &limit_value);
+    if (n != 2) {
+        error("invalid limit");
+        return;
+    }
+
+    struct MCTSOptions options;
+    MCTSOptions_default(&options);
+
+    if (strcmp(limit_type, "depth") == 0) {
+        options.iterations = atol(limit_value);
+    } else if (strcmp(limit_type, "time") == 0) {
+        error("not implemented");
+        return;
+    } else {
+        error("bad limit specification");
+        return;
+    }
+
+    // TODO
+}
+
 void undo(const char args[])
 {
     int to_undo = 1;
@@ -280,6 +315,10 @@ void undo(const char args[])
 
     print_gamestring();
     printf("\n");
+    printf("ok\n");
+}
+
+void options(const char args[]) {
     printf("ok\n");
 }
 
@@ -320,11 +359,11 @@ void uhp_loop()
         } else if (!strcmp(command, "validmoves")) {
             validmoves();
         } else if (!strcmp(command, "bestmove")) {
-            // TODO
+            bestmove(args);
         } else if (!strcmp(command, "undo")) {
             undo(args);
         } else if (!strcmp(command, "options")) {
-            // TODO
+            options(args);
         } else if (!strcmp(command, "exit")) {
             free(command);
             free(args);
