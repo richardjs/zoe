@@ -198,7 +198,8 @@ bool act_movestring(const char movestring[])
     int actioni = parse_movestring(movestring);
 
     if (actioni < 0) {
-        error("invalid move");
+        printf("invalidmove\n");
+        printf("ok\n");
         return false;
     }
 
