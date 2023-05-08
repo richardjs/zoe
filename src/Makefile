@@ -8,9 +8,10 @@ ZOE_PORT ?= 8000
 
 
 zoe: $(objects)
+zoe_uhp: $(objects)
 
 
-all: zoe test bench
+all: zoe zoe_uhp test bench
 
 
 server: zoe

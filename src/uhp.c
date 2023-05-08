@@ -318,6 +318,10 @@ void undo(const char args[])
     printf("ok\n");
 }
 
+void options(const char args[]) {
+    printf("ok\n");
+}
+
 // Input loop
 
 void uhp_loop()
@@ -359,7 +363,7 @@ void uhp_loop()
         } else if (!strcmp(command, "undo")) {
             undo(args);
         } else if (!strcmp(command, "options")) {
-            // TODO
+            options(args);
         } else if (!strcmp(command, "exit")) {
             free(command);
             free(args);
