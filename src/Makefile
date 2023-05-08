@@ -8,9 +8,10 @@ ZOE_PORT ?= 8000
 
 
 zoe: $(objects)
+zoe_uhp: $(objects)
 
 
-all: zoe test bench
+all: zoe zoe_uhp test bench
 
 
 server: zoe
@@ -55,6 +56,7 @@ stateutil.o: state.h
 test.o: minimax.h state.h stateio.h stateutil.h
 uhp.o: uhp.h
 zoe.o: book.h errorcodes.h examine.h mcts.h minimax.h state.h stateio.h uhp.h
+zoe_uhp.p: uhp.h
 
 
 format:
@@ -66,6 +68,7 @@ clean:
 	rm -f test
 	rm -f bench
 	rm -f zoe
+	rm -f zoe_uhp
 
 
 .PHONY: clean format run-test server
