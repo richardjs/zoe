@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "mcts.h"
 #include "state.h"
 #include "uhp.h"
 
@@ -263,6 +264,37 @@ void validmoves()
     printf("ok\n");
 }
 
+void bestmove(const char args[])
+{
+    if (args == NULL) {
+        error("no limit specified");
+        return;
+    }
+
+    char* limit_type;
+    char* limit_value;
+    int n = sscanf(args, "%ms %ms", &limit_type, &limit_value);
+    if (n != 2) {
+        error("invalid limit");
+        return;
+    }
+
+    struct MCTSOptions options;
+    MCTSOptions_default(&options);
+
+    if (strcmp(limit_type, "depth") == 0) {
+        options.iterations = atol(limit_value);
+    } else if (strcmp(limit_type, "time") == 0) {
+        error("not implemented");
+        return;
+    } else {
+        error("bad limit specification");
+        return;
+    }
+
+    // TODO
+}
+
 void undo(const char args[])
 {
     int to_undo = 1;
@@ -323,7 +355,7 @@ void uhp_loop()
         } else if (!strcmp(command, "validmoves")) {
             validmoves();
         } else if (!strcmp(command, "bestmove")) {
-            // TODO
+            bestmove(args);
         } else if (!strcmp(command, "undo")) {
             undo(args);
         } else if (!strcmp(command, "options")) {

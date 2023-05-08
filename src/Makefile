@@ -53,7 +53,7 @@ state.o: coords.h errorcodes.h state.h
 stateio.o: coords.h errorcodes.h state.h stateio.h stateutil.h
 stateutil.o: state.h
 test.o: minimax.h state.h stateio.h stateutil.h
-uhp.o: uhp.h
+uhp.o: mcts.h state.h uhp.h
 zoe.o: book.h errorcodes.h examine.h mcts.h minimax.h state.h stateio.h uhp.h
 
 
