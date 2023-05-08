@@ -12,7 +12,7 @@
 
 #define HISTORY_CHUNK_SIZE 100
 
-const char IDENTIFIER[] = "Zo\u00e9 v1.0";
+const char IDENTIFIER[] = "Zo\u00e9 v1.1a";
 
 const char UHP_PLAYER_CHAR[NUM_PLAYERS] = { 'w', 'b' };
 const char UHP_PIECE_CHAR[NUM_PIECETYPES] = { 'A', 'B', 'G', 'S', 'Q' };
