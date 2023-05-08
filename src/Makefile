@@ -1,7 +1,7 @@
 CFLAGS=-std=gnu17 -Wall -O3
 LDFLAGS=-lm
 
-objects=book.o coords.o examine.o mcts.o minimax.o simulate.o state.o stateio.o stateutil.o
+objects=book.o coords.o examine.o mcts.o minimax.o simulate.o state.o stateio.o stateutil.o uhp.o
 
 
 ZOE_PORT ?= 8000
@@ -53,7 +53,8 @@ state.o: coords.h errorcodes.h state.h
 stateio.o: coords.h errorcodes.h state.h stateio.h stateutil.h
 stateutil.o: state.h
 test.o: minimax.h state.h stateio.h stateutil.h
-zoe.o: book.h errorcodes.h examine.h mcts.h minimax.h state.h stateio.h
+uhp.o: uhp.h
+zoe.o: book.h errorcodes.h examine.h mcts.h minimax.h state.h stateio.h uhp.h
 
 
 format:
