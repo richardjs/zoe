@@ -30,9 +30,6 @@ enum Command {
 
 int main(int argc, char* argv[])
 {
-    uhp_loop();
-    exit(0);
-
     fprintf(stderr, "Zo\u00e9 v1.0 (built %s %s)\n", __DATE__, __TIME__);
 
     time_t seed = time(NULL);
