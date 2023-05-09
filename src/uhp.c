@@ -272,8 +272,8 @@ void bestmove(const char args[])
         return;
     }
 
-    char* limit_type;
-    char* limit_value;
+    char* limit_type = NULL;
+    char* limit_value = NULL;
     int n = sscanf(args, "%ms %ms", &limit_type, &limit_value);
     if (n != 2) {
         error("invalid limit");
@@ -346,8 +346,8 @@ void uhp_loop()
             continue;
         }
 
-        char* command;
-        char* args;
+        char* command = NULL;
+        char* args = NULL;
         sscanf(line, "%ms %m[^\n]", &command, &args);
 
         if (!strcmp(command, "info")) {
