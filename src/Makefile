@@ -32,7 +32,7 @@ run-bench: bench
 	@./bench
 
 
-debug: zoe test bench
+debug: zoe zoe_uhp test bench
 debug: CFLAGS+=-g
 
 
