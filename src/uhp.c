@@ -379,4 +379,5 @@ void uhp_loop()
     }
 
     free(line);
+    free(history);
 }
