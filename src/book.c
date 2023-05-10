@@ -17,6 +17,7 @@ const struct Action* opening_move(const struct State* state)
                 actions[action_count++] = &state->actions[i];
                 break;
             default:
+                break;
             }
         }
     }

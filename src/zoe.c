@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
         printf("%s\n", state_string);
         return 0;
 
-    case SEARCH:
+    case SEARCH: {
         struct MinimaxResults minimax_results;
         minimax(&state, &minimax_results, &minimax_options);
         fprintf(stderr, "action:\t");
@@ -172,8 +172,9 @@ int main(int argc, char* argv[])
         fprintf(stderr, "nodes:\t%ld\n", minimax_results.stats.nodes);
         fprintf(stderr, "leaves:\t%ld\n", minimax_results.stats.leaves);
         return 0;
+    }
 
-    case RANDOM:
+    case RANDOM: {
         struct Action* action = &state.actions[rand() % state.action_count];
 
         Action_to_string(action, action_string);
@@ -186,12 +187,14 @@ int main(int argc, char* argv[])
         State_to_string(&after, state_string);
         fprintf(stderr, "next:\t%s\n", state_string);
         return 0;
+    }
 
     case EXAMINE:
         State_examine(&state);
         return 0;
 
     case THINK:
+        break;
     }
 
     struct MCTSResults results;
