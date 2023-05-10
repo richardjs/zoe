@@ -77,6 +77,7 @@ struct MCTSResults {
     struct MCTSStats stats;
     struct Node nodes[MAX_ACTIONS];
     struct Node* tree;
+    const struct Action* presearch_action;
 };
 
 void MCTSOptions_default(struct MCTSOptions*);

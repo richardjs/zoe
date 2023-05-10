@@ -200,9 +200,16 @@ int main(int argc, char* argv[])
     struct MCTSResults results;
     think(&state, &results, &options, workers);
 
+    const struct Action* selected_action;
+    if (results.presearch_action) {
+        selected_action = results.presearch_action;
+    } else {
+        selected_action = &state.actions[results.actioni];
+    }
+
     struct State after;
     State_copy(&state, &after);
-    State_act(&after, &state.actions[results.actioni]);
+    State_act(&after, selected_action);
     State_print(&after, stderr);
 
     return 0;

@@ -26,8 +26,8 @@ void think(
     if (state->winning_action) {
         fprintf(stderr, "Taking win\n");
         fprintf(stderr, "result: win\n");
-        Action_to_string(state->winning_action, action_string);
-        printf("%s\n", action_string);
+
+        results->presearch_action = state->winning_action;
 
         struct State after;
         State_copy(state, &after);
@@ -40,8 +40,8 @@ void think(
 
     if (state->action_count == 1) {
         fprintf(stderr, "Single action\n");
-        Action_to_string(&state->actions[0], action_string);
-        printf("%s\n", action_string);
+
+        results->presearch_action = &state->actions[0];
 
         struct State after;
         State_copy(state, &after);
@@ -55,8 +55,8 @@ void think(
     const struct Action* book_action = opening_move(state);
     if (book_action) {
         fprintf(stderr, "Book action\n");
-        Action_to_string(book_action, action_string);
-        printf("%s\n", action_string);
+
+        results->presearch_action = book_action;
 
         struct State after;
         State_copy(state, &after);
@@ -151,9 +151,6 @@ void think(
             }
         }
     }
-
-    Action_to_string(&state->actions[results->actioni], action_string);
-    printf("%s\n", action_string);
 
     struct State after;
     State_copy(state, &after);
