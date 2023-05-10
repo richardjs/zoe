@@ -343,8 +343,9 @@ void options(const char args[])
 
 void uhp_loop()
 {
-    reset_game_data();
+    setbuf(stdout, NULL);
 
+    reset_game_data();
     info();
 
     char* line = NULL;
