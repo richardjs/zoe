@@ -121,7 +121,7 @@ float State_simulate(struct State* state,
             return 0.0;
         }
 
-    select_action:
+    select_action : {
 
         struct Action* action = NULL;
 
@@ -272,6 +272,7 @@ float State_simulate(struct State* state,
         printf("%s\n", state_string);
         getchar();
 #endif
+    }
     }
 
     stats->mean_sim_depth += (depth - stats->mean_sim_depth) / stats->simulations;

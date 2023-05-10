@@ -85,6 +85,7 @@ void State_derive_grid(struct State* state)
 
             state->grid[piece->coords.q][piece->coords.r] = piece;
         skip:
+            continue;
         }
     }
 }
@@ -641,7 +642,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
         State_ant_walk(state, piecei, piece, coords, crumbs);
         break;
 
-    case BEETLE:
+    case BEETLE: {
         bool on_top = state->grid[coords->q][coords->r] != piece;
 
         if (on_top) {
@@ -737,6 +738,7 @@ void State_derive_piece_moves(struct State* state, int piecei)
             }
         }
         break;
+    }
 
     case GRASSHOPPER:
         for (int d = 0; d < NUM_DIRECTIONS; d++) {
