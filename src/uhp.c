@@ -4,6 +4,7 @@
 
 #include "mcts.h"
 #include "state.h"
+#include "think.h"
 #include "uhp.h"
 
 #define PIECESTRING_SIZE 3
@@ -293,7 +294,21 @@ void bestmove(const char args[])
         return;
     }
 
-    // TODO
+    struct MCTSResults results;
+    // TODO specify number of workers with options
+    think(&state, &results, &options, 1);
+
+    const struct Action* selected_action;
+    if (results.presearch_action) {
+        selected_action = results.presearch_action;
+    } else {
+        selected_action = &state.actions[results.actioni];
+    }
+
+    char movestring[MOVESTRING_SIZE];
+    action_to_movestring(selected_action, movestring, 0);
+    printf("%s\n", movestring);
+    printf("ok\n");
 }
 
 void undo(const char args[])
