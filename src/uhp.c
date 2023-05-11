@@ -54,6 +54,12 @@ int coords_to_piecestring(const struct Coords* coords, char piecestring[])
     if (coords->q == PLACE_ACTION) {
         player_char = UHP_PLAYER_CHAR[state.turn];
         piece_char = UHP_PIECE_CHAR[coords->r];
+
+        for (int i = 0; i < state.piece_count[state.turn]; i++) {
+            if (state.pieces[state.turn][i].type == coords->r) {
+                piece_num++;
+            }
+        }
     } else {
         struct Piece* piece = state.grid[coords->q][coords->r];
 
