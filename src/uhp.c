@@ -257,11 +257,6 @@ void newgame(const char* args)
             args,
             "%m[^;];%m[^;];%m[^;];%m[^\n]",
             &gametypestring, &gamestatestring, &turnstring, &movestrings);
-        printf("n=%d\n", n);
-        printf("gametypestring=%s\n", gametypestring);
-        printf("gamestatestring=%s\n", gamestatestring);
-        printf("turnstring=%s\n", turnstring);
-        printf("movestrings=%s\n", movestrings);
 
         if (n != 3 && n != 4) {
             error("invalid argument to newgame");
