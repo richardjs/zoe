@@ -51,6 +51,7 @@ int coords_to_piecestring(const struct Coords* coords, char piecestring[])
     char player_char = 'x';
     char piece_char = 'x';
     int piece_num = 1;
+
     if (coords->q == PLACE_ACTION) {
         player_char = UHP_PLAYER_CHAR[state.turn];
         piece_char = UHP_PIECE_CHAR[coords->r];
@@ -122,8 +123,6 @@ enum Direction action_to_movestring(
     char movestring[],
     enum Direction starting_dir)
 {
-    // TODO add a variable for a starting value for reference_dir, so
-    // we can continue searching for other possible move strings
     if (action->from.q == PASS_ACTION) {
         strcpy(movestring, "pass");
         // Meaningless return value
@@ -144,7 +143,7 @@ enum Direction action_to_movestring(
 
     // Move on top of the hive
     if (state.grid[action->to.q][action->to.r]) {
-        size += coords_to_piecestring(&action->from, movestring);
+        size += coords_to_piecestring(&action->to, &movestring[size]);
         movestring[size++] = '\0';
         // Meaningless return value
         return NORTHWEST;

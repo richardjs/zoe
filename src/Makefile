@@ -7,6 +7,9 @@ objects=book.o coords.o examine.o mcts.o minimax.o simulate.o state.o stateio.o 
 ZOE_PORT ?= 8000
 
 
+default: zoe zoe_uhp
+
+
 zoe: $(objects)
 zoe_uhp: $(objects)
 
