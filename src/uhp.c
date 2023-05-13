@@ -214,6 +214,27 @@ bool act_movestring(const char movestring[])
     return true;
 }
 
+bool play(const char movestring[])
+{
+    if (movestring == NULL) {
+        error("no movestring");
+        return false;
+    }
+
+    if (!act_movestring(movestring)) {
+        return false;
+    }
+
+    strcpy(history[move_number].movestring, movestring);
+    move_number++;
+    if (move_number == allocated_size) {
+        allocated_size += HISTORY_CHUNK_SIZE;
+        history = realloc(history, allocated_size * sizeof(struct HistoryMove));
+    }
+
+    return true;
+}
+
 // Commands
 
 void info()
@@ -227,30 +248,53 @@ void newgame(const char* args)
     reset_game_data();
 
     if (args) {
-        // TODO
-    }
+        char* gametypestring = NULL;
+        char* gamestatestring = NULL;
+        char* turnstring = NULL;
+        char* movestrings = NULL;
 
-    print_gamestring();
-    printf("\n");
-    printf("ok\n");
-}
+        int n = sscanf(
+            args,
+            "%m[^;];%m[^;];%m[^;];%m[^\n]",
+            &gametypestring, &gamestatestring, &turnstring, &movestrings);
+        printf("n=%d\n", n);
+        printf("gametypestring=%s\n", gametypestring);
+        printf("gamestatestring=%s\n", gamestatestring);
+        printf("turnstring=%s\n", turnstring);
+        printf("movestrings=%s\n", movestrings);
 
-void play(const char movestring[])
-{
-    if (movestring == NULL) {
-        error("no movestring");
-        return;
-    }
+        if (n != 3 && n != 4) {
+            error("invalid argument to newgame");
+            free(gametypestring);
+            free(gamestatestring);
+            free(turnstring);
+            free(movestrings);
+            return;
+        }
 
-    if (!act_movestring(movestring)) {
-        return;
-    }
+        if (strcmp(gametypestring, "Base") != 0) {
+            error("not implemented");
+            free(gametypestring);
+            free(gamestatestring);
+            free(turnstring);
+            free(movestrings);
+            return;
+        }
 
-    strcpy(history[move_number].movestring, movestring);
-    move_number++;
-    if (move_number == allocated_size) {
-        allocated_size += HISTORY_CHUNK_SIZE;
-        history = realloc(history, allocated_size * sizeof(struct HistoryMove));
+        if (movestrings) {
+            char* movestring = strtok(movestrings, ";");
+            while (movestring != NULL) {
+                if (!play(movestring)) {
+                    error("illegal movestring in gamestring");
+                }
+                movestring = strtok(NULL, ";");
+            }
+        }
+
+        free(gametypestring);
+        free(gamestatestring);
+        free(turnstring);
+        free(movestrings);
     }
 
     print_gamestring();
@@ -284,6 +328,8 @@ void bestmove(const char args[])
     int n = sscanf(args, "%ms %ms", &limit_type, &limit_value);
     if (n != 2) {
         error("invalid limit");
+        free(limit_type);
+        free(limit_value);
         return;
     }
 
@@ -294,13 +340,18 @@ void bestmove(const char args[])
         options.iterations = atol(limit_value);
     } else if (strcmp(limit_type, "time") == 0) {
         error("not implemented");
+        free(limit_type);
+        free(limit_value);
         return;
     } else {
         error("bad limit specification");
+        free(limit_type);
+        free(limit_value);
         return;
     }
 
     struct MCTSResults results;
+    // TODO we're not seeding the PRNG at the moment
     // TODO specify number of workers with options
     think(&state, &results, &options, 1);
 
@@ -315,6 +366,9 @@ void bestmove(const char args[])
     action_to_movestring(selected_action, movestring, 0);
     printf("%s\n", movestring);
     printf("ok\n");
+
+    free(limit_type);
+    free(limit_value);
 }
 
 void undo(const char args[])
@@ -378,6 +432,10 @@ void uhp_loop()
             newgame(args);
         } else if (!strcmp(command, "play")) {
             play(args);
+            // play() is used internally, so finish up the command here
+            print_gamestring();
+            printf("\n");
+            printf("ok\n");
         } else if (!strcmp(command, "pass")) {
             play("pass");
         } else if (!strcmp(command, "validmoves")) {
