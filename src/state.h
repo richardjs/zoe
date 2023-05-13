@@ -8,16 +8,22 @@
 
 #define NUM_PLAYERS 2
 
-#define PLAYER_PIECES 11
-#define MAX_PIECES (PLAYER_PIECES * NUM_PLAYERS)
-#define GRID_SIZE 24
-
 #define NUM_PIECETYPES 5
 #define NUM_ANTS 3
 #define NUM_BEETLES 2
 #define NUM_GRASSHOPPERS 3
 #define NUM_SPIDERS 2
 #define NUM_QUEEN_BEES 1
+
+#define PLAYER_PIECES (NUM_ANTS + NUM_BEETLES + NUM_GRASSHOPPERS + NUM_SPIDERS + NUM_QUEEN_BEES)
+#define MAX_PIECES (PLAYER_PIECES * NUM_PLAYERS)
+#define GRID_SIZE (MAX_PIECES + 2)
+
+#define ANT_INDEX 0
+#define BEETLE_INDEX (ANT_INDEX + NUM_ANTS)
+#define GRASSHOPPER_INDEX (BEETLE_INDEX + NUM_BEETLES)
+#define SPIDER_INDEX (GRASSHOPPER_INDEX + NUM_GRASSHOPPERS)
+#define QUEEN_INDEX (SPIDER_INDEX + NUM_SPIDERS)
 
 /* Way-high estimate for max actions:
  * An ant on the end of a line of all pieces (greatest surface area)
@@ -50,6 +56,9 @@
 // If Action.from.q == PLACE_ACTION, it means the action is a place, with
 // Action.r = PieceType
 #define PLACE_ACTION (GRID_SIZE + 1)
+// TODO IN_HAND will probably replace PLACE_ACTION
+#define IN_HAND (GRID_SIZE + 1)
+
 // TODO support passing when no moves are possible
 #define PASS_ACTION (GRID_SIZE + 2)
 
@@ -59,6 +68,7 @@ enum Player {
     P1 = 0,
     P2
 };
+
 enum PieceType {
     ANT = 0,
     BEETLE,
@@ -66,6 +76,14 @@ enum PieceType {
     SPIDER,
     QUEEN_BEE
 };
+
+// Index for state.pieces
+extern const uint_fast8_t TYPE_INDEX[NUM_PIECETYPES];
+
+extern const uint_fast8_t TYPE_END[NUM_PIECETYPES];
+
+extern const uint_fast8_t TYPE_COUNT[NUM_PIECETYPES];
+
 enum Result {
     P1_WIN = 0,
     P2_WIN,
@@ -104,12 +122,8 @@ struct State {
 
     struct Action* winning_action;
 
-    struct Piece* queens[NUM_PLAYERS];
     struct Action* queen_moves[MAX_QUEEN_MOVES];
     uint_fast8_t queen_move_count;
-
-    struct Piece* beetles[NUM_PLAYERS][NUM_BEETLES];
-    uint_fast8_t beetle_count[NUM_PLAYERS];
 
     struct Action* piece_moves[PLAYER_PIECES][MAX_PIECE_MOVES];
     uint_fast16_t piece_move_count[PLAYER_PIECES];
@@ -153,10 +167,5 @@ void State_copy(const struct State* source, struct State* dest);
 void State_act(struct State* state, const struct Action* action);
 
 int State_hex_neighbor_count(const struct State* state, const struct Coords* coords);
-
-void State_count_cut_points(
-    const struct State* state,
-    const struct Coords* start_coords,
-    unsigned int cut_points[NUM_PLAYERS]);
 
 #endif

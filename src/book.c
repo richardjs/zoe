@@ -10,7 +10,7 @@ const struct Action* opening_move(const struct State* state)
 
     if (state->piece_count[P1] == 0 || state->piece_count[P2] == 0) {
         for (int i = 0; i < state->action_count; i++) {
-            switch (state->actions[i].from.r) {
+            switch (state->pieces[state->turn][state->actions[i].from.r].type) {
             case BEETLE:
             case GRASSHOPPER:
             case SPIDER:
