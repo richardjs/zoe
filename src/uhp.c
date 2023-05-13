@@ -63,6 +63,9 @@ int coords_to_piecestring(const struct Coords* coords, char piecestring[])
         }
     } else {
         struct Piece* piece = state.grid[coords->q][coords->r];
+        while (piece->on_top) {
+            piece = piece->on_top;
+        }
 
         player_char = UHP_PLAYER_CHAR[piece->player];
         piece_char = UHP_PIECE_CHAR[piece->type];
