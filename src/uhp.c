@@ -258,7 +258,7 @@ void newgame(const char* args)
             "%m[^;];%m[^;];%m[^;];%m[^\n]",
             &gametypestring, &gamestatestring, &turnstring, &movestrings);
 
-        if (n != 3 && n != 4) {
+        if (n != 1 && n != 3 && n != 4) {
             error("invalid argument to newgame");
             free(gametypestring);
             free(gamestatestring);
