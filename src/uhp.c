@@ -323,7 +323,7 @@ void bestmove(const char args[])
     char* limit_value = NULL;
     int n = sscanf(args, "%ms %ms", &limit_type, &limit_value);
     if (n != 2) {
-        error("invalid limit");
+        error("invalid limit type");
         free(limit_type);
         free(limit_value);
         return;
@@ -334,11 +334,21 @@ void bestmove(const char args[])
 
     if (strcmp(limit_type, "depth") == 0) {
         options.iterations = atol(limit_value);
+        options.seconds = 0;
     } else if (strcmp(limit_type, "time") == 0) {
-        error("not implemented");
-        free(limit_type);
-        free(limit_value);
-        return;
+        unsigned int hours;
+        unsigned int minutes;
+        unsigned int seconds;
+
+        n = sscanf(limit_value, "%u:%u:%u", &hours, &minutes, &seconds);
+        if (n != 3 ){
+            error("bad time specification");
+            free(limit_type);
+            free(limit_value);
+            return;
+        }
+        options.seconds = seconds + 60*minutes + 60*60*hours;
+        options.iterations = 0;
     } else {
         error("bad limit specification");
         free(limit_type);
