@@ -436,11 +436,12 @@ void uhp_loop()
         } else if (!strcmp(command, "newgame")) {
             newgame(args);
         } else if (!strcmp(command, "play")) {
-            play(args);
-            // play() is used internally, so finish up the command here
-            print_gamestring();
-            printf("\n");
-            printf("ok\n");
+            if (play(args)) {
+                // play() is used internally, so finish up the command here
+                print_gamestring();
+                printf("\n");
+                printf("ok\n");
+            }
         } else if (!strcmp(command, "pass")) {
             play("pass");
         } else if (!strcmp(command, "validmoves")) {
