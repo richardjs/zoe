@@ -67,8 +67,9 @@ void think(
         return;
     }
 
-    fprintf(stderr, "MCTS options:\titerations=%ld workers=%d uctc=%.2f\n",
+    fprintf(stderr, "MCTS options:\titerations=%ld seconds=%ld workers=%d uctc=%.2f\n",
         options->iterations,
+        options->seconds,
         workers,
         options->uctc);
     fprintf(stderr, "sim options:\tmax_depth=%d queen_adjacent_action_bias=%.2f queen_nearby_action_bias=%.2f queen_sidestep_bias=%.2f beetle_move_bias=%.2f cut_point_diff_terminate=%d\n",

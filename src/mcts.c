@@ -177,7 +177,7 @@ void mcts(const struct State* state,
     gettimeofday(&start, NULL);
 
     int last_actioni = -1;
-    for (int i = 0; i < options.iterations; i++) {
+    while (1) {
         struct State s;
         State_copy(state, &s);
         iterate(root, &s);
@@ -194,9 +194,23 @@ void mcts(const struct State* state,
         }
 
         if (last_actioni != results->actioni) {
-            results->stats.change_iterations = i + 1;
+            results->stats.change_iterations = results->stats.iterations;
         }
         last_actioni = results->actioni;
+
+        if (options.seconds) {
+            struct timeval now;
+            gettimeofday(&now, NULL);
+            uint64_t elapsed = now.tv_sec - start.tv_sec;
+            if (elapsed > options.seconds) {
+                break;
+            }
+        }
+        if (options.iterations) {
+            if (results->stats.iterations == options.iterations) {
+                break;
+            }
+        }
     }
 
     struct timeval end;

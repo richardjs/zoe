@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vnltsrxa:i:c:w:j:k:z:b:d:p:u:o:")) != -1) {
+    while ((opt = getopt(argc, argv, "vnltsrxa:i:c:w:j:k:z:b:d:p:u:o:e:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -80,6 +80,10 @@ int main(int argc, char* argv[])
         case 'i':
             options.iterations = atoi(optarg);
             minimax_options.depth = atoi(optarg);
+            break;
+
+        case 'e':
+            options.seconds = atoi(optarg);
             break;
 
         case 'c':

@@ -183,7 +183,6 @@ enum Direction action_to_movestring(
 
 int parse_movestring(const char movestring[])
 {
-    // TODO this only works for one representation of a move
     char test_movestring[MOVESTRING_SIZE];
     for (int i = 0; i < state.action_count; i++) {
         struct Action* action = &state.actions[i];
