@@ -136,7 +136,7 @@ enum Direction action_to_movestring(
 
     size += coords_to_piecestring(&action->from, movestring);
 
-    if (move_number == 0) {
+    if (state.turn == P1 && state.piece_count[P2] == 0) {
         movestring[size++] = '\0';
         // Meaningless return value
         return NORTHWEST;
@@ -192,7 +192,6 @@ int parse_movestring(const char movestring[])
 
             if (strcmp(movestring, test_movestring) == 0) {
                 return i;
-            } else {
             }
         }
     }
