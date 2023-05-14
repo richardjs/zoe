@@ -157,7 +157,6 @@ void think(
     State_copy(state, &after);
     State_act(&after, &state->actions[results->actioni]);
 
-    fprintf(stderr, "action:\t\t%s\n", action_string);
     fprintf(stderr, "score:\t\t%.2f\n", results->score);
 
     fprintf(stderr, "iterations:\t%ld\n", results->stats.iterations);
