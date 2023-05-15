@@ -109,6 +109,16 @@ float iterate(struct Node* root, struct State* state)
         return 1.0;
     }
 
+    // Somehow missed a winning action last iteration.
+    if (state->result == P1_WIN || state->result == P2_WIN) {
+        root->visits++;
+        float result = ((state->turn == P1 && P1_WIN) || (state->turn == P2 && P2_WIN))
+            ? 1.0
+            : -1.0;
+        root->value += result;
+        return result;
+    }
+
     if (state->result == DRAW) {
         return 0.0;
     }
