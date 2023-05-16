@@ -211,10 +211,7 @@ int main(int argc, char* argv[])
         selected_action = &state.actions[results.actioni];
     }
 
-    struct State after;
-    State_copy(&state, &after);
-    State_act(&after, selected_action);
-    State_print(&after, stderr);
+    Action_print(selected_action, stdout);
 
     return 0;
 }
