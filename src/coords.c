@@ -100,6 +100,9 @@ bool Coords_calc_adjacent(const struct Coords* coords, const struct Coords* othe
 
 bool Coords_map_adjacent(const struct Coords* coords, const struct Coords* other)
 {
+    if (coords->q == PLACE_ACTION || other->q == PLACE_ACTION) {
+        return false;
+    }
     return coords_adjacent_map[coords->q][coords->r][other->q][other->r];
 }
 
