@@ -340,13 +340,13 @@ void bestmove(const char args[])
         unsigned int seconds;
 
         n = sscanf(limit_value, "%u:%u:%u", &hours, &minutes, &seconds);
-        if (n != 3 ){
+        if (n != 3) {
             error("bad time specification");
             free(limit_type);
             free(limit_value);
             return;
         }
-        options.seconds = seconds + 60*minutes + 60*60*hours;
+        options.seconds = seconds + 60 * minutes + 60 * 60 * hours;
         options.iterations = 0;
     } else {
         error("bad limit specification");
