@@ -187,7 +187,7 @@ int parse_movestring(const char movestring[])
     for (int i = 0; i < state.action_count; i++) {
         struct Action* action = &state.actions[i];
         enum Direction dir = NORTH;
-        while (dir < NORTHWEST) {
+        while (dir <= NORTHWEST) {
             dir = action_to_movestring(action, test_movestring, dir) + 1;
 
             if (strcmp(movestring, test_movestring) == 0) {
