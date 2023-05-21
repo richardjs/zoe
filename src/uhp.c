@@ -162,6 +162,11 @@ enum Direction action_to_movestring(
         }
     }
 
+    if (reference_dir == NUM_DIRECTIONS) {
+        movestring[0] = '\0';
+        return reference_dir;
+    }
+
     switch (reference_dir) {
     case NORTH:
     case NORTHEAST:
