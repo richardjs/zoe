@@ -125,7 +125,9 @@ void State_add_action(struct State* state, int piecei,
             draw_action = true;
 
         } else {
-            // Remove the action from the stack and stop adding it
+            // Remove the action from the stack and stop adding it, but
+            // keep a reference to it (e.g for UHP validmoves)
+            state->actions[MAX_ACTIONS - 1 - state->losing_action_count++] = *action;
             state->action_count--;
             return;
         }
@@ -816,6 +818,7 @@ void State_derive_actions(struct State* state)
     state->beetle_move_count = 0;
 
     state->winning_action = NULL;
+    state->losing_action_count = 0;
 
     if (state->result != NO_RESULT) {
         return;

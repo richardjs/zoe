@@ -103,6 +103,7 @@ struct State {
     uint_fast16_t action_count;
 
     struct Action* winning_action;
+    uint_fast16_t losing_action_count;
 
     struct Piece* queens[NUM_PLAYERS];
     struct Action* queen_moves[MAX_QUEEN_MOVES];

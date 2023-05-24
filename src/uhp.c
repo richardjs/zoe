@@ -200,6 +200,17 @@ int parse_movestring(const char movestring[])
             }
         }
     }
+    for (int i = MAX_ACTIONS - 1; i > MAX_ACTIONS - 1 - state.losing_action_count; i--) {
+        struct Action* action = &state.actions[i];
+        enum Direction dir = NORTH;
+        while (dir <= NORTHWEST) {
+            dir = action_to_movestring(action, test_movestring, dir) + 1;
+
+            if (strcmp(movestring, test_movestring) == 0) {
+                return i;
+            }
+        }
+    }
 
     return -1;
 }
@@ -308,6 +319,11 @@ void validmoves()
     action_to_movestring(&state.actions[0], movestring, NORTH);
     printf("%s", movestring);
     for (int i = 1; i < state.action_count; i++) {
+        printf(";");
+        action_to_movestring(&state.actions[i], movestring, NORTH);
+        printf("%s", movestring);
+    }
+    for (int i = MAX_ACTIONS - 1; i > MAX_ACTIONS - 1 - state.losing_action_count; i--) {
         printf(";");
         action_to_movestring(&state.actions[i], movestring, NORTH);
         printf("%s", movestring);
